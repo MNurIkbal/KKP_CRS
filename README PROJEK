@@ -1,0 +1,59 @@
+README PROJEK
+
+Yang sudah dikerjakan
+
+1. HTML frontend 
+
+2. Login Admin
+
+3. Template Dashboard
+
+
+
+Yang perlu dikerjakan
+
+1. Master kekerasan (selesai)
+
+2. Master Dokumen Identitas (selesai)
+
+3. Transaksi Laporan (enkripsi paka AES256, pakai library laravel saja kalau ada)
+
+4. Log Laporan (enkripsi paka AES256, pakai library laravel saja kalau ada)
+
+5. Download laporan
+
+6. Master Kampus
+
+
+
+Yang perlu diubah
+
+1. Di form laporan frontend, file identitas tidak wajib
+
+2. Di admin ketika input progress, perlu ada penambahan tanggal deadline pekerjaan (pilih tgl di kalender)
+
+3. Hak akses adminkampus (admin login langsung tahu dia dari kampus mana)
+
+   - melihat laporan kampusnya saja
+
+4. Hak akses superadmin 
+
+   - bisa melihat user admin (bisa tambah, ubah, hapus, nonaktif)
+
+   - bisa melihat laporan per kampus
+
+https://club100jutagis.com:2083
+Username : u6595894
+Password : SkB2019sept19
+
+https://auth.niagahoster.co.id/login
+Username : Efendiyah00@yahoo.com
+Password : Efniaga100$
+
+Akun Gis
+club100juta.indonesia@gmail.com
+Efniaga100$
+
+kalau email gmail
+club100juta.indonesia@gmail.com
+skbfreedom2021

@@ -1,0 +1,13 @@
+/**
+ * @license Copyright (c) 2003-2022, CKSource Holding sp. z o.o. All rights reserved.
+ * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
+ */
+
+CKEDITOR.editorConfig = function( config ) {
+	config.toolbarGroups = [
+        { name: 'basic', groups: [ 'clipboard', 'undo','basicstyles','list','links' ] },
+		
+	];
+
+	config.removeButtons = 'Scayt,NewPage,Save,Templates,SelectAll,Checkbox,Form,Radio,TextField,Textarea,Select,Button,ImageButton,HiddenField,Language,BidiRtl,BidiLtr';
+};
