@@ -24,34 +24,83 @@
                         </div>
 
                         @if (Auth::user()->level == 'superadmin')
-                            <div class="mb-4 w-1/2">
-                                <label for="jenis_identitas" class="block mb-2 text-sm font-medium text-gray-900">
-                                    Kategori <span class="text-red-500">*</span>
-                                </label>
+                            <style>
+                                .form-row {
+                                    display: flex;
+                                    margin-bottom: 20px;
+                                }
 
-                                <div class="relative">
-                                    <select id="jenis_identitas" name="jenis_identitas" required
-                                        class="block w-full px-3 py-2 bg-gray-100 border border-gray-300 text-sm text-gray-900 rounded-lg focus:ring-pink-400 focus:border-pink-400 outline-none appearance-none cursor-pointer"
-                                        onchange="kirimDataJenisIdentitas(this.value)">
-                                        <option value="">Pilih</option>
-                                        <option value="Dosen">Dosen/Tenaga Pendidik</option>
-                                        <option value="Mahasiswa">Mahasiswa</option>
-                                        <option value="Mitra">Mitra</option>
-                                    </select>
+                                .form-col {
+                                    flex: 1;
+                                }
 
-                                    @error('jenis_identitas')
-                                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                                    @enderror
+                                .form-left {
+                                    flex: 1;
+                                    /* Kolom kiri 1x */
+                                }
+
+                                .form-right {
+                                    flex: 2;
+                                    /* Kolom kanan 2x */
+                                    display: flex;
+                                    gap: 20px;
+                                }
+
+                                .form-right .form-col {
+                                    flex: 1;
+                                    /* Bagi dua kanan */
+                                }
+                            </style>
+
+                            <form action="{{ url('adm/filter') }}" method="GET">
+                                @csrf
+                                <div class="form-row">
+                                    <!-- Kolom kiri -->
+                                    <div class="form-left">
+                                        <label for="kategori1" class="block mb-2 text-sm font-medium text-gray-900">
+                                            Perguruan Tinggi <span class="text-red-500">*</span>
+                                        </label>
+                                        <select id="kategori1" name="pt" required
+                                            class="select2 block w-full px-3 py-2 bg-gray-100 border border-gray-300 text-sm text-gray-900 rounded-lg focus:ring focus:ring-pink-400 focus:border-pink-400 outline-none">
+                                            <option value="">Pilih</option>
+                                            <option value="All">All</option>
+                                            @foreach ($universitas as $tiga)
+                                                <option value="{{ $tiga->id }}">{{ $tiga->nama }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
+                                    <!-- Kolom kanan (2 kolom) -->
+                                    <div class="form-right" style="margin-left: 10px;">
+                                        <div class="form-col">
+                                            <label for="kategori2" class="block mb-2 text-sm font-medium text-gray-900">
+                                                Jenis Kekerasan <span class="text-red-500">*</span>
+                                            </label>
+                                            <select id="kategori2" name="kekerasan" required
+                                                class="select2 block w-full px-3 py-2 bg-gray-100 border border-gray-300 text-sm text-gray-900 rounded-lg focus:ring focus:ring-pink-400 focus:border-pink-400 outline-none">
+                                                <option value="">Pilih</option>
+                                                <option value="All">All</option>
+                                                @foreach ($kekerasan as $dua)
+                                                    <option value="{{ $dua->id }}">{{ $dua->tipe_kekerasan }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        <div class="form-col">
+                                            <button class="btn btn-primary mt-4" type="submit">Filter</button>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
+                            </form>
+                            <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css"
+                                rel="stylesheet" />
+                            <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+                            <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
                             <script>
-                                function kirimDataJenisIdentitas(value) {
-                                    if (value) {
-                                        const link = "{{ url('adm/ganti_laporan') }}/" + value;
-                                        window.location.href = url;
-                                    }
-                                }
+                                $('.select2').select2({
+                                    width: '100%', // biar full lebar
+                                    placeholder: "Pilih opsi"
+                                });
                             </script>
                         @endif
 
@@ -62,18 +111,11 @@
                                     <tr>
                                         <th>No</th>
                                         <th>ID</th>
-                                        <th>Kode Laporan</th>
                                         <th>Nama Pelapor</th>
-                                        @if (Auth::user()->level == 'pt')
-                                            <th>Perguruan Tinggi</th>
-                                        @elseif (Auth::user()->level == 'superadmin')
-                                            <th>Perguruan Tinggi</th>
-                                            <th>Instansi Bekerja</th>
-                                        @else
-                                            <th>Instansi Bekerja</th>
-                                        @endif
+                                        <th>Perguruan Tinggi</th>
+                                        <th>Jenis Kekerasan</th>
                                         <th>Pelapor</th>
-                                        <th>Tanggal</th>
+                                        <th>Waktu</th>
                                         <th>Status</th>
                                         <th>Action</th>
                                     </tr>
@@ -83,36 +125,20 @@
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
                                             <td>{{ $data->id }}</td>
-                                            <td>{{ $data->kode_laporan }}</td>
                                             <td>{{ Illuminate\Support\Facades\Crypt::decryptString($data->nama) }}</td>
-                                            @if (Auth::user()->level == 'pt')
-                                                @if ($data->universitasRel)
-                                                    <td>{{ $data->universitasRel->nama }}</td>
-                                                @else
-                                                    <td></td>
-                                                @endif
-                                            @elseif (Auth::user()->level == 'superadmin')
-                                                @if ($data->universitasRel)
-                                                    <td>{{ $data->universitasRel->nama }}</td>
-                                                @else
-                                                    <td></td>
-                                                @endif
-                                                @if ($data->instansi_bekerja)
-                                                    <td>{{ Illuminate\Support\Facades\Crypt::decryptString($data->instansi_bekerja) }}
-                                                    </td>
-                                                @else
-                                                    <td></td>
-                                                @endif
+                                            @if ($data->universitasRel)
+                                                <td>{{ $data->universitasRel->nama }}</td>
                                             @else
-                                                @if ($data->instansi_bekerja)
-                                                    <td>{{ Illuminate\Support\Facades\Crypt::decryptString($data->instansi_bekerja) }}
-                                                    </td>
-                                                @else
-                                                    <td></td>
-                                                @endif
+                                                <td></td>
                                             @endif
+                                            <td>{{ $data->kekerasan->tipe_kekerasan ?? null }}</td>
                                             <td>{{ Illuminate\Support\Facades\Crypt::decryptString($data->pelapor) }}</td>
-                                            <td>{{ date('d, F Y H:i', strtotime($data->created_at)) }}</td>
+                                            <td>
+                                                {{ \Carbon\Carbon::parse($data->created_at)->diffInYears(now()) >= 5
+                                                    ? \Carbon\Carbon::parse($data->created_at)->format('d F Y')
+                                                    : \Carbon\Carbon::parse($data->created_at)->diffForHumans() }}
+
+                                            </td>
                                             <td>
                                                 @php
                                                     $level = Illuminate\Support\Facades\Crypt::decryptString(

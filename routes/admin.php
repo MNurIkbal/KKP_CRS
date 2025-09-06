@@ -17,6 +17,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('dashboard', 'App\Http\Controllers\Adm\DashboardController@index')->name('dashboard');
 
     Route::resource('laporan', 'App\Http\Controllers\Adm\LaporanController', ['name' => 'laporan']);
+    Route::get('filter',[LaporanController::class,'filter']);
     Route::get('tinjau_ulang/{id}', [LaporanController::class, 'tinjau_ulang']);
     Route::get('export_laporan',[LaporanController::class,'index']);
     Route::post('export_laporan',[LaporanController::class,'export_laporan']);

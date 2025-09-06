@@ -139,8 +139,43 @@ class LaporanController extends Controller
         } else {
             $laporan = Laporan::where('merge_laporan_id', null)->where('mitra', "Mitra")->orderby('created_at', 'DESC')->get();
         }
+        $universitas = Universitas::orderby('nama', 'ASC')->get();
+        $kekerasan = Kekerasan::all();
+        return view('Admin.laporan.index', compact('laporan', 'pagetitle', 'universitas', 'kekerasan'));
+    }
 
-        return view('Admin.laporan.index', compact('laporan', 'pagetitle'));
+    public function filter(Request $request)
+    {
+        $pt = $request->input('pt');
+        $kekerasan = $request->input('kekerasan');
+
+        $pagetitle = $this->pagetitle;
+
+        if (Auth::user()->level == 'superadmin') {
+            if ($pt == "All") {
+                $laporan = Laporan::where('merge_laporan_id', null)->where('jenis_kekerasan', $kekerasan)->orderby('created_at', 'DESC')->get();
+            } else {
+                $laporan = Laporan::where('merge_laporan_id', null)->where('jenis_kekerasan', $kekerasan)->where('universitas', $pt)->orderby('created_at', 'DESC')->get();
+            }
+
+            if ($kekerasan == "All") {
+                $laporan = Laporan::where('merge_laporan_id', null)->where('universitas', $pt)->orderby('created_at', 'DESC')->get();
+            } else {
+                $laporan = Laporan::where('merge_laporan_id', null)->where('jenis_kekerasan', $kekerasan)->where('universitas', $pt)->orderby('created_at', 'DESC')->get();
+            }
+
+            if($kekerasan == "All" && $pt == "All") {
+                $laporan = Laporan::where('merge_laporan_id', null)->orderby('created_at', 'DESC')->get();
+            }
+        } elseif (Auth::user()->level == "pt") {
+            $univ_id = Auth::user()->universitas_id;
+            $laporan = Laporan::where('merge_laporan_id', null)->where('universitas', $univ_id)->orderby('created_at', 'DESC')->get();
+        } else {
+            $laporan = Laporan::where('merge_laporan_id', null)->where('mitra', "Mitra")->orderby('created_at', 'DESC')->get();
+        }
+        $universitas = Universitas::orderby('nama', 'ASC')->get();
+        $kekerasan = Kekerasan::all();
+        return view('Admin.laporan.index', compact('laporan', 'pagetitle', 'universitas', 'kekerasan'));
     }
 
     public function chat_admin(Request $request)
@@ -194,7 +229,7 @@ class LaporanController extends Controller
     {
         $id = $request->input('id');
         $lap = LaporanLog::find($id);
-        $ma = Laporan::where('kode_laporan',$lap->kode_laporan)->first();
+        $ma = Laporan::where('kode_laporan', $lap->kode_laporan)->first();
         LaporanLog::where('id', $id)->delete();
         $pesan = Auth::user()->name . ' Menghapus log laporan dengan kode laporan ' . $ma->kode_laporan . ' dan atas nama' . Crypt::decryptString($ma->nama);
         $status = 'Menghapus Log Laporan';
@@ -467,7 +502,7 @@ class LaporanController extends Controller
         $akhir = $request->input('akhir');
 
         $level = Auth::user()->level;
-        if($level == "pt") {
+        if ($level == "pt") {
             $laporan = Laporan::whereBetween('created_at', [$mulai, $akhir])->count();
         } else {
             $laporan = Laporan::whereBetween('created_at', [$mulai, $akhir])->count();

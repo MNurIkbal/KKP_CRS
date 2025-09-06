@@ -28,6 +28,11 @@ class Laporan extends Model
     {
         return $this->belongsTo(DokumenIdentitas::class, 'jenis_identitas', 'id');
     }
+
+    public function kekerasan()
+    {
+        return $this->belongsTo(Kekerasan::class,'jenis_kekerasan');
+    }
 }
 
 
