@@ -121,7 +121,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($laporan as $data)
+                                    {{-- @foreach ($laporan as $data)
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
                                             <td>{{ $data->id }}</td>
@@ -208,7 +208,92 @@
                                             </td>
 
                                         </tr>
+                                    @endforeach --}}
+                                    @foreach ($laporan as $data)
+                                        @php
+                                            $status = Illuminate\Support\Facades\Crypt::decryptString($data->status_laporan);
+                                            $isOlderThan1Month =
+                                                Carbon\Carbon::parse($data->created_at)->diffInMonths(now()) >= 1;
+                                        @endphp
+
+                                        <tr @if ($status == 'Draf' && $isOlderThan1Month) class="table-danger" @endif>
+                                            <td>{{ $loop->iteration }}</td>
+                                            <td>{{ $data->id }}</td>
+                                            <td>{{ Illuminate\Support\Facades\Crypt::decryptString($data->nama) }}</td>
+
+                                            @if ($data->universitasRel)
+                                                <td>{{ $data->universitasRel->nama }}</td>
+                                            @else
+                                                <td></td>
+                                            @endif
+
+                                            <td>{{ $data->kekerasan->tipe_kekerasan ?? null }}</td>
+                                            <td>{{ Crypt::decryptString($data->pelapor) }}</td>
+                                            <td>
+                                                {{ Carbon\Carbon::parse($data->created_at)->diffInYears(now()) >= 5
+                                                    ? Carbon\Carbon::parse($data->created_at)->format('d F Y')
+                                                    : Carbon\Carbon::parse($data->created_at)->diffForHumans() }}
+                                            </td>
+                                            <td>
+                                                @if ($status == 'Selesai')
+                                                    <span class="badge badge-pill bg-success">{{ $status }}</span>
+                                                @elseif ($status == 'Laporan tidak sesuai dengan tindak kekerasan')
+                                                    <span class="badge badge-pill bg-danger">{{ $status }}</span>
+                                                @else
+                                                    <span class="badge badge-pill bg-primary">{{ $status }}</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if ($status == 'Diterima')
+                                                    <a href="{{ url('adm/update_status_laporan/' . '1/' . $data->kode_laporan) }}"
+                                                        class="btn btn-success" title="Diterima"><i
+                                                            class="fas fa-check"></i></a>
+                                                    <a href="#" class="btn btn-danger" data-bs-toggle="modal"
+                                                        data-bs-target="#mina{{ $data->id }}"
+                                                        title="Laporan tidak sesuai dengan tindak kekerasan"><i
+                                                            class="fas fa-times"></i></a>
+                                                    <div class="modal fade" id="mina{{ $data->id }}" tabindex="-1"
+                                                        role="dialog" aria-labelledby="exampleModalLabel"
+                                                        aria-hidden="true">
+                                                        <div class="modal-dialog modal-lg" role="document">
+                                                            <form method="POST" enctype="multipart/form-data"
+                                                                class="modal-content"
+                                                                action="{{ url('adm/update_status_laporans') }}">
+                                                                @csrf
+                                                                @method('PUT')
+                                                                <input type="hidden" name="id"
+                                                                    value="{{ $data->id }}">
+                                                                <div class="modal-header">
+                                                                    <h5 class="modal-title">Laporan Tidak Sesuai </h5>
+                                                                </div>
+                                                                <div class="modal-body">
+                                                                    <div class="form-group">
+                                                                        <label for="">Catatan *</label>
+                                                                        <textarea name="catatan" id="catatan" cols="30" class="form-control" required rows="5">{{ old('catatan') }}</textarea>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="modal-footer">
+                                                                    <button type="submit"
+                                                                        class="btn btn-primary">Simpan</button>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                @else
+                                                    <a class="" title="Detail"
+                                                        href="{{ route('laporan.show', ['laporan' => $data->kode_laporan]) }}"
+                                                        title="Lihat Log"><button type="button" class="btn btn-success"><i
+                                                                class="fas fa-eye"></i></button></a>&nbsp;
+                                                @endif
+
+                                                <a class="" title="Hapus"
+                                                    href="{{ url('adm/hapus_laporan/' . $data->kode_laporan) }}"
+                                                    title="Hapus"><button type="button" class="btn btn-danger"><i
+                                                            class="fas fa-trash"></i></button></a>&nbsp;
+                                            </td>
+                                        </tr>
                                     @endforeach
+
                                 </tbody>
                             </table>
                         </div>
