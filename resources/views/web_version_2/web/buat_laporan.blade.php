@@ -86,7 +86,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="text-field" class="form-label">Jenis Identitas
-                                     <span class="text-danger">*</span>
+                                    <span class="text-danger">*</span>
                                 </label>
 
                                 <select name="jenis_identitas"
@@ -193,6 +193,9 @@
                                     <option value="Dosen/Tenaga Pendidik"
                                         {{ old('kategori') == 'Dosen/Tenaga Pendidik' ? 'selected' : '' }}>Dosen/Tenaga
                                         Pendidik</option>
+                                    <option value="Dosen/Tenaga Pendidik"
+                                        {{ old('kategori') == 'Masyarakat' ? 'selected' : '' }}>Masyarakat
+                                    </option>
                                     <option value="Mitra" {{ old('kategori') == 'Mitra' ? 'selected' : '' }}>Mitra
                                     </option>
 
@@ -204,9 +207,8 @@
                             <div>
                                 <div class="form-group" id="instansiBekerja">
                                     <label for="text-field" class="form-label">Instansi Bekerja
-                                         <span class="text-danger">*</span>
+                                        <span class="text-danger">*</span>
                                     </label>
-
                                     <input
                                         class="form-control @error('bekerja')
                                         is-invalid
@@ -220,13 +222,14 @@
                                 </div>
                                 <div class="form-group" id="universitas">
                                     <label for="text-field" class="form-label">Perguruan Tinggi
-                                         <span class="text-danger">*</span>
+                                        <span class="text-danger">*</span>
                                     </label>
 
                                     <select name="universitas"
                                         class="form-control pelapors @error('universitas')
                                         is-invalid
-                                    @enderror" style="width: 100% !important">
+                                    @enderror"
+                                        style="width: 100% !important">
                                         <option value="">Pilih</option>
                                         @foreach ($universitas as $datauniv)
                                             <option value="{{ $datauniv->id }}"
@@ -241,7 +244,7 @@
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label for="text-field" class="form-label">Jenis Kelamin 
+                                <label for="text-field" class="form-label">Jenis Kelamin
                                     <span class="text-danger">*</span>
                                 </label>
                                 <br>
@@ -282,7 +285,7 @@
                                 @enderror
                             </div>
                             <div class="form-group">
-                                <label for="text-field" class="form-label">Tanggal Kejadian 
+                                <label for="text-field" class="form-label">Tanggal Kejadian
                                     <span class="text-danger">*</span>
                                 </label>
 
@@ -299,7 +302,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="text-field" class="form-label">Lokasi Kejadian
-                                     <span class="text-danger">*</span>
+                                    <span class="text-danger">*</span>
                                 </label>
 
                                 <input
@@ -314,7 +317,7 @@
                                 @enderror
                             </div>
                             <div class="form-group">
-                                <label for="text-field" class="form-label">Jenis Kekerasan 
+                                <label for="text-field" class="form-label">Jenis Kekerasan
                                     <span class="text-danger">*</span>
                                 </label>
 
@@ -341,7 +344,7 @@
                 <div class="row pl-4 pr-4">
                     <div class="col-md-12 col-lg-12 col-sm-12">
                         <div class="form-group">
-                            <label for="text-field" class="form-label">Kronologi Kejadian 
+                            <label for="text-field" class="form-label">Kronologi Kejadian
                                 <span class="text-danger">*</span>
                             </label>
 
@@ -372,12 +375,12 @@
                         <br>
                         <div class="form-group">
                             <label for="" class="form-label">Kode Captcha
-                                 <span class="text-danger">*</span>
-                            <input type="number"
-                                class="form-control w-100  @error('captcha')
+                                <span class="text-danger">*</span>
+                                <input type="number"
+                                    class="form-control w-100  @error('captcha')
                             is-invalid
                         @enderror"
-                                name="captcha" placeholder="Masukan Captcha" required>
+                                    name="captcha" placeholder="Masukan Captcha" required>
                         </div>
                         @error('captcha')
                             <small class="text-danger">{{ $message }}</small>
@@ -531,7 +534,6 @@
             const kategoriSelect = document.getElementById('kategori');
             ganti_kategori(kategoriSelect.value);
         });
-
     </script>
 
     <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/super-build/ckeditor.js"></script>

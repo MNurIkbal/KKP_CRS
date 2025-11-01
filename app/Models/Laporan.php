@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Laporan extends Model
 {
@@ -10,6 +11,7 @@ class Laporan extends Model
     protected $guarded = [];
     public $incrementing = false;
     protected $keyType = 'string';
+    use SoftDeletes;
 
     /**
      * Relasi One-to-Many: Satu laporan memiliki banyak log
@@ -19,7 +21,7 @@ class Laporan extends Model
         return $this->hasMany(LaporanLog::class, 'kode_laporan', 'kode_laporan');
     }
 
-   public function universitasRel()
+    public function universitasRel()
     {
         return $this->belongsTo(Universitas::class, 'universitas', 'id');
     }
@@ -31,8 +33,6 @@ class Laporan extends Model
 
     public function kekerasan()
     {
-        return $this->belongsTo(Kekerasan::class,'jenis_kekerasan');
+        return $this->belongsTo(Kekerasan::class, 'jenis_kekerasan');
     }
 }
-
-

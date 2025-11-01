@@ -12,8 +12,9 @@
 
 
 </style>
-<h4>Laporan dari {{ $mulai }} sampai {{ $akhir }}</h4>
-<table>
+<h1 style="text-align: center">LAPORAN MASUK CRS</h1>
+<h4 style="text-align: center">Laporan CRS mulai dari {{ $mulai }} sampai {{ $akhir }}</h4>
+<table style="border: 1px solid black">
     <thead>
         <tr>
             <th>ID</th>
@@ -30,12 +31,12 @@
             <th>Jenis Kekerasan</th>
             <th>Pelapor</th>
             <th>Kategori</th>
-            <th>Instansi Bekerja</th>
             <th>Nama Pendamping</th>
             <th>No Wa Pendamping</th>
             <th>Status</th>
             <th>Deskripsi Laporan</th>
             <th>Kronologi Kejadian</th>
+            <th>Tanggal Dibuat</th>
         </tr>
     </thead>
     <tbody>
@@ -65,6 +66,14 @@
                 @else
                     <td></td>
                 @endif
+                
+
+                @if ($item->universitasRel)
+                    <td>{{ $item->universitasRel->nama }}</td>
+                @else
+                    <td></td>
+                @endif
+                
 
                 @if ($item->no_hp)
                     <td>{{ Crypt::decryptString($item->no_hp) }}</td>
@@ -78,11 +87,12 @@
                     <td></td>
                 @endif
 
-                @if ($item->no_identitas)
-                    <td>{{ Crypt::decryptString($item->no_identitas) }}</td>
+                @if ($item)
+                    <td>{{  Crypt::decryptString($item->no_identitas) }}</td>
                 @else
                     <td></td>
                 @endif
+
 
                 @if ($item->tanggal_kejadian)
                     <td>{{ Crypt::decryptString($item->tanggal_kejadian) }}</td>
@@ -90,26 +100,15 @@
                     <td></td>
                 @endif
 
-                @if ($item->kronologi_kejadian)
-                    <td>{!! Crypt::decryptString($item->kronologi_kejadian) !!}</td>
-                @else
-                    <td></td>
-                @endif
-
                 @if ($item->lokasi_kejadian)
                     <td>{{ Crypt::decryptString($item->lokasi_kejadian) }}</td>
                 @else
                     <td></td>
                 @endif
 
-                @if ($item->lokasi_kejadian)
-                    <td>{{ Crypt::decryptString($item->lokasi_kejadian) }}</td>
-                @else
-                    <td></td>
-                @endif
-
+                
                 @if ($jenis_kekerasan)
-                    <td>{{  $jenis_kekerasan->jenis_kekerasan }}</td>
+                    <td>{{  $jenis_kekerasan->tipe_kekerasan }}</td>
                 @else
                     <td></td>
                 @endif
@@ -152,6 +151,11 @@
 
                 @if ($item->kronologi_kejadian)
                     <td>{!! Crypt::decryptString($item->kronologi_kejadian) !!}</td>
+                @else
+                    <td></td>
+                @endif
+                  @if ($item->created_at)
+                    <td>{{$item->created_at }}</td>
                 @else
                     <td></td>
                 @endif

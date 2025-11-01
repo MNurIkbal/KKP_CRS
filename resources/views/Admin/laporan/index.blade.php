@@ -134,10 +134,10 @@
                                             <td>{{ $data->kekerasan->tipe_kekerasan ?? null }}</td>
                                             <td>{{ Illuminate\Support\Facades\Crypt::decryptString($data->pelapor) }}</td>
                                             <td>
+                                                {{-- @dump($data->created_at) --}}
                                                 {{ \Carbon\Carbon::parse($data->created_at)->diffInYears(now()) >= 5
                                                     ? \Carbon\Carbon::parse($data->created_at)->format('d F Y')
                                                     : \Carbon\Carbon::parse($data->created_at)->diffForHumans() }}
-
                                             </td>
                                             <td>
                                                 @php
@@ -201,10 +201,18 @@
                                                             class="btn btn-success  "><i
                                                                 class="fas fa-eye"></i></button></a>&nbsp;
                                                 @endif
-                                                <a class="" title="Hapus"
-                                                    href="{{ url('adm/hapus_laporan/' . $data->kode_laporan) }}"
-                                                    title="Lihat Log"><button type="button" class="btn btn-danger  "><i
-                                                            class="fas fa-trash"></i></button></a>&nbsp;
+                                                {{-- <a class="" title="Hapus"
+                                                    href="{{ url('adm/hapus_laporan/' . $data->kode_laporan) }}" onclick="confirm('Apakah Anda Ingin Menghapus Data Ini?')"
+                                                    title="Lihat Log"><button class="btn btn-danger  "><i
+                                                            class="fas fa-trash"></i></button></a>&nbsp; --}}
+                                                <a href="{{ url('adm/hapus_laporan/' . $data->kode_laporan) }}"
+                                                    onclick="return confirm('Apakah Anda Ingin Menghapus Data Ini?')"
+                                                    class="" title="Hapus">
+                                                    <button class="btn btn-danger">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </a>
+
                                             </td>
 
                                         </tr>
