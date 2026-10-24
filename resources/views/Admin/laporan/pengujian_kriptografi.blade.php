@@ -241,44 +241,105 @@
                                         <code class="text-primary small d-block text-break font-monospace" style="font-size: 11px;">{{ $results['aes128']['sample_cipher_hex'] }}</code>
                                     </div>
 
-                                    <!-- Visualisasi Real Data State Matrix 4x4 Blok Pertama -->
+                                    <!-- Visualisasi Real Data State Matrix 4x4 Blok Pertama (Tab Enkripsi vs Dekripsi) -->
                                     @if (isset($results['aes128']['cipher_matrix']))
                                         <div class="border rounded-3 p-3 bg-white">
-                                            <div class="d-flex align-items-center justify-content-between mb-2">
-                                                <span class="text-xs fw-bold text-uppercase text-secondary">Visualisasi Transformasi Blok 1 (Riil)</span>
-                                                <span class="badge bg-primary-subtle text-primary" style="font-size: 10px;">16 Bytes (State Matrix)</span>
-                                            </div>
-                                            <div class="row g-2 text-center">
-                                                <div class="col-6">
-                                                    <small class="text-muted fw-bold d-block mb-1" style="font-size: 10px;">Plaintext Awal</small>
-                                                    <table class="table table-bordered text-center mb-0 font-monospace" style="font-size: 10.5px; background: #f8fafc;">
-                                                        <tbody>
-                                                            @foreach ($results['aes128']['plain_matrix'] as $row)
-                                                                <tr>
-                                                                    @foreach ($row as $byteHex)
-                                                                        <td class="p-1 text-dark" style="background: #f1f5f9; width: 25%;">{{ $byteHex }}</td>
+                                            <ul class="nav nav-pills nav-fill mb-2 p-1 bg-light rounded-pill" id="pills-tab-128" role="tablist" style="font-size: 11px;">
+                                                <li class="nav-item" role="presentation">
+                                                    <button class="nav-link active rounded-pill py-1 px-2 fw-bold" id="pills-enc-128-tab" data-bs-toggle="pill" data-bs-target="#pills-enc-128" type="button" role="tab">
+                                                        <i class="fas fa-lock me-1"></i> Visualisasi Enkripsi
+                                                    </button>
+                                                </li>
+                                                <li class="nav-item" role="presentation">
+                                                    <button class="nav-link rounded-pill py-1 px-2 fw-bold text-success" id="pills-dec-128-tab" data-bs-toggle="pill" data-bs-target="#pills-dec-128" type="button" role="tab">
+                                                        <i class="fas fa-unlock-keyhole me-1"></i> Visualisasi Dekripsi
+                                                    </button>
+                                                </li>
+                                            </ul>
+
+                                            <div class="tab-content" id="pills-tabContent-128">
+                                                <!-- Tab Enkripsi -->
+                                                <div class="tab-pane fade show active" id="pills-enc-128" role="tabpanel">
+                                                    <div class="d-flex align-items-center justify-content-between mb-2">
+                                                        <span class="text-xs fw-bold text-uppercase text-secondary">Proses Enkripsi: Plaintext &rarr; Ciphertext</span>
+                                                        <span class="badge bg-primary-subtle text-primary" style="font-size: 9.5px;">10 Putaran (Nr = 10)</span>
+                                                    </div>
+                                                    <div class="row g-2 text-center">
+                                                        <div class="col-6">
+                                                            <small class="text-muted fw-bold d-block mb-1" style="font-size: 10px;">Plaintext Awal</small>
+                                                            <table class="table table-bordered text-center mb-0 font-monospace" style="font-size: 10.5px; background: #f8fafc;">
+                                                                <tbody>
+                                                                    @foreach ($results['aes128']['plain_matrix'] as $row)
+                                                                        <tr>
+                                                                            @foreach ($row as $byteHex)
+                                                                                <td class="p-1 text-dark" style="background: #f1f5f9; width: 25%;">{{ $byteHex }}</td>
+                                                                            @endforeach
+                                                                        </tr>
                                                                     @endforeach
-                                                                </tr>
-                                                            @endforeach
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                                <div class="col-6">
-                                                    <small class="text-primary fw-bold d-block mb-1" style="font-size: 10px;">Ciphertext Hasil (10R)</small>
-                                                    <table class="table table-bordered text-center mb-0 font-monospace" style="font-size: 10.5px; background: #eff6ff;">
-                                                        <tbody>
-                                                            @foreach ($results['aes128']['cipher_matrix'] as $row)
-                                                                <tr>
-                                                                    @foreach ($row as $byteHex)
-                                                                        <td class="p-1 fw-bold text-primary" style="background: #dbeafe; width: 25%;">{{ $byteHex }}</td>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <small class="text-primary fw-bold d-block mb-1" style="font-size: 10px;">Ciphertext Terenkripsi</small>
+                                                            <table class="table table-bordered text-center mb-0 font-monospace" style="font-size: 10.5px; background: #eff6ff;">
+                                                                <tbody>
+                                                                    @foreach ($results['aes128']['cipher_matrix'] as $row)
+                                                                        <tr>
+                                                                            @foreach ($row as $byteHex)
+                                                                                <td class="p-1 fw-bold text-primary" style="background: #dbeafe; width: 25%;">{{ $byteHex }}</td>
+                                                                            @endforeach
+                                                                        </tr>
                                                                     @endforeach
-                                                                </tr>
-                                                            @endforeach
-                                                        </tbody>
-                                                    </table>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                    <small class="text-muted d-block text-center mt-2" style="font-size: 9.5px;">
+                                                        <i class="fas fa-arrows-rotate text-primary me-1"></i> Transformasi: <code>AddRoundKey &rarr; (SubBytes &rarr; ShiftRows &rarr; MixColumns &rarr; AddRoundKey)&times;9 &rarr; Final Round</code>
+                                                    </small>
+                                                </div>
+
+                                                <!-- Tab Dekripsi -->
+                                                <div class="tab-pane fade" id="pills-dec-128" role="tabpanel">
+                                                    <div class="d-flex align-items-center justify-content-between mb-2">
+                                                        <span class="text-xs fw-bold text-uppercase text-success">Proses Dekripsi: Ciphertext &rarr; Plaintext</span>
+                                                        <span class="badge bg-success-subtle text-success" style="font-size: 9.5px;">10 Putaran Balik (Inv)</span>
+                                                    </div>
+                                                    <div class="row g-2 text-center">
+                                                        <div class="col-6">
+                                                            <small class="text-secondary fw-bold d-block mb-1" style="font-size: 10px;">Ciphertext Masukan</small>
+                                                            <table class="table table-bordered text-center mb-0 font-monospace" style="font-size: 10.5px; background: #f8fafc;">
+                                                                <tbody>
+                                                                    @foreach ($results['aes128']['cipher_matrix'] as $row)
+                                                                        <tr>
+                                                                            @foreach ($row as $byteHex)
+                                                                                <td class="p-1 text-secondary" style="background: #f1f5f9; width: 25%;">{{ $byteHex }}</td>
+                                                                            @endforeach
+                                                                        </tr>
+                                                                    @endforeach
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <small class="text-success fw-bold d-block mb-1" style="font-size: 10px;">Plaintext Pulih (100%)</small>
+                                                            <table class="table table-bordered text-center mb-0 font-monospace" style="font-size: 10.5px; background: #f0fdf4;">
+                                                                <tbody>
+                                                                    @foreach ($results['aes128']['plain_matrix'] as $row)
+                                                                        <tr>
+                                                                            @foreach ($row as $byteHex)
+                                                                                <td class="p-1 fw-bold text-success" style="background: #dcfce7; width: 25%;">{{ $byteHex }}</td>
+                                                                            @endforeach
+                                                                        </tr>
+                                                                    @endforeach
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                    <small class="text-muted d-block text-center mt-2" style="font-size: 9.5px;">
+                                                        <i class="fas fa-check-double text-success me-1"></i> Transformasi Balik: <code>InvShiftRows &rarr; InvSubBytes &rarr; AddRoundKey &rarr; InvMixColumns</code> (Byte identik terpulihkan sempurna)
+                                                    </small>
                                                 </div>
                                             </div>
-                                            <small class="text-muted d-block text-center mt-2" style="font-size: 10px;"><i class="fas fa-microchip me-1 text-primary"></i> Transformasi 10 Putaran (SubBytes, ShiftRows, MixColumns, AddRoundKey)</small>
                                         </div>
                                     @endif
                                 </div>
@@ -338,44 +399,105 @@
                                         <code class="text-success small d-block text-break font-monospace" style="font-size: 11px;">{{ $results['aes256']['sample_cipher_hex'] }}</code>
                                     </div>
 
-                                    <!-- Visualisasi Real Data State Matrix 4x4 Blok Pertama -->
+                                    <!-- Visualisasi Real Data State Matrix 4x4 Blok Pertama (Tab Enkripsi vs Dekripsi) -->
                                     @if (isset($results['aes256']['cipher_matrix']))
                                         <div class="border rounded-3 p-3 bg-white">
-                                            <div class="d-flex align-items-center justify-content-between mb-2">
-                                                <span class="text-xs fw-bold text-uppercase text-secondary">Visualisasi Transformasi Blok 1 (Riil)</span>
-                                                <span class="badge bg-success-subtle text-success" style="font-size: 10px;">16 Bytes (State Matrix)</span>
-                                            </div>
-                                            <div class="row g-2 text-center">
-                                                <div class="col-6">
-                                                    <small class="text-muted fw-bold d-block mb-1" style="font-size: 10px;">Plaintext Awal</small>
-                                                    <table class="table table-bordered text-center mb-0 font-monospace" style="font-size: 10.5px; background: #f8fafc;">
-                                                        <tbody>
-                                                            @foreach ($results['aes256']['plain_matrix'] as $row)
-                                                                <tr>
-                                                                    @foreach ($row as $byteHex)
-                                                                        <td class="p-1 text-dark" style="background: #f1f5f9; width: 25%;">{{ $byteHex }}</td>
+                                            <ul class="nav nav-pills nav-fill mb-2 p-1 bg-light rounded-pill" id="pills-tab-256" role="tablist" style="font-size: 11px;">
+                                                <li class="nav-item" role="presentation">
+                                                    <button class="nav-link active rounded-pill py-1 px-2 fw-bold" id="pills-enc-256-tab" data-bs-toggle="pill" data-bs-target="#pills-enc-256" type="button" role="tab">
+                                                        <i class="fas fa-lock me-1"></i> Visualisasi Enkripsi
+                                                    </button>
+                                                </li>
+                                                <li class="nav-item" role="presentation">
+                                                    <button class="nav-link rounded-pill py-1 px-2 fw-bold text-success" id="pills-dec-256-tab" data-bs-toggle="pill" data-bs-target="#pills-dec-256" type="button" role="tab">
+                                                        <i class="fas fa-unlock-keyhole me-1"></i> Visualisasi Dekripsi
+                                                    </button>
+                                                </li>
+                                            </ul>
+
+                                            <div class="tab-content" id="pills-tabContent-256">
+                                                <!-- Tab Enkripsi -->
+                                                <div class="tab-pane fade show active" id="pills-enc-256" role="tabpanel">
+                                                    <div class="d-flex align-items-center justify-content-between mb-2">
+                                                        <span class="text-xs fw-bold text-uppercase text-secondary">Proses Enkripsi: Plaintext &rarr; Ciphertext</span>
+                                                        <span class="badge bg-success-subtle text-success" style="font-size: 9.5px;">14 Putaran (Nr = 14)</span>
+                                                    </div>
+                                                    <div class="row g-2 text-center">
+                                                        <div class="col-6">
+                                                            <small class="text-muted fw-bold d-block mb-1" style="font-size: 10px;">Plaintext Awal</small>
+                                                            <table class="table table-bordered text-center mb-0 font-monospace" style="font-size: 10.5px; background: #f8fafc;">
+                                                                <tbody>
+                                                                    @foreach ($results['aes256']['plain_matrix'] as $row)
+                                                                        <tr>
+                                                                            @foreach ($row as $byteHex)
+                                                                                <td class="p-1 text-dark" style="background: #f1f5f9; width: 25%;">{{ $byteHex }}</td>
+                                                                            @endforeach
+                                                                        </tr>
                                                                     @endforeach
-                                                                </tr>
-                                                            @endforeach
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                                <div class="col-6">
-                                                    <small class="text-success fw-bold d-block mb-1" style="font-size: 10px;">Ciphertext Hasil (14R)</small>
-                                                    <table class="table table-bordered text-center mb-0 font-monospace" style="font-size: 10.5px; background: #f0fdf4;">
-                                                        <tbody>
-                                                            @foreach ($results['aes256']['cipher_matrix'] as $row)
-                                                                <tr>
-                                                                    @foreach ($row as $byteHex)
-                                                                        <td class="p-1 fw-bold text-success" style="background: #dcfce7; width: 25%;">{{ $byteHex }}</td>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <small class="text-success fw-bold d-block mb-1" style="font-size: 10px;">Ciphertext Terenkripsi</small>
+                                                            <table class="table table-bordered text-center mb-0 font-monospace" style="font-size: 10.5px; background: #f0fdf4;">
+                                                                <tbody>
+                                                                    @foreach ($results['aes256']['cipher_matrix'] as $row)
+                                                                        <tr>
+                                                                            @foreach ($row as $byteHex)
+                                                                                <td class="p-1 fw-bold text-success" style="background: #dcfce7; width: 25%;">{{ $byteHex }}</td>
+                                                                            @endforeach
+                                                                        </tr>
                                                                     @endforeach
-                                                                </tr>
-                                                            @endforeach
-                                                        </tbody>
-                                                    </table>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                    <small class="text-muted d-block text-center mt-2" style="font-size: 9.5px;">
+                                                        <i class="fas fa-shield-halved text-success me-1"></i> Transformasi: <code>AddRoundKey &rarr; (SubBytes &rarr; ShiftRows &rarr; MixColumns &rarr; AddRoundKey)&times;13 &rarr; Final Round</code>
+                                                    </small>
+                                                </div>
+
+                                                <!-- Tab Dekripsi -->
+                                                <div class="tab-pane fade" id="pills-dec-256" role="tabpanel">
+                                                    <div class="d-flex align-items-center justify-content-between mb-2">
+                                                        <span class="text-xs fw-bold text-uppercase text-success">Proses Dekripsi: Ciphertext &rarr; Plaintext</span>
+                                                        <span class="badge bg-success-subtle text-success" style="font-size: 9.5px;">14 Putaran Balik (Inv)</span>
+                                                    </div>
+                                                    <div class="row g-2 text-center">
+                                                        <div class="col-6">
+                                                            <small class="text-secondary fw-bold d-block mb-1" style="font-size: 10px;">Ciphertext Masukan</small>
+                                                            <table class="table table-bordered text-center mb-0 font-monospace" style="font-size: 10.5px; background: #f8fafc;">
+                                                                <tbody>
+                                                                    @foreach ($results['aes256']['cipher_matrix'] as $row)
+                                                                        <tr>
+                                                                            @foreach ($row as $byteHex)
+                                                                                <td class="p-1 text-secondary" style="background: #f1f5f9; width: 25%;">{{ $byteHex }}</td>
+                                                                            @endforeach
+                                                                        </tr>
+                                                                    @endforeach
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <small class="text-success fw-bold d-block mb-1" style="font-size: 10px;">Plaintext Pulih (100%)</small>
+                                                            <table class="table table-bordered text-center mb-0 font-monospace" style="font-size: 10.5px; background: #f0fdf4;">
+                                                                <tbody>
+                                                                    @foreach ($results['aes256']['plain_matrix'] as $row)
+                                                                        <tr>
+                                                                            @foreach ($row as $byteHex)
+                                                                                <td class="p-1 fw-bold text-success" style="background: #dcfce7; width: 25%;">{{ $byteHex }}</td>
+                                                                            @endforeach
+                                                                        </tr>
+                                                                    @endforeach
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                    <small class="text-muted d-block text-center mt-2" style="font-size: 9.5px;">
+                                                        <i class="fas fa-check-double text-success me-1"></i> Transformasi Balik: <code>InvShiftRows &rarr; InvSubBytes &rarr; AddRoundKey &rarr; InvMixColumns</code> (Byte identik terpulihkan sempurna)
+                                                    </small>
                                                 </div>
                                             </div>
-                                            <small class="text-muted d-block text-center mt-2" style="font-size: 10px;"><i class="fas fa-shield-halved me-1 text-success"></i> Transformasi 14 Putaran (SubBytes, ShiftRows, MixColumns, AddRoundKey)</small>
                                         </div>
                                     @endif
                                 </div>
@@ -472,7 +594,117 @@
                         </div>
                     </div>
                 @endif
-            @endif
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="rounded-3 p-2 d-flex align-items-center justify-content-center" style="background: #f0fdf4; color: #16a34a; width: 40px; height: 40px;">
+                                <i class="fas fa-database fs-5"></i>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold text-dark mb-0">Riwayat Hasil Pengujian Kriptografi</h5>
+                                <small class="text-muted">Data tersimpan di tabel database tersendiri: <code>pengujian_kriptografi</code></small>
+                            </div>
+                        </div>
+                        <span class="badge bg-success-subtle text-success px-3 py-2 rounded-pill fw-bold">
+                            Total: {{ count($riwayatPengujian ?? []) }} Pengujian
+                        </span>
+                    </div>
+
+                    @if (isset($riwayatPengujian) && count($riwayatPengujian) > 0)
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0" style="font-size: 13px;">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="text-center" style="width: 50px;">#</th>
+                                        <th>Nama Berkas Uji</th>
+                                        <th>Ukuran & Blok</th>
+                                        <th>Mode Uji</th>
+                                        <th>Hasil AES-128 (Enc / Dec)</th>
+                                        <th>Hasil AES-256 (Enc / Dec)</th>
+                                        <th>Waktu Uji</th>
+                                        <th class="text-center" style="width: 80px;">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($riwayatPengujian as $idx => $item)
+                                        <tr>
+                                            <td class="text-center fw-bold text-muted">{{ $idx + 1 }}</td>
+                                            <td>
+                                                <div class="fw-bold text-dark">{{ $item->nama_file }}</div>
+                                                <small class="text-muted font-monospace">Kunci: {{ $item->password_sample }}</small>
+                                            </td>
+                                            <td>
+                                                <div class="fw-semibold text-primary">{{ $item->ukuran_formatted }}</div>
+                                                <small class="text-muted">{{ number_format($item->total_blok) }} Blok 16-B</small>
+                                            </td>
+                                            <td>
+                                                @if ($item->mode_pengujian === 'both')
+                                                    <span class="badge bg-indigo text-white px-2 py-1 rounded-pill" style="background: #4f46e5;">Komparasi</span>
+                                                @elseif ($item->mode_pengujian === 'aes128')
+                                                    <span class="badge bg-primary px-2 py-1 rounded-pill">AES-128</span>
+                                                @else
+                                                    <span class="badge bg-success px-2 py-1 rounded-pill">AES-256</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if ($item->aes128_waktu_enc !== null)
+                                                    <div class="d-flex align-items-center gap-1 mb-1">
+                                                        <span class="badge bg-light text-dark border" style="font-size: 11px;">
+                                                            <i class="fas fa-lock text-primary me-1"></i>{{ $item->aes128_waktu_enc }}s ({{ $item->aes128_throughput_enc }} MB/s)
+                                                        </span>
+                                                    </div>
+                                                    <div>
+                                                        <span class="badge bg-light text-success border" style="font-size: 11px;">
+                                                            <i class="fas fa-unlock-keyhole text-success me-1"></i>{{ $item->aes128_waktu_dec }}s ({{ $item->aes128_throughput_dec }} MB/s)
+                                                        </span>
+                                                    </div>
+                                                @else
+                                                    <span class="text-muted small">-</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if ($item->aes256_waktu_enc !== null)
+                                                    <div class="d-flex align-items-center gap-1 mb-1">
+                                                        <span class="badge bg-light text-dark border" style="font-size: 11px;">
+                                                            <i class="fas fa-lock text-success me-1"></i>{{ $item->aes256_waktu_enc }}s ({{ $item->aes256_throughput_enc }} MB/s)
+                                                        </span>
+                                                    </div>
+                                                    <div>
+                                                        <span class="badge bg-light text-success border" style="font-size: 11px;">
+                                                            <i class="fas fa-unlock-keyhole text-success me-1"></i>{{ $item->aes256_waktu_dec }}s ({{ $item->aes256_throughput_dec }} MB/s)
+                                                        </span>
+                                                    </div>
+                                                @else
+                                                    <span class="text-muted small">-</span>
+                                                @endif
+                                            </td>
+                                            <td class="text-muted" style="font-size: 12px;">
+                                                <i class="far fa-clock me-1"></i>
+                                                {{ \Carbon\Carbon::parse($item->created_at)->locale('id')->isoFormat('D MMM Y, HH:mm') }}
+                                            </td>
+                                            <td class="text-center">
+                                                <a href="{{ route('adm.hapus_pengujian_kriptografi', $item->id) }}" 
+                                                   class="btn btn-sm btn-outline-danger rounded-circle p-1" 
+                                                   style="width: 30px; height: 30px; line-height: 1;"
+                                                   onclick="return confirm('Hapus baris riwayat pengujian ini?')"
+                                                   title="Hapus Pengujian">
+                                                    <i class="fas fa-trash-can" style="font-size: 12px;"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @else
+                        <div class="text-center py-4 text-muted">
+                            <i class="fas fa-box-open fs-2 mb-2 d-block text-secondary"></i>
+                            <span>Belum ada data pengujian yang tersimpan di tabel database. Lakukan pengujian di formulir atas untuk menyimpan data secara otomatis.</span>
+                        </div>
+                    @endif
+                </div>
+            </div>
 
         </div>
     </div>

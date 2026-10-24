@@ -845,15 +845,72 @@ class LaporanController extends Controller
     }
 
     /**
+     * Memastikan tabel terpisah 'pengujian_kriptografi' tersedia di database
+     */
+    private function checkPengujianTable()
+    {
+        if (!\Illuminate\Support\Facades\Schema::hasTable('pengujian_kriptografi')) {
+            try {
+                \Illuminate\Support\Facades\Schema::create('pengujian_kriptografi', function (\Illuminate\Database\Schema\Blueprint $table) {
+                    $table->id();
+                    $table->string('nama_file');
+                    $table->bigInteger('ukuran_bytes');
+                    $table->string('ukuran_formatted');
+                    $table->integer('total_blok');
+                    $table->string('mode_pengujian'); // both, aes128, aes256
+                    $table->string('password_sample')->nullable();
+                    
+                    // AES-128
+                    $table->decimal('aes128_waktu_enc', 8, 4)->nullable();
+                    $table->decimal('aes128_waktu_dec', 8, 4)->nullable();
+                    $table->decimal('aes128_total_waktu', 8, 4)->nullable();
+                    $table->decimal('aes128_throughput_enc', 8, 2)->nullable();
+                    $table->decimal('aes128_throughput_dec', 8, 2)->nullable();
+                    $table->string('aes128_integritas')->nullable();
+                    
+                    // AES-256
+                    $table->decimal('aes256_waktu_enc', 8, 4)->nullable();
+                    $table->decimal('aes256_waktu_dec', 8, 4)->nullable();
+                    $table->decimal('aes256_total_waktu', 8, 4)->nullable();
+                    $table->decimal('aes256_throughput_enc', 8, 2)->nullable();
+                    $table->decimal('aes256_throughput_dec', 8, 2)->nullable();
+                    $table->string('aes256_integritas')->nullable();
+                    
+                    $table->text('sample_state_data')->nullable(); // JSON sample block & hex
+                    $table->unsignedBigInteger('user_id')->nullable();
+                    $table->timestamps();
+                });
+            } catch (\Exception $e) {}
+        }
+    }
+
+    /**
      * Halaman Pengujian Benchmark Enkripsi & Dekripsi AES-128 vs AES-256
      */
     public function pengujian_kriptografi()
     {
+        $this->checkPengujianTable();
+
         $pagetitle = "Pengujian Algoritma AES-128 & AES-256";
         $pengaturan = \App\Models\PengaturanModel::orderby('id', 'DESC')->first();
         $activeAlgo = $pengaturan->aes_algorithm ?? 'AES-128';
+        $riwayatPengujian = \App\Models\PengujianKriptografiModel::orderby('id', 'DESC')->get();
 
-        return view('Admin.laporan.pengujian_kriptografi', compact('pagetitle', 'activeAlgo'));
+        return view('Admin.laporan.pengujian_kriptografi', compact('pagetitle', 'activeAlgo', 'riwayatPengujian'));
+    }
+
+    /**
+     * Hapus riwayat pengujian kriptografi
+     */
+    public function hapus_pengujian_kriptografi($id)
+    {
+        $this->checkPengujianTable();
+        $item = \App\Models\PengujianKriptografiModel::find($id);
+        if ($item) {
+            $item->delete();
+            return redirect()->route('adm.pengujian_kriptografi')->with('success', 'Riwayat hasil pengujian berhasil dihapus.');
+        }
+        return redirect()->route('adm.pengujian_kriptografi')->with('error', 'Data tidak ditemukan.');
     }
 
     /**
@@ -1025,10 +1082,48 @@ class LaporanController extends Controller
             'total_blok_16' => ceil($fileSize / 16)
         ];
 
+        // Simpan Hasil Pengujian ke Tabel Terpisah 'pengujian_kriptografi'
+        $this->checkPengujianTable();
+        try {
+            $savedRecord = \App\Models\PengujianKriptografiModel::create([
+                'nama_file' => $fileName,
+                'ukuran_bytes' => $fileSize,
+                'ukuran_formatted' => $fileMetadata['ukuran_kb'] . ' (' . $fileMetadata['ukuran_mb'] . ')',
+                'total_blok' => $fileMetadata['total_blok_16'],
+                'mode_pengujian' => $mode,
+                'password_sample' => $password,
+                
+                // AES-128 Data
+                'aes128_waktu_enc' => isset($results['aes128']) ? floatval(str_replace(',', '', $results['aes128']['waktu_enkripsi'])) : null,
+                'aes128_waktu_dec' => isset($results['aes128']) ? floatval(str_replace(',', '', $results['aes128']['waktu_dekripsi'])) : null,
+                'aes128_total_waktu' => isset($results['aes128']) ? floatval(str_replace(',', '', $results['aes128']['total_waktu'])) : null,
+                'aes128_throughput_enc' => isset($results['aes128']) ? floatval(str_replace(',', '', $results['aes128']['throughput_enc'])) : null,
+                'aes128_throughput_dec' => isset($results['aes128']) ? floatval(str_replace(',', '', $results['aes128']['throughput_dec'])) : null,
+                'aes128_integritas' => isset($results['aes128']) ? $results['aes128']['integritas'] : null,
+                
+                // AES-256 Data
+                'aes256_waktu_enc' => isset($results['aes256']) ? floatval(str_replace(',', '', $results['aes256']['waktu_enkripsi'])) : null,
+                'aes256_waktu_dec' => isset($results['aes256']) ? floatval(str_replace(',', '', $results['aes256']['waktu_dekripsi'])) : null,
+                'aes256_total_waktu' => isset($results['aes256']) ? floatval(str_replace(',', '', $results['aes256']['total_waktu'])) : null,
+                'aes256_throughput_enc' => isset($results['aes256']) ? floatval(str_replace(',', '', $results['aes256']['throughput_enc'])) : null,
+                'aes256_throughput_dec' => isset($results['aes256']) ? floatval(str_replace(',', '', $results['aes256']['throughput_dec'])) : null,
+                'aes256_integritas' => isset($results['aes256']) ? $results['aes256']['integritas'] : null,
+                
+                'sample_state_data' => json_encode([
+                    'aes128_cipher_sample' => $results['aes128']['sample_cipher_hex'] ?? null,
+                    'aes256_cipher_sample' => $results['aes256']['sample_cipher_hex'] ?? null,
+                ]),
+                'user_id' => \Illuminate\Support\Facades\Auth::id() ?? null,
+            ]);
+        } catch (\Exception $e) {
+            // Abaikan jika ada error penyimpanan log
+        }
+
         $pagetitle = "Hasil Pengujian Enkripsi & Dekripsi AES";
         $pengaturan = \App\Models\PengaturanModel::orderby('id', 'DESC')->first();
         $activeAlgo = $pengaturan->aes_algorithm ?? 'AES-128';
+        $riwayatPengujian = \App\Models\PengujianKriptografiModel::orderby('id', 'DESC')->get();
 
-        return view('Admin.laporan.pengujian_kriptografi', compact('pagetitle', 'results', 'fileMetadata', 'mode', 'activeAlgo'));
+        return view('Admin.laporan.pengujian_kriptografi', compact('pagetitle', 'results', 'fileMetadata', 'mode', 'activeAlgo', 'riwayatPengujian'));
     }
 }

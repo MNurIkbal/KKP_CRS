@@ -77,5 +77,6 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('dekripsi_berkas/cara_kerja/{kode_laporan}', [LaporanController::class, 'cara_kerja_kriptografi'])->name('adm.kriptografi.cara_kerja');
     Route::get('pengujian_kriptografi', [LaporanController::class, 'pengujian_kriptografi'])->name('adm.pengujian_kriptografi');
     Route::post('proses_pengujian_kriptografi', [LaporanController::class, 'proses_pengujian_kriptografi'])->name('adm.proses_pengujian_kriptografi');
+    Route::get('hapus_pengujian_kriptografi/{id}', [LaporanController::class, 'hapus_pengujian_kriptografi'])->name('adm.hapus_pengujian_kriptografi');
     Route::post('proses_dekripsi_berkas', [LaporanController::class, 'proses_dekripsi_berkas'])->name('adm.proses_dekripsi_berkas');
 });
