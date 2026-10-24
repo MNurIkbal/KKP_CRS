@@ -1,28 +1,28 @@
 @extends('web_version_2.layout')
 @section('content')
-    <style>
+<style>
         @media screen and (max-width:770px) {
             .takut {
                 display: none;
-            }
+}
 
             .fontt {
                 font-size: 40px !important;
-            }
+}
         }
 
         @media screen and (max-width:500px) {
             .fontt {
                 font-size: 30px !important;
             }
-        }
+}
 
-    </style>
+</style>
     <!-- START HOME -->
     <section class="home_bg ripple"
         style="background-image: url({{ asset('img/Background-PUSAKA-2024.png') }});  background-size:cover; background-position: center center;">
-        <div class="container">
-            <div class="row">
+    <div class="container">
+        <div class="row">
                 <div class="col-lg-12 col-sm-12 col-xs-12 text-center">
                     <div class="hero-text">
                         <h1 class="fontt">Layanan Pengaduan CRS Satgas PPKPT LLDIKTI wilayah III</h1>
@@ -30,7 +30,7 @@
                             aman dan cepat
                             untuk memastikan perlindungan dan kesejahteraan semua pihak.</p>
                         <a href="{{ url('laporan/form') }}" class="page-scroll btn btn-default btn_one">Buat Laporan</a>
-                    </div>
+                </div>
                 </div><!--- END COL -->
             </div><!--- END ROW -->
         </div><!--- END CONTAINER -->
@@ -53,13 +53,13 @@
                         <img src="{{ asset('img/shield.jpg') }}" alt="" style="width: 100px;height: 100px;" />
                         <h4> Aman dan Rahasia</h4>
                         <p>Laporan Anda dijaga dengan ketat dan tidak akan disebarkan tanpa persetujuan Anda.</p>
-                    </div>
+        </div>
                 </div>
                 <div class="col-lg-3 col-sm-6 col-xs-12 no-padding">
                     <div class="about_single wow fadeInDown" data-wow-duration="1s" data-wow-delay="0.1s"
                         data-wow-offset="0">
                         <img src="{{ asset('img/sikolog.jpg') }}" alt="" style="width: 100px;height: 100px;" />
-                        <h4>Dukungan Psikologis</h4>
+                    <h4>Dukungan Psikologis</h4>
                         <p>Kami menyediakan layanan konseling gratis dari tenaga profesional untuk membantu pemulihan
                             trauma.</p>
                     </div>
@@ -70,32 +70,32 @@
                         <img src="{{ asset('img/hukum.jpg') }}" alt="" style="width: 100px;height: 100px;" />
                         <h4>Akses Hukum Cepat</h4>
                         <p>Tim hukum kami siap membantu Anda mengurus laporan dan perlindungan hukum dengan cepat.</p>
-                    </div>
+            </div>
                 </div>
                 <div class="col-lg-3 col-sm-6 col-xs-12 no-padding">
                     <div class="about_single wow fadeInRight" data-wow-duration="1s" data-wow-delay="0.1s"
                         data-wow-offset="0">
                         <img src="{{ asset('img/suport.jpg') }}" alt="" style="width: 100px;height: 100px;" />
-                        <h4>24/7 Support</h4>
+                    <h4>24/7 Support</h4>
                         <p>Kami siap mendengarkan dan membantu Anda kapan saja, termasuk di luar jam kerja.</p>
                     </div>
                 </div>
             </div><!--- END ROW -->
         </div><!--- END CONTAINER -->
-    </section>
+</section>
     <!-- END ABOUT FEATURE CONTENT -->
 
 
     <!--START SERVICE -->
     <div id="service" class="best-service section-padding">
-        <div class="container">
-            <div class="row">
+    <div class="container">
+        <div class="row">
                 <div class="col-md-12 text-center">
                     <div class="section-title">
                         <h2 class="section-title-white">Layanan Kami</h2>
                         <p class="section-title-white">Laporkan kekerasan dan diskriminasi melalui platform kami yang
                             menjamin keamanan, kerahasiaan, dan respons cepat.</p>
-                    </div>
+            </div>
                 </div>
             </div>
             <div class="row">
@@ -104,42 +104,42 @@
                         <img src="{{ asset('img/lap.png') }}" alt="" style="width: 100px;height: auto;" />
                         <h3>Buat Laporan</h3>
                         <p>Ceritakan keluhanmu dengan jelas agar kami bisa segera membantu!</p>
-                    </div>
+                </div>
                 </div><!--END COL -->
                 <div class="col-lg-4 col-sm-6 col-xs-12">
                     <div class="single_service ss_two">
                         <img src="{{ asset('img/sucre.jpg') }}" alt="" style="width: 100px;height: auto;" />
                         <h3>Laporan Terenkripsi</h3>
                         <p>Laporanmu aman. Data terenkripsi dari awal hingga akhir.</p>
-                    </div>
+            </div>
                 </div><!--END COL -->
                 <div class="col-lg-4 col-sm-6 col-xs-12">
                     <div class="single_service ss_three">
                         <img src="{{ asset('img/stas.jpg') }}" alt="" style="width: 100px;height: auto;" />
                         <h3>Pantau Status</h3>
                         <p>Cek status laporanmu kapan saja dengan mudah.</p>
-                    </div>
+                </div>
                 </div><!--END COL -->
                 <div class="col-lg-4 col-sm-6 col-xs-12">
                     <div class="single_service ss_four">
                         <img src="{{ asset('img/not.png') }}" alt="" style="width: 100px;height: auto;" />
                         <h3>Notifikasi Update</h3>
                         <p>Kami akan beri tahu setiap perkembangan terbaru laporanmu.</p>
-                    </div>
+            </div>
                 </div>
                 <div class="col-lg-4 col-sm-6 col-xs-12">
                     <div class="single_service ss_five">
                         <img src="{{ asset('img/private.jpg') }}" alt="" style="width: 100px;height: auto;" />
                         <h3>Privasi Terjamin</h3>
                         <p>Privasi dan keamanan datamu adalah prioritas kami.</p>
-                    </div>
+            </div>
                 </div><!--END COL -->
                 <div class="col-lg-4 col-sm-6 col-xs-12">
                     <div class="single_service ss_six">
                         <img src="{{ asset('img/feedback.jpg') }}" alt="" style="width: 100px;height: auto;" />
                         <h3>Feedback</h3>
                         <p>Berikan saran dan masukanmu untuk membantu kami menjadi lebih baik!</p>
-                    </div>
+        </div>
                 </div><!--END COL -->
             </div><!--END ROW -->
         </div><!--END CONTAINER -->
@@ -150,7 +150,7 @@
 
 
     <section class="process_area section-padding">
-        <div class="container">
+    <div class="container">
             <div class="section-title text-center">
                 <h2>Proses Membuat Laporan</h2>
                 <p>Pelaporan tindak kekerasan dilakukan melalui tahapan yang sistematis, mulai dari identifikasi kejadian
@@ -217,7 +217,7 @@
                 <div class="col-lg-12 text-center">
                     <div class="partner_title">
                         <h3>Kerja Sama</h3>
-                    </div>
+            </div>
                     <div class="partner">
                         <a><img src="{{ asset('img/logoUBL.png') }}" alt="image"
                                 style="width: 200px;height: 200px;object-fit: contain"></a>
@@ -242,7 +242,7 @@
                         <a><img src="{{ asset('img/44.png') }}" alt="image" style="width: 200px;height: 200px;object-fit: contain"></a>
                         <a><img src="{{ asset('img/gunadarma.png') }}" alt="image" style="width: 200px;height: 200px;object-fit: contain"></a>
                         <a><img src="{{ asset('img/said.png') }}" alt="image" style="width: 200px;height: 200px;object-fit: contain"></a>
-                    </div>
+        </div>
                 </div><!-- END COL  -->
             </div><!--END  ROW  -->
         </div><!-- END CONTAINER  -->

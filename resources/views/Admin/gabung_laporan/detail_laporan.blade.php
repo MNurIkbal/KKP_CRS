@@ -284,6 +284,8 @@
                                         <th>Deskripsi</th>
 
                                         <th>File</th>
+                                        <th>Waktu Enkripsi</th>
+                                        <th>Ukuran File</th>
 
                                         <th>Tanggal Batas Proses</th>
                                         @php
@@ -315,8 +317,8 @@
 
                                             <td>
                                                 @if ($data->upload_file)
-                                                    <a href="{{ asset(Illuminate\Support\Facades\Crypt::decryptString($data->upload_file)) }}"
-                                                        class="btn btn-primary" download="" target="_blank">
+                                                    <a href="{{ route('decrypt.form', ['file_path' => $data->upload_file, 'model_type' => 'log', 'model_id' => $data->id]) }}"
+                                                        class="btn btn-primary" target="_blank">
                                                         <i class="fas fa-download"></i>
                                                     </a>
                                                 @else
@@ -325,6 +327,8 @@
                                                     </a>
                                                 @endif
                                             </td>
+                                            <td>{{ $data->waktu_enkripsi ? $data->waktu_enkripsi . ' s' : '-' }}</td>
+                                            <td>{{ $data->ukuran_file ? $data->ukuran_file . ' MB' : '-' }}</td>
 
                                             <td>
                                                 @if ($data->tgl_batas_proses)

@@ -428,14 +428,44 @@ class LaporanController extends Controller
         $log->deskripsi_laporan = Crypt::encryptString($request->deskripsi_laporan);
         $log->status_laporan = Crypt::encryptString($status_laporan);
         $log->tgl_batas_proses = $request->tgl_batas_proses;
+        $password_file = $request->input('password_file');
+        $log->password_file = $password_file; // Store plaintext to recover key
+        $aesKey = substr(md5($password_file), 0, 16);
+        $totalTime = 0;
+        $totalSize = 0;
+
         if ($request->file('upload_file')) {
             $file = $request->file('upload_file');
             $nowTimestamp = now()->timestamp;
             $fileName = "{$nowTimestamp}-{$file->getClientOriginalName()}";
 
-            $file->move($this->folderLog, $fileName);
+            $sourcePath = $file->getPathname();
+            $fileSize = filesize($sourcePath);
+            $totalSize += $fileSize;
+
+            $startTime = microtime(true);
+            $aes = new \App\Helpers\AES($aesKey);
+            $mod = $fileSize % 16;
+            $banyak = ($mod == 0) ? ($fileSize / 16) : ((($fileSize - $mod) / 16) + 1);
+
+            $fileSource = fopen($sourcePath, 'rb');
+            $fileOutput = fopen(public_path($this->folderLog . $fileName), 'wb');
+            ini_set('max_execution_time', -1);
+            ini_set('memory_limit', -1);
+            for($bawah=0; $bawah<$banyak; $bawah++){
+                $data = fread($fileSource, 16);
+                $cipher = $aes->encrypt($data);
+                fwrite($fileOutput, $cipher);
+            }
+            fclose($fileSource);
+            fclose($fileOutput);
+
+            $endTime = microtime(true);
+            $totalTime += ($endTime - $startTime);
 
             $log->upload_file   = Crypt::encryptString($this->folderLog . $fileName);
+            $log->waktu_enkripsi = number_format($totalTime, 2);
+            $log->ukuran_file = number_format($totalSize / 1048576, 2);
         }
 
         if ($log->save()) {
@@ -480,7 +510,9 @@ class LaporanController extends Controller
                 'created_at'    =>  Carbon::now()
             ]);
 
-            return redirect()->route('laporan.show', $kode_laporan)->with('success', 'Log Berhasil Diinput');
+            $sizeInMB = number_format($totalSize / 1048576, 2);
+            $timeInSec = number_format($totalTime, 2);
+            return redirect()->route('laporan.show', $kode_laporan)->with('success', "Log Berhasil Diinput. Enkripsi sukses. Waktu: {$timeInSec}s, Ukuran: {$sizeInMB}MB");
         }
     }
 

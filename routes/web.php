@@ -42,6 +42,10 @@ Route::get('responselaporan', [HomeController::class, 'responselaporan'])->name(
 // Route ke fungsi status()
 Route::get('/laporan/status', [HomeController::class, 'status'])->name('status');
 
+// Decryption routes
+Route::get('/decrypt', [HomeController::class, 'decryptForm'])->name('decrypt.form');
+Route::post('/decrypt/process', [HomeController::class, 'decryptProcess'])->name('decrypt.process');
+
 Route::group(['middleware' => ['login']], function () {
 
     // Route ke login

@@ -454,6 +454,15 @@
                                                 @enderror
                                             </div>
 
+                                            <div class="form-group mb-3">
+                                                <label for="password_file">Password Enkripsi File <span class="text-danger">*</span></label>
+                                                <input type="password" name="password_file" id="password_file"
+                                                    class="form-control" required placeholder="Masukkan password untuk enkripsi">
+                                                @error('password_file')
+                                                    <small>{{ $message }}</small>
+                                                @enderror
+                                            </div>
+
                                             <!-- Input tanggal batas proses -->
 
                                             <div class="form-group">
@@ -509,6 +518,8 @@
                                         <th>Deskripsi</th>
 
                                         <th>File</th>
+                                        <th>Waktu Enkripsi</th>
+                                        <th>Ukuran File</th>
                                         @php
                                             $rr = Illuminate\Support\Facades\Crypt::decryptString(
                                                 $laporan->status_laporan,
@@ -540,8 +551,8 @@
 
                                             <td>
                                                 @if ($data->upload_file)
-                                                    <a href="{{ asset(Illuminate\Support\Facades\Crypt::decryptString($data->upload_file)) }}"
-                                                        class="btn btn-primary" download="" target="_blank">
+                                                    <a href="{{ route('decrypt.form', ['file_path' => $data->upload_file, 'model_type' => 'log', 'model_id' => $data->id]) }}"
+                                                        class="btn btn-primary" target="_blank">
                                                         <i class="fas fa-download"></i>
                                                     </a>
                                                 @else
@@ -550,6 +561,8 @@
                                                     </a>
                                                 @endif
                                             </td>
+                                            <td>{{ $data->waktu_enkripsi ? $data->waktu_enkripsi . ' s' : '-' }}</td>
+                                            <td>{{ $data->ukuran_file ? $data->ukuran_file . ' MB' : '-' }}</td>
 
                                             <td>
                                                 @if ($data->tgl_batas_proses)

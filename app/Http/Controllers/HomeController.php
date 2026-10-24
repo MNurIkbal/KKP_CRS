@@ -623,4 +623,86 @@ class HomeController extends Controller
             throw $e;
         }
     }
+
+    public function decryptForm(Request $request)
+    {
+        return view('decrypt_file');
+    }
+
+    public function decryptProcess(Request $request)
+    {
+        $request->validate([
+            'password_file' => 'required',
+            'file_path' => 'required',
+            'model_type' => 'required',
+            'model_id' => 'required'
+        ]);
+
+        $password = $request->input('password_file');
+        
+        $modelType = $request->input('model_type');
+        $modelId = $request->input('model_id');
+        $filePath = Crypt::decryptString($request->input('file_path'));
+        
+        if ($modelType !== 'log') {
+            return back()->with('error', 'Tipe file tidak valid untuk dekripsi.');
+        }
+
+        $log = LaporanLog::find($modelId);
+        if (!$log) return back()->with('error', 'Log tidak ditemukan.');
+
+        $dbPassword = $log->password_file;
+        $deskripsi = Crypt::decryptString($log->deskripsi_laporan);
+        
+        $words = explode(' ', trim($deskripsi));
+        $firstWord = $words[0];
+        $defaultPassword = 'CRS2026' . $firstWord;
+
+        if ($password !== $dbPassword && $password !== $defaultPassword) {
+            return back()->with('error', 'Maaf, Password tidak sesuai.');
+        }
+
+        $fullPath = public_path($filePath);
+        if (!file_exists($fullPath)) {
+            return back()->with('error', 'File tidak ditemukan di server.');
+        }
+
+        $startTime = microtime(true);
+        $fileSize = filesize($fullPath);
+        $hashInput = md5($dbPassword);
+        $aesKey = substr($hashInput, 0, 16);
+        $aes = new \App\Helpers\AES($aesKey);
+        
+        $mod = $fileSize % 16;
+        $banyak = ($mod == 0) ? ($fileSize / 16) : ((($fileSize - $mod) / 16) + 1);
+
+        $fileSource = fopen($fullPath, 'rb');
+        $plainContent = '';
+        
+        ini_set('max_execution_time', -1);
+        ini_set('memory_limit', -1);
+        for($bawah=0; $bawah<$banyak; $bawah++){
+            $data = fread($fileSource, 16);
+            $plainContent .= $aes->decrypt($data);
+        }
+        fclose($fileSource);
+
+        $endTime = microtime(true);
+        $timeTaken = number_format($endTime - $startTime, 2);
+        $sizeMB = number_format($fileSize / 1048576, 2);
+
+        $fileName = basename($fullPath);
+        // Clean padding if any (often null bytes in AES, but depends on implementation)
+        $plainContent = rtrim($plainContent, "\0");
+        
+        // Return file download
+        return response($plainContent)
+            ->header('Cache-Control', 'no-cache private')
+            ->header('Content-Description', 'File Transfer')
+            ->header('Content-Type', 'application/octet-stream')
+            ->header('Content-length', strlen($plainContent))
+            ->header('Content-Disposition', 'attachment; filename=' . $fileName)
+            ->header('Content-Transfer-Encoding', 'binary')
+            ->header('Set-Cookie', 'success_message=Dekripsi sukses. Waktu: '.$timeTaken.'s, Ukuran: '.$sizeMB.'MB; Path=/');
+    }
 }
