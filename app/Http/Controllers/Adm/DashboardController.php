@@ -21,15 +21,77 @@ class DashboardController extends Controller
         if (Auth::user()->level == 'superadmin') {
             $grafik = NotifBulanAdminModel::all();
 
-            
-            $laporanmasuk =  Laporan::all()->count();
-            $laporanselesai = Laporan::get()->filter(function ($laporan) {
-                return Crypt::decryptString($laporan->status_laporan) == 'Selesai';
+            $allLaporan = Laporan::with(['universitasRel', 'kekerasan'])->get();
+            $laporanmasuk = $allLaporan->count();
+
+            $laporanselesai = $allLaporan->filter(function ($laporan) {
+                try {
+                    return Crypt::decryptString($laporan->status_laporan) == 'Selesai';
+                } catch (\Exception $e) { return false; }
             })->count();
 
-            $laporanbelumselesai = Laporan::get()->filter(function ($laporan) {
-                return Crypt::decryptString($laporan->status_laporan) == 'Laporan tidak sesuai dengan tindak kekerasan';
+            $laporanbelumselesai = $allLaporan->filter(function ($laporan) {
+                try {
+                    return Crypt::decryptString($laporan->status_laporan) == 'Laporan tidak sesuai dengan tindak kekerasan';
+                } catch (\Exception $e) { return false; }
             })->count();
+
+            $laporandiproses = $allLaporan->filter(function ($laporan) {
+                try {
+                    $st = Crypt::decryptString($laporan->status_laporan);
+                    return $st != 'Selesai' && $st != 'Laporan tidak sesuai dengan tindak kekerasan';
+                } catch (\Exception $e) { return false; }
+            })->count();
+
+            // Total PT terdaftar
+            $totalUniv = \App\Models\Universitas::count();
+
+            // Total Berkas Terenkripsi AES
+            $totalBerkasTerenkripsi = $allLaporan->filter(function ($item) {
+                return !empty($item->upload_identitas) || !empty($item->upload_bukti);
+            })->count();
+
+            // Tren bulanan 6 bulan terakhir global
+            $months = collect([]);
+            for ($i = 5; $i >= 0; $i--) {
+                $m = Carbon::now()->subMonths($i)->format('Y-m');
+                $mLabel = Carbon::now()->subMonths($i)->translatedFormat('M Y');
+                $count = $allLaporan->filter(function ($item) use ($m) {
+                    return Carbon::parse($item->created_at)->format('Y-m') === $m;
+                })->count();
+                $countSelesai = $allLaporan->filter(function ($item) use ($m) {
+                    try {
+                        return Carbon::parse($item->created_at)->format('Y-m') === $m && Crypt::decryptString($item->status_laporan) == 'Selesai';
+                    } catch (\Exception $e) { return false; }
+                })->count();
+
+                $months->push([
+                    'bulan' => $mLabel,
+                    'total' => $count,
+                    'selesai' => $countSelesai
+                ]);
+            }
+            $superadminMonthly = $months;
+
+            // Sebaran jenis kekerasan global
+            $kekerasanCounts = [];
+            foreach ($allLaporan as $lp) {
+                $namaKekerasan = $lp->kekerasan->tipe_kekerasan ?? 'Lainnya';
+                if (!isset($kekerasanCounts[$namaKekerasan])) {
+                    $kekerasanCounts[$namaKekerasan] = 0;
+                }
+                $kekerasanCounts[$namaKekerasan]++;
+            }
+
+            // Status counts untuk donut chart
+            $statusCounts = [
+                'Diproses' => $laporandiproses,
+                'Selesai'  => $laporanselesai,
+                'Ditolak'  => $laporanbelumselesai,
+            ];
+
+            // 5 Laporan terbaru
+            $recentLaporan = $allLaporan->sortByDesc('created_at')->take(6);
         } elseif (Auth::user()->level == "pt") {
             $univ_id = Auth::user()->universitas_id;
             $ptLaporan = Laporan::where('universitas', $univ_id)->get();
@@ -162,10 +224,13 @@ class DashboardController extends Controller
         }
         $pelaporMonthly = $pelaporMonthly ?? collect([]);
         $ptMonthly = $ptMonthly ?? collect([]);
+        $superadminMonthly = $superadminMonthly ?? collect([]);
         $statusCounts = $statusCounts ?? [];
         $kekerasanCounts = $kekerasanCounts ?? [];
         $recentLaporan = $recentLaporan ?? collect([]);
         $laporandiproses = $laporandiproses ?? 0;
+        $totalUniv = $totalUniv ?? 0;
+        $totalBerkasTerenkripsi = $totalBerkasTerenkripsi ?? 0;
         $namaUniv = $namaUniv ?? '';
 
         return view('Admin/dashboard', compact(
@@ -173,10 +238,13 @@ class DashboardController extends Controller
             'laporanselesai',
             'laporanbelumselesai',
             'laporandiproses',
+            'totalUniv',
+            'totalBerkasTerenkripsi',
             'pagetitle',
             'grafik',
             'pelaporMonthly',
             'ptMonthly',
+            'superadminMonthly',
             'statusCounts',
             'kekerasanCounts',
             'recentLaporan',
