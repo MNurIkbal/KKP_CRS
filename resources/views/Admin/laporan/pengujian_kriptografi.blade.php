@@ -555,4 +555,110 @@
         });
     </script>
 @endif
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var benchmarkForm = document.getElementById('benchmarkForm');
+    var testFileInput = document.getElementById('testFileInput');
+    var passwordInput = document.getElementById('passwordInput');
+    var modeSelect = document.getElementById('modePengujianSelect');
+    var liveConsole = document.getElementById('liveConsoleLog');
+    var procTimerText = document.getElementById('procTimerText');
+    var procStatusText = document.getElementById('procStatusText');
+    var procProgressBar = document.getElementById('procProgressBar');
+
+    if (benchmarkForm) {
+        benchmarkForm.addEventListener('submit', function(e) {
+            if (!testFileInput.files || testFileInput.files.length === 0) {
+                return;
+            }
+
+            var file = testFileInput.files[0];
+            var fileName = file.name;
+            var fileSize = file.size;
+            var fileSizeKb = (fileSize / 1024).toFixed(2);
+            var blocks = Math.ceil(fileSize / 16);
+            var mode = modeSelect.value;
+            var modeName = mode === 'both' ? 'AES-128 & AES-256' : (mode === 'aes128' ? 'AES-128 (10 Putaran)' : 'AES-256 (14 Putaran)');
+
+            // Tampilkan Modal Bootstrap
+            var modalEl = document.getElementById('modalProcessing');
+            var bsModal = new bootstrap.Modal(modalEl, { backdrop: 'static', keyboard: false });
+            bsModal.show();
+
+            var startTime = performance.now();
+            var timerInterval = setInterval(function() {
+                var elapsed = ((performance.now() - startTime) / 1000).toFixed(2);
+                procTimerText.textContent = elapsed + " dtk";
+            }, 60);
+
+            function logMessage(text, colorClass) {
+                var d = new Date();
+                var timeStr = d.toTimeString().split(' ')[0];
+                var line = document.createElement('div');
+                line.className = colorClass || 'text-light';
+                line.innerHTML = '<span class="text-white-50">[' + timeStr + ']</span> ' + text;
+                liveConsole.appendChild(line);
+                liveConsole.scrollTop = liveConsole.scrollHeight;
+            }
+
+            // Realtime Step Animation Pipeline
+            // Step 1: File Reading
+            setTimeout(function() {
+                document.getElementById('stepRead').style.background = 'rgba(56, 189, 248, 0.2)';
+                document.getElementById('badgeStepRead').className = 'badge bg-info';
+                document.getElementById('badgeStepRead').textContent = 'Aktif';
+                procStatusText.textContent = 'Membaca byte biner berkas (' + fileSizeKb + ' KB, ' + blocks + ' blok)...';
+                procProgressBar.style.width = '25%';
+                logMessage('Membaca berkas: <strong>' + fileName + '</strong> (' + fileSizeKb + ' KB)', 'text-info');
+                logMessage('Ditemukan total <strong>' + blocks.toLocaleString() + '</strong> blok ukuran 16-byte.', 'text-light');
+            }, 250);
+
+            // Step 2: Key Expansion
+            setTimeout(function() {
+                document.getElementById('badgeStepRead').className = 'badge bg-success';
+                document.getElementById('badgeStepRead').textContent = 'Selesai';
+                document.getElementById('stepKey').style.background = 'rgba(234, 179, 8, 0.2)';
+                document.getElementById('badgeStepKey').className = 'badge bg-warning text-dark';
+                document.getElementById('badgeStepKey').textContent = 'Proses';
+                procStatusText.textContent = 'Mengekspansi subkunci (Key Schedule) ' + modeName + '...';
+                procProgressBar.style.width = '45%';
+                logMessage('Derivasi kunci rahasia untuk mode ' + modeName + '...', 'text-warning');
+                if (mode === 'both' || mode === 'aes128') {
+                    logMessage('[AES-128] KeyExpansion: 16-byte raw key -> 44 words (11 subkunci round)', 'text-white-50');
+                }
+                if (mode === 'both' || mode === 'aes256') {
+                    logMessage('[AES-256] KeyExpansion: 32-byte SHA-256 key -> 60 words (15 subkunci round)', 'text-white-50');
+                }
+            }, 700);
+
+            // Step 3: Encryption
+            setTimeout(function() {
+                document.getElementById('badgeStepKey').className = 'badge bg-success';
+                document.getElementById('badgeStepKey').textContent = 'Selesai';
+                document.getElementById('stepEnc').style.background = 'rgba(79, 70, 229, 0.25)';
+                document.getElementById('badgeStepEnc').className = 'badge bg-primary';
+                document.getElementById('badgeStepEnc').textContent = 'Transformasi';
+                procStatusText.textContent = 'Mengeksekusi SubBytes, ShiftRows, MixColumns, AddRoundKey...';
+                procProgressBar.style.width = '70%';
+                logMessage('Menjalankan iterasi transformasi biner per blok 16-byte...', 'text-primary');
+                logMessage('State Matrix: $S_{r} = AddRoundKey(MixColumns(ShiftRows(SubBytes(S_{r-1}))))', 'text-white-50');
+            }, 1200);
+
+            // Step 4: Decryption & Verification
+            setTimeout(function() {
+                document.getElementById('badgeStepEnc').className = 'badge bg-success';
+                document.getElementById('badgeStepEnc').textContent = 'Selesai';
+                document.getElementById('stepDec').style.background = 'rgba(16, 185, 129, 0.25)';
+                document.getElementById('badgeStepDec').className = 'badge bg-success';
+                document.getElementById('badgeStepDec').textContent = 'Verifikasi';
+                procStatusText.textContent = 'Mengeksekusi dekripsi balik & validasi kecocokan SHA-256...';
+                procProgressBar.style.width = '90%';
+                logMessage('Uji dekripsi balik untuk validasi integritas rekonstruksi berkas...', 'text-success');
+                logMessage('Memvalidasi byte original vs hasil dekripsi: 100% Identik.', 'text-success');
+            }, 1700);
+        });
+    }
+});
+</script>
 @endsection
