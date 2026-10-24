@@ -680,13 +680,54 @@
                                                 {{ \Carbon\Carbon::parse($item->created_at)->locale('id')->isoFormat('D MMM Y, HH:mm') }}
                                             </td>
                                             <td class="text-center">
-                                                <a href="{{ route('adm.hapus_pengujian_kriptografi', $item->id) }}" 
-                                                   class="btn btn-sm btn-outline-danger rounded-circle p-1" 
-                                                   style="width: 30px; height: 30px; line-height: 1;"
-                                                   onclick="return confirm('Hapus baris riwayat pengujian ini?')"
-                                                   title="Hapus Pengujian">
-                                                    <i class="fas fa-trash-can" style="font-size: 12px;"></i>
-                                                </a>
+                                                <div class="d-flex justify-content-center gap-1">
+                                                    <div class="dropdown">
+                                                        <button class="btn btn-sm btn-outline-secondary rounded-circle p-1" style="width: 28px; height: 28px; line-height: 1;" type="button" data-bs-toggle="dropdown" title="Unduh Berkas Hasil">
+                                                            <i class="fas fa-download" style="font-size: 11px;"></i>
+                                                        </button>
+                                                        <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3 p-2" style="font-size: 12px; min-width: 230px;">
+                                                            <li><h6 class="dropdown-header text-uppercase text-muted py-1" style="font-size: 10px;">Berkas Terenkripsi (.rda)</h6></li>
+                                                            @if ($item->aes128_waktu_enc !== null)
+                                                                <li>
+                                                                    <a class="dropdown-item py-1 rounded-2 text-primary" href="{{ route('adm.download_pengujian_file', ['id' => $item->id, 'type' => 'cipher', 'algo' => 'cipher128']) }}">
+                                                                        <i class="fas fa-file-shield me-2"></i> Unduh Ciphertext AES-128 (.rda)
+                                                                    </a>
+                                                                </li>
+                                                            @endif
+                                                            @if ($item->aes256_waktu_enc !== null)
+                                                                <li>
+                                                                    <a class="dropdown-item py-1 rounded-2 text-success" href="{{ route('adm.download_pengujian_file', ['id' => $item->id, 'type' => 'cipher', 'algo' => 'cipher256']) }}">
+                                                                        <i class="fas fa-file-shield me-2"></i> Unduh Ciphertext AES-256 (.rda)
+                                                                    </a>
+                                                                </li>
+                                                            @endif
+                                                            <li><hr class="dropdown-divider my-1"></li>
+                                                            <li><h6 class="dropdown-header text-uppercase text-muted py-1" style="font-size: 10px;">Berkas Terdekripsi (Pulih)</h6></li>
+                                                            @if ($item->aes128_waktu_enc !== null)
+                                                                <li>
+                                                                    <a class="dropdown-item py-1 rounded-2 text-dark" href="{{ route('adm.download_pengujian_file', ['id' => $item->id, 'type' => 'plain', 'algo' => 'cipher128']) }}">
+                                                                        <i class="fas fa-file-circle-check me-2 text-primary"></i> Unduh Dekripsi AES-128
+                                                                    </a>
+                                                                </li>
+                                                            @endif
+                                                            @if ($item->aes256_waktu_enc !== null)
+                                                                <li>
+                                                                    <a class="dropdown-item py-1 rounded-2 text-dark" href="{{ route('adm.download_pengujian_file', ['id' => $item->id, 'type' => 'plain', 'algo' => 'cipher256']) }}">
+                                                                        <i class="fas fa-file-circle-check me-2 text-success"></i> Unduh Dekripsi AES-256
+                                                                    </a>
+                                                                </li>
+                                                            @endif
+                                                        </ul>
+                                                    </div>
+
+                                                    <a href="{{ route('adm.hapus_pengujian_kriptografi', $item->id) }}" 
+                                                       class="btn btn-sm btn-outline-danger rounded-circle p-1" 
+                                                       style="width: 28px; height: 28px; line-height: 1;"
+                                                       onclick="return confirm('Hapus baris riwayat pengujian ini?')"
+                                                       title="Hapus Pengujian">
+                                                        <i class="fas fa-trash-can" style="font-size: 11px;"></i>
+                                                    </a>
+                                                </div>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -888,5 +929,26 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+// Fungsi Download Berkas Hasil Pengujian yang baru selesai diuji
+function downloadCipherFile(algo) {
+    @if (isset($savedId) && $savedId)
+        var fileKey = algo === 'aes128' ? 'cipher128' : 'cipher256';
+        var url = "{{ url('adm/download_pengujian_file') }}/{{ $savedId }}/cipher/" + fileKey;
+        window.location.href = url;
+    @else
+        alert('Silakan pilih berkas dari Riwayat Pengujian di bawah untuk mengunduh.');
+    @endif
+}
+
+function downloadPlainFile(algo) {
+    @if (isset($savedId) && $savedId)
+        var fileKey = algo === 'aes128' ? 'cipher128' : 'cipher256';
+        var url = "{{ url('adm/download_pengujian_file') }}/{{ $savedId }}/plain/" + fileKey;
+        window.location.href = url;
+    @else
+        alert('Silakan pilih berkas dari Riwayat Pengujian di bawah untuk mengunduh.');
+    @endif
+}
 </script>
 @endsection
