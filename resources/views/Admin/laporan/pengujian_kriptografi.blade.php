@@ -176,23 +176,40 @@
                                     @if (isset($results['aes128']['cipher_matrix']))
                                         <div class="border rounded-3 p-3 bg-white">
                                             <div class="d-flex align-items-center justify-content-between mb-2">
-                                                <span class="text-xs fw-bold text-uppercase text-secondary">Visualisasi State Matrix 4x4 Blok 1 (Riil)</span>
-                                                <span class="badge bg-primary-subtle text-primary" style="font-size: 10px;">16 Bytes</span>
+                                                <span class="text-xs fw-bold text-uppercase text-secondary">Visualisasi Transformasi Blok 1 (Riil)</span>
+                                                <span class="badge bg-primary-subtle text-primary" style="font-size: 10px;">16 Bytes (State Matrix)</span>
                                             </div>
-                                            <div class="d-flex justify-content-center">
-                                                <table class="table table-bordered text-center mb-0 font-monospace" style="max-width: 220px; font-size: 11px; background: #f8fafc;">
-                                                    <tbody>
-                                                        @foreach ($results['aes128']['cipher_matrix'] as $row)
-                                                            <tr>
-                                                                @foreach ($row as $byteHex)
-                                                                    <td class="p-1 fw-bold text-primary" style="background: #eff6ff; width: 25%;">{{ $byteHex }}</td>
-                                                                @endforeach
-                                                            </tr>
-                                                        @endforeach
-                                                    </tbody>
-                                                </table>
+                                            <div class="row g-2 text-center">
+                                                <div class="col-6">
+                                                    <small class="text-muted fw-bold d-block mb-1" style="font-size: 10px;">Plaintext Awal</small>
+                                                    <table class="table table-bordered text-center mb-0 font-monospace" style="font-size: 10.5px; background: #f8fafc;">
+                                                        <tbody>
+                                                            @foreach ($results['aes128']['plain_matrix'] as $row)
+                                                                <tr>
+                                                                    @foreach ($row as $byteHex)
+                                                                        <td class="p-1 text-dark" style="background: #f1f5f9; width: 25%;">{{ $byteHex }}</td>
+                                                                    @endforeach
+                                                                </tr>
+                                                            @endforeach
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                                <div class="col-6">
+                                                    <small class="text-primary fw-bold d-block mb-1" style="font-size: 10px;">Ciphertext Hasil (10R)</small>
+                                                    <table class="table table-bordered text-center mb-0 font-monospace" style="font-size: 10.5px; background: #eff6ff;">
+                                                        <tbody>
+                                                            @foreach ($results['aes128']['cipher_matrix'] as $row)
+                                                                <tr>
+                                                                    @foreach ($row as $byteHex)
+                                                                        <td class="p-1 fw-bold text-primary" style="background: #dbeafe; width: 25%;">{{ $byteHex }}</td>
+                                                                    @endforeach
+                                                                </tr>
+                                                            @endforeach
+                                                        </tbody>
+                                                    </table>
+                                                </div>
                                             </div>
-                                            <small class="text-muted d-block text-center mt-2" style="font-size: 10.5px;">State Matrix Ciphertext Blok 1 Hasil Enkripsi AES-128</small>
+                                            <small class="text-muted d-block text-center mt-2" style="font-size: 10px;"><i class="fas fa-microchip me-1 text-primary"></i> Transformasi 10 Putaran (SubBytes, ShiftRows, MixColumns, AddRoundKey)</small>
                                         </div>
                                     @endif
                                 </div>
@@ -256,23 +273,40 @@
                                     @if (isset($results['aes256']['cipher_matrix']))
                                         <div class="border rounded-3 p-3 bg-white">
                                             <div class="d-flex align-items-center justify-content-between mb-2">
-                                                <span class="text-xs fw-bold text-uppercase text-secondary">Visualisasi State Matrix 4x4 Blok 1 (Riil)</span>
-                                                <span class="badge bg-success-subtle text-success" style="font-size: 10px;">16 Bytes</span>
+                                                <span class="text-xs fw-bold text-uppercase text-secondary">Visualisasi Transformasi Blok 1 (Riil)</span>
+                                                <span class="badge bg-success-subtle text-success" style="font-size: 10px;">16 Bytes (State Matrix)</span>
                                             </div>
-                                            <div class="d-flex justify-content-center">
-                                                <table class="table table-bordered text-center mb-0 font-monospace" style="max-width: 220px; font-size: 11px; background: #f8fafc;">
-                                                    <tbody>
-                                                        @foreach ($results['aes256']['cipher_matrix'] as $row)
-                                                            <tr>
-                                                                @foreach ($row as $byteHex)
-                                                                    <td class="p-1 fw-bold text-success" style="background: #ecfdf5; width: 25%;">{{ $byteHex }}</td>
-                                                                @endforeach
-                                                            </tr>
-                                                        @endforeach
-                                                    </tbody>
-                                                </table>
+                                            <div class="row g-2 text-center">
+                                                <div class="col-6">
+                                                    <small class="text-muted fw-bold d-block mb-1" style="font-size: 10px;">Plaintext Awal</small>
+                                                    <table class="table table-bordered text-center mb-0 font-monospace" style="font-size: 10.5px; background: #f8fafc;">
+                                                        <tbody>
+                                                            @foreach ($results['aes256']['plain_matrix'] as $row)
+                                                                <tr>
+                                                                    @foreach ($row as $byteHex)
+                                                                        <td class="p-1 text-dark" style="background: #f1f5f9; width: 25%;">{{ $byteHex }}</td>
+                                                                    @endforeach
+                                                                </tr>
+                                                            @endforeach
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                                <div class="col-6">
+                                                    <small class="text-success fw-bold d-block mb-1" style="font-size: 10px;">Ciphertext Hasil (14R)</small>
+                                                    <table class="table table-bordered text-center mb-0 font-monospace" style="font-size: 10.5px; background: #f0fdf4;">
+                                                        <tbody>
+                                                            @foreach ($results['aes256']['cipher_matrix'] as $row)
+                                                                <tr>
+                                                                    @foreach ($row as $byteHex)
+                                                                        <td class="p-1 fw-bold text-success" style="background: #dcfce7; width: 25%;">{{ $byteHex }}</td>
+                                                                    @endforeach
+                                                                </tr>
+                                                            @endforeach
+                                                        </tbody>
+                                                    </table>
+                                                </div>
                                             </div>
-                                            <small class="text-muted d-block text-center mt-2" style="font-size: 10.5px;">State Matrix Ciphertext Blok 1 Hasil Enkripsi AES-256</small>
+                                            <small class="text-muted d-block text-center mt-2" style="font-size: 10px;"><i class="fas fa-shield-halved me-1 text-success"></i> Transformasi 14 Putaran (SubBytes, ShiftRows, MixColumns, AddRoundKey)</small>
                                         </div>
                                     @endif
                                 </div>
