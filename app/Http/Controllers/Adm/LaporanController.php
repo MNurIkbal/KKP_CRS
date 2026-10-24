@@ -843,4 +843,192 @@ class LaporanController extends Controller
 
         return view('Admin.laporan.cara_kerja_kriptografi', compact('pagetitle', 'laporan', 'fileIdentitasInfo', 'fileBuktiInfo', 'kriptoInfo', 'stepTrace'));
     }
+
+    /**
+     * Halaman Pengujian Benchmark Enkripsi & Dekripsi AES-128 vs AES-256
+     */
+    public function pengujian_kriptografi()
+    {
+        $pagetitle = "Pengujian Algoritma AES-128 & AES-256";
+        $pengaturan = \App\Models\PengaturanModel::orderby('id', 'DESC')->first();
+        $activeAlgo = $pengaturan->aes_algorithm ?? 'AES-128';
+
+        return view('Admin.laporan.pengujian_kriptografi', compact('pagetitle', 'activeAlgo'));
+    }
+
+    /**
+     * Proses pengujian eksekusi enkripsi & dekripsi berkas secara riil
+     */
+    public function proses_pengujian_kriptografi(Request $request)
+    {
+        $request->validate([
+            'test_file' => 'required|file|max:5120', // Maksimal 5 MB
+            'password_kunci' => 'required|min:4',
+            'mode_pengujian' => 'required|in:both,aes128,aes256',
+        ], [
+            'test_file.required' => 'Silakan pilih berkas dokumen yang ingin diuji.',
+            'test_file.max' => 'Ukuran berkas maksimal untuk pengujian adalah 5 MB.',
+            'password_kunci.required' => 'Kunci / Password pengujian wajib diisi.',
+            'password_kunci.min' => 'Kunci minimal 4 karakter.',
+        ]);
+
+        $file = $request->file('test_file');
+        $fileName = $file->getClientOriginalName();
+        $sourcePath = $file->getPathname();
+        $fileSize = filesize($sourcePath);
+        $password = $request->input('password_kunci');
+        $mode = $request->input('mode_pengujian');
+
+        ini_set('max_execution_time', -1);
+        ini_set('memory_limit', -1);
+
+        $results = [];
+
+        // 1. Pengujian AES-128 (10 Putaran, Kunci 16 Bytes)
+        if ($mode === 'both' || $mode === 'aes128') {
+            $key128 = substr(md5($password), 0, 16);
+            $aes128Engine = new \App\Helpers\AES($key128);
+
+            // Ukur Waktu Enkripsi
+            $fileSource = fopen($sourcePath, 'rb');
+            $cipher128 = '';
+            $mod = $fileSize % 16;
+            $banyak = ($mod == 0) ? ($fileSize / 16) : ((($fileSize - $mod) / 16) + 1);
+
+            $startEnc = microtime(true);
+            for ($b = 0; $b < $banyak; $b++) {
+                $block = fread($fileSource, 16);
+                $cipher128 .= $aes128Engine->encrypt($block);
+            }
+            $endEnc = microtime(true);
+            fclose($fileSource);
+            $encTime128 = $endEnc - $startEnc;
+
+            // Ukur Waktu Dekripsi
+            $cipherLen = strlen($cipher128);
+            $cipherBlocks = $cipherLen / 16;
+            $plain128 = '';
+
+            $startDec = microtime(true);
+            for ($b = 0; $b < $cipherBlocks; $b++) {
+                $cipherBlock = substr($cipher128, $b * 16, 16);
+                $plain128 .= $aes128Engine->decrypt($cipherBlock);
+            }
+            $endDec = microtime(true);
+            $decTime128 = $endDec - $startDec;
+
+            // Verifikasi Integritas
+            $originalContent = file_get_contents($sourcePath);
+            $isMatch128 = (rtrim($plain128, "\0") === rtrim($originalContent, "\0"));
+
+            // Cuplikan real data blok ke-1 untuk visualisasi State Matrix 4x4
+            $sampleCipher128Blocks = [];
+            for ($i = 0; $i < min(16, strlen($cipher128)); $i++) {
+                $sampleCipher128Blocks[] = strtoupper(sprintf('%02x', ord($cipher128[$i])));
+            }
+            $samplePlain128Blocks = [];
+            for ($i = 0; $i < min(16, strlen($plain128)); $i++) {
+                $samplePlain128Blocks[] = strtoupper(sprintf('%02x', ord($plain128[$i])));
+            }
+
+            $results['aes128'] = [
+                'nama_algoritma' => 'AES-128 bit',
+                'panjang_kunci' => '128 bit (16 bytes)',
+                'jumlah_putaran' => '10 Rounds',
+                'waktu_enkripsi' => number_format($encTime128, 4),
+                'waktu_dekripsi' => number_format($decTime128, 4),
+                'total_waktu' => number_format($encTime128 + $decTime128, 4),
+                'throughput_enc' => ($encTime128 > 0) ? number_format(($fileSize / 1048576) / $encTime128, 2) : '0',
+                'throughput_dec' => ($decTime128 > 0) ? number_format(($fileSize / 1048576) / $decTime128, 2) : '0',
+                'integritas' => $isMatch128 ? 'Valid (100% Identik)' : 'Korup / Tidak Sesuai',
+                'status_valid' => $isMatch128,
+                'sample_cipher_hex' => strtoupper(bin2hex(substr($cipher128, 0, 32))),
+                'sample_plain_hex' => strtoupper(bin2hex(substr($plain128, 0, 32))),
+                'cipher_matrix' => array_chunk($sampleCipher128Blocks, 4),
+                'plain_matrix' => array_chunk($samplePlain128Blocks, 4),
+                'key_hex' => strtoupper(bin2hex($key128))
+            ];
+        }
+
+        // 2. Pengujian AES-256 (14 Putaran, Kunci 32 Bytes SHA-256)
+        if ($mode === 'both' || $mode === 'aes256') {
+            $key256 = hash('sha256', $password, true);
+            $aes256Engine = new \App\Helpers\AES256($key256);
+
+            // Ukur Waktu Enkripsi
+            $fileSource = fopen($sourcePath, 'rb');
+            $cipher256 = '';
+            $mod = $fileSize % 16;
+            $banyak = ($mod == 0) ? ($fileSize / 16) : ((($fileSize - $mod) / 16) + 1);
+
+            $startEnc = microtime(true);
+            for ($b = 0; $b < $banyak; $b++) {
+                $block = fread($fileSource, 16);
+                $cipher256 .= $aes256Engine->encrypt($block);
+            }
+            $endEnc = microtime(true);
+            fclose($fileSource);
+            $encTime256 = $endEnc - $startEnc;
+
+            // Ukur Waktu Dekripsi
+            $cipherLen = strlen($cipher256);
+            $cipherBlocks = $cipherLen / 16;
+            $plain256 = '';
+
+            $startDec = microtime(true);
+            for ($b = 0; $b < $cipherBlocks; $b++) {
+                $cipherBlock = substr($cipher256, $b * 16, 16);
+                $plain256 .= $aes256Engine->decrypt($cipherBlock);
+            }
+            $endDec = microtime(true);
+            $decTime256 = $endDec - $startDec;
+
+            // Verifikasi Integritas
+            $originalContent = file_get_contents($sourcePath);
+            $isMatch256 = (rtrim($plain256, "\0") === rtrim($originalContent, "\0"));
+
+            // Cuplikan real data blok ke-1 untuk visualisasi State Matrix 4x4
+            $sampleCipher256Blocks = [];
+            for ($i = 0; $i < min(16, strlen($cipher256)); $i++) {
+                $sampleCipher256Blocks[] = strtoupper(sprintf('%02x', ord($cipher256[$i])));
+            }
+            $samplePlain256Blocks = [];
+            for ($i = 0; $i < min(16, strlen($plain256)); $i++) {
+                $samplePlain256Blocks[] = strtoupper(sprintf('%02x', ord($plain256[$i])));
+            }
+
+            $results['aes256'] = [
+                'nama_algoritma' => 'AES-256 bit',
+                'panjang_kunci' => '256 bit (32 bytes SHA-256)',
+                'jumlah_putaran' => '14 Rounds (FIPS 197)',
+                'waktu_enkripsi' => number_format($encTime256, 4),
+                'waktu_dekripsi' => number_format($decTime256, 4),
+                'total_waktu' => number_format($encTime256 + $decTime256, 4),
+                'throughput_enc' => ($encTime256 > 0) ? number_format(($fileSize / 1048576) / $encTime256, 2) : '0',
+                'throughput_dec' => ($decTime256 > 0) ? number_format(($fileSize / 1048576) / $decTime256, 2) : '0',
+                'integritas' => $isMatch256 ? 'Valid (100% Identik)' : 'Korup / Tidak Sesuai',
+                'status_valid' => $isMatch256,
+                'sample_cipher_hex' => strtoupper(bin2hex(substr($cipher256, 0, 32))),
+                'sample_plain_hex' => strtoupper(bin2hex(substr($plain256, 0, 32))),
+                'cipher_matrix' => array_chunk($sampleCipher256Blocks, 4),
+                'plain_matrix' => array_chunk($samplePlain256Blocks, 4),
+                'key_hex' => strtoupper(bin2hex($key256))
+            ];
+        }
+
+        $fileMetadata = [
+            'nama_file' => $fileName,
+            'ukuran_bytes' => $fileSize,
+            'ukuran_kb' => number_format($fileSize / 1024, 2) . ' KB',
+            'ukuran_mb' => number_format($fileSize / 1048576, 3) . ' MB',
+            'password_kunci' => $password,
+            'total_blok_16' => ceil($fileSize / 16)
+        ];
+
+        $pagetitle = "Hasil Pengujian Enkripsi & Dekripsi AES";
+        $pengaturan = \App\Models\PengaturanModel::orderby('id', 'DESC')->first();
+        $activeAlgo = $pengaturan->aes_algorithm ?? 'AES-128';
+
+        return view('Admin.laporan.pengujian_kriptografi', compact('pagetitle', 'results', 'fileMetadata', 'mode', 'activeAlgo'));
+    }
 }

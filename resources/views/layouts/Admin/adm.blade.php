@@ -817,10 +817,18 @@
                         @endif
 
                         <li>
-                            <a href="{{ route('adm.dekripsi_berkas') }}" class="waves-effect {{ request()->is('adm/dekripsi_berkas') ? 'active' : '' }}">
+                            <a href="{{ route('adm.dekripsi_berkas') }}" class="waves-effect {{ request()->is('adm/dekripsi_berkas*') ? 'active' : '' }}">
                                 <span><i class="fas fa-lock-open text-warning"></i> Enkripsi & Dekripsi</span>
                             </a>
                         </li>
+
+                        @if (Auth::user()->level == 'superadmin')
+                            <li>
+                                <a href="{{ route('adm.pengujian_kriptografi') }}" class="waves-effect {{ request()->is('adm/pengujian_kriptografi*') ? 'active' : '' }}">
+                                    <span><i class="fas fa-flask-vial text-info"></i> Pengujian AES</span>
+                                </a>
+                            </li>
+                        @endif
 
                         @if (Auth::user()->level != 'pelapor')
                             <li>

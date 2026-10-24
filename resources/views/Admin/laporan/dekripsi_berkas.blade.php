@@ -255,7 +255,10 @@
                 <p class="text-muted mb-0" style="font-size: 12.5px;">Buka berkas ciphertext asli secara aman menggunakan kunci enkripsi AES-256</p>
             </div>
         </div>
-        <div>
+        <div class="d-flex align-items-center gap-2">
+            <a href="{{ route('adm.pengujian_kriptografi') }}" class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-bold">
+                <i class="fas fa-flask-vial me-1"></i> Uji Benchmark AES
+            </a>
             <span class="badge bg-light text-secondary border px-3 py-2 fw-semibold">
                 <i class="fas fa-database me-1 text-primary"></i> Total: <strong>{{ $laporans->count() }}</strong> Dokumen
             </span>
