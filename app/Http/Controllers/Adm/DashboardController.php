@@ -31,14 +31,65 @@ class DashboardController extends Controller
                 return Crypt::decryptString($laporan->status_laporan) == 'Laporan tidak sesuai dengan tindak kekerasan';
             })->count();
         } elseif (Auth::user()->level == "pt") {
-            $laporanmasuk =  Laporan::where('universitas', Auth::user()->universitas_id)->get()->count();
-            $laporanselesai =  Laporan::where('universitas', Auth::user()->universitas_id)->get()->filter(function ($laporan) {
-                return Crypt::decryptString($laporan->status_laporan) == 'Selesai';
+            $univ_id = Auth::user()->universitas_id;
+            $ptLaporan = Laporan::where('universitas', $univ_id)->get();
+            $laporanmasuk = $ptLaporan->count();
+
+            $laporanselesai = $ptLaporan->filter(function ($laporan) {
+                try {
+                    return Crypt::decryptString($laporan->status_laporan) == 'Selesai';
+                } catch (\Exception $e) { return false; }
             })->count();
-            $laporanbelumselesai = Laporan::where('universitas', Auth::user()->universitas_id)->get()->filter(function ($laporan) {
-                return Crypt::decryptString($laporan->status_laporan) == 'Laporan tidak sesuai dengan tindak kekerasan';
+
+            $laporanbelumselesai = $ptLaporan->filter(function ($laporan) {
+                try {
+                    return Crypt::decryptString($laporan->status_laporan) == 'Laporan tidak sesuai dengan tindak kekerasan';
+                } catch (\Exception $e) { return false; }
             })->count();
-            $grafik = NotifBulanModel::where('universitas_id',Auth::user()->universitas_id)->get();
+
+            $laporandiproses = $ptLaporan->filter(function ($laporan) {
+                try {
+                    $st = Crypt::decryptString($laporan->status_laporan);
+                    return $st != 'Selesai' && $st != 'Laporan tidak sesuai dengan tindak kekerasan';
+                } catch (\Exception $e) { return false; }
+            })->count();
+
+            // Tren bulanan 6 bulan terakhir universitas
+            $months = collect([]);
+            for ($i = 5; $i >= 0; $i--) {
+                $m = Carbon::now()->subMonths($i)->format('Y-m');
+                $mLabel = Carbon::now()->subMonths($i)->translatedFormat('M Y');
+                $count = $ptLaporan->filter(function ($item) use ($m) {
+                    return Carbon::parse($item->created_at)->format('Y-m') === $m;
+                })->count();
+                $months->push([
+                    'bulan' => $mLabel,
+                    'total' => $count
+                ]);
+            }
+            $ptMonthly = $months;
+
+            // Sebaran jenis kekerasan
+            $kekerasanCounts = [];
+            foreach ($ptLaporan as $lp) {
+                $namaKekerasan = $lp->kekerasan->tipe_kekerasan ?? 'Lainnya';
+                if (!isset($kekerasanCounts[$namaKekerasan])) {
+                    $kekerasanCounts[$namaKekerasan] = 0;
+                }
+                $kekerasanCounts[$namaKekerasan]++;
+            }
+
+            // Status counts untuk donut chart
+            $statusCounts = [
+                'Diproses' => $laporandiproses,
+                'Selesai'  => $laporanselesai,
+                'Ditolak'  => $laporanbelumselesai,
+            ];
+
+            $recentLaporan = $ptLaporan->sortByDesc('created_at')->take(5);
+            $namaUniv = Auth::user()->universitasRel->nama ?? 'Kampus Anda';
+
+            $grafik = NotifBulanModel::where('universitas_id', $univ_id)->get();
         } elseif (Auth::user()->level == 'pelapor') {
             $userId = Auth::id();
             $userEmail = Auth::user()->email;
@@ -110,9 +161,12 @@ class DashboardController extends Controller
             })->count();
         }
         $pelaporMonthly = $pelaporMonthly ?? collect([]);
+        $ptMonthly = $ptMonthly ?? collect([]);
         $statusCounts = $statusCounts ?? [];
+        $kekerasanCounts = $kekerasanCounts ?? [];
         $recentLaporan = $recentLaporan ?? collect([]);
         $laporandiproses = $laporandiproses ?? 0;
+        $namaUniv = $namaUniv ?? '';
 
         return view('Admin/dashboard', compact(
             'laporanmasuk',
@@ -122,8 +176,11 @@ class DashboardController extends Controller
             'pagetitle',
             'grafik',
             'pelaporMonthly',
+            'ptMonthly',
             'statusCounts',
-            'recentLaporan'
+            'kekerasanCounts',
+            'recentLaporan',
+            'namaUniv'
         ));
     }
 }

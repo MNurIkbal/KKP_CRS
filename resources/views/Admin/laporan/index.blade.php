@@ -168,16 +168,18 @@
                                                         <i class="fas fa-ellipsis-v me-1"></i> Aksi
                                                     </button>
                                                     <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="dropdownAction{{ $data->id }}" style="min-width: 170px;">
-                                                        <li>
-                                                            <a class="dropdown-item py-2" href="{{ route('laporan.show', ['laporan' => $data->kode_laporan]) }}">
-                                                                <i class="fas fa-eye text-primary me-2"></i> Detail Laporan
-                                                            </a>
-                                                        </li>
+                                                        @if ($status != 'Diterima' || Auth::user()->level == 'pelapor')
+                                                            <li>
+                                                                <a class="dropdown-item py-2" href="{{ route('laporan.show', ['laporan' => $data->kode_laporan]) }}">
+                                                                    <i class="fas fa-eye text-primary me-2"></i> Detail Laporan
+                                                                </a>
+                                                            </li>
+                                                        @endif
 
                                                         @if ($status == 'Diterima' && Auth::user()->level != 'pelapor')
-                                                            <li><hr class="dropdown-divider my-1"></li>
                                                             <li>
-                                                                <a class="dropdown-item py-2 text-success" href="{{ url('adm/update_status_laporan/' . '1/' . $data->kode_laporan) }}">
+                                                                <a class="dropdown-item py-2 text-success" href="{{ url('adm/update_status_laporan/' . '1/' . $data->kode_laporan) }}"
+                                                                    onclick="return confirm('Apakah Anda yakin ingin MENYETUJUI laporan ini?')">
                                                                     <i class="fas fa-check-circle me-2"></i> Setujui Laporan
                                                                 </a>
                                                             </li>

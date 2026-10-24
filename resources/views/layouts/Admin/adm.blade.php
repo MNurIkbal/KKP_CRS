@@ -292,7 +292,7 @@
             border-radius: 18px !important;
             border: 1px solid #e2e8f0 !important;
             box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.04) !important;
-            background: #ffffff !important;
+            background-color: #ffffff;
             overflow: hidden;
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
@@ -706,15 +706,6 @@
 
                             <li>
 
-                                <a href="{{ url('laporan/form') }}" class="waves-effect">
-
-                                    <span><i class="fas fa-file-circle-plus"></i> Buat Laporan</span>
-
-                                </a>
-
-                            </li>
-                            <li>
-
                                 <a href="{{ url('adm/laporan_gabungan') }}" class="waves-effect">
 
                                     <span><i class="fas fa-inbox"></i> Laporan Gabungan</span>
@@ -812,15 +803,17 @@
 
                             </li>
 
-                            <li>
+                            @if (Auth::user()->level == 'pelapor')
+                                <li>
 
-                                <a href="{{ url('laporan/form') }}" class="waves-effect">
+                                    <a href="{{ url('laporan/form') }}" class="waves-effect">
 
-                                    <span><i class="fas fa-file-circle-plus"></i> Buat Laporan</span>
+                                        <span><i class="fas fa-file-circle-plus"></i> Buat Laporan</span>
 
-                                </a>
+                                    </a>
 
-                            </li>
+                                </li>
+                            @endif
                             @if (Auth::user()->level == 'pt')
                                 <li>
 
@@ -833,6 +826,12 @@
                                 </li>
                             @endif
                         @endif
+
+                        <li>
+                            <a href="{{ route('adm.dekripsi_berkas') }}" class="waves-effect {{ request()->is('adm/dekripsi_berkas') ? 'active' : '' }}">
+                                <span><i class="fas fa-lock-open text-warning"></i> Enkripsi & Dekripsi</span>
+                            </a>
+                        </li>
 
                         @if (Auth::user()->level != 'pelapor')
                             <li>

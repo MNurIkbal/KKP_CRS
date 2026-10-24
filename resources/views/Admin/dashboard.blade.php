@@ -46,31 +46,31 @@
                     <!-- Pelapor Welcome Banner -->
                     <div class="row mb-4">
                         <div class="col-12">
-                            <div class="card border-0 text-white overflow-hidden shadow-sm" style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); border-radius: 18px; position: relative;">
-                                <div style="position: absolute; right: -20px; bottom: -40px; width: 220px; height: 220px; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0) 70%);"></div>
-                                <div style="position: absolute; left: 30%; top: -30px; width: 140px; height: 140px; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);"></div>
-                                <div class="card-body p-4 p-md-5 position-relative">
+                            <div class="card card-welcome-pelapor border-0 text-white overflow-hidden shadow-sm" style="background: linear-gradient(135deg, #3730a3 0%, #4f46e5 45%, #7c3aed 100%) !important; border-radius: 20px !important; position: relative; box-shadow: 0 10px 30px -5px rgba(79, 70, 229, 0.4) !important;">
+                                <div style="position: absolute; right: -20px; bottom: -40px; width: 240px; height: 240px; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 70%); pointer-events: none;"></div>
+                                <div style="position: absolute; left: 35%; top: -40px; width: 160px; height: 160px; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0) 70%); pointer-events: none;"></div>
+                                <div class="card-body p-4 p-md-5 position-relative" style="background: transparent !important;">
                                     <div class="row align-items-center">
                                         <div class="col-lg-8">
-                                            <span class="badge bg-white text-primary px-3 py-2 rounded-pill fw-semibold mb-3" style="font-size: 12px; letter-spacing: 0.5px;">
+                                            <span class="badge bg-white text-primary px-3 py-2 rounded-pill fw-bold mb-3 shadow-sm" style="font-size: 12px; letter-spacing: 0.5px; color: #4338ca !important;">
                                                 <i class="fas fa-shield-halved me-1"></i> Dashboard Pelapor CRS
                                             </span>
-                                            <h2 class="fw-bold text-white mb-2">Selamat Datang, {{ Auth::user()->name }}! 👋</h2>
-                                            <p class="text-white-50 mb-4" style="max-width: 620px; font-size: 15px; line-height: 1.6;">
+                                            <h2 class="fw-bold text-white mb-2" style="font-size: 26px; text-shadow: 0 2px 8px rgba(0,0,0,0.15);">Selamat Datang, {{ Auth::user()->name }}! 👋</h2>
+                                            <p class="mb-4" style="max-width: 620px; font-size: 14.5px; line-height: 1.6; color: rgba(255, 255, 255, 0.9) !important;">
                                                 Pantau perkembangan investigasi laporan pengaduan Anda secara aman, transparan, dan terenkripsi AES-256.
                                             </p>
                                             <div class="d-flex flex-wrap gap-2">
-                                                <a href="{{ url('laporan/form') }}" class="btn btn-light fw-bold px-4 py-2" style="border-radius: 12px; color: #4f46e5;">
+                                                <a href="{{ url('laporan/form') }}" class="btn btn-light fw-bold px-4 py-2" style="border-radius: 12px; color: #4338ca !important; box-shadow: 0 4px 14px rgba(0,0,0,0.12);">
                                                     <i class="fas fa-plus me-1"></i> Buat Laporan Baru
                                                 </a>
-                                                <a href="{{ route('laporan.index') }}" class="btn btn-outline-light fw-medium px-4 py-2" style="border-radius: 12px;">
+                                                <a href="{{ route('laporan.index') }}" class="btn btn-outline-light fw-medium px-4 py-2" style="border-radius: 12px; border: 1.5px solid rgba(255,255,255,0.85); color: #ffffff !important;">
                                                     <i class="fas fa-list-check me-1"></i> Lihat Semua Laporan
                                                 </a>
                                             </div>
                                         </div>
                                         <div class="col-lg-4 text-center text-lg-end d-none d-lg-block">
-                                            <div style="display: inline-flex; width: 110px; height: 110px; border-radius: 28px; background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); align-items: center; justify-content: center; box-shadow: 0 12px 30px rgba(0,0,0,0.15);">
-                                                <i class="fas fa-chart-pie text-white" style="font-size: 48px;"></i>
+                                            <div style="display: inline-flex; width: 110px; height: 110px; border-radius: 28px; background: rgba(255,255,255,0.2); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); align-items: center; justify-content: center; box-shadow: 0 12px 30px rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.3);">
+                                                <i class="fas fa-chart-pie text-white" style="font-size: 48px; color: #ffffff !important;"></i>
                                             </div>
                                         </div>
                                     </div>
@@ -258,15 +258,239 @@
                             </div>
                         </div>
                     </div>
+                @elseif (Auth::user()->level == 'pt')
+                    <!-- PT (Perguruan Tinggi) Welcome Banner -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="card card-welcome-pt border-0 text-white overflow-hidden shadow-sm" style="background: linear-gradient(135deg, #065f46 0%, #059669 45%, #0d9488 100%) !important; border-radius: 20px !important; position: relative; box-shadow: 0 10px 30px -5px rgba(5, 150, 105, 0.4) !important;">
+                                <div style="position: absolute; right: -20px; bottom: -40px; width: 240px; height: 240px; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 70%); pointer-events: none;"></div>
+                                <div style="position: absolute; left: 35%; top: -40px; width: 160px; height: 160px; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0) 70%); pointer-events: none;"></div>
+                                <div class="card-body p-4 p-md-5 position-relative" style="background: transparent !important;">
+                                    <div class="row align-items-center">
+                                        <div class="col-lg-8">
+                                            <span class="badge bg-white text-success px-3 py-2 rounded-pill fw-bold mb-3 shadow-sm" style="font-size: 12px; letter-spacing: 0.5px; color: #065f46 !important;">
+                                                <i class="fas fa-building-columns me-1"></i> Satgas PPKPT Kampus
+                                            </span>
+                                            <h2 class="fw-bold text-white mb-2" style="font-size: 26px; text-shadow: 0 2px 8px rgba(0,0,0,0.15);">
+                                                Panel Admin {{ $namaUniv }}
+                                            </h2>
+                                            <p class="mb-4" style="max-width: 640px; font-size: 14.5px; line-height: 1.6; color: rgba(255, 255, 255, 0.9) !important;">
+                                                Kelola, tindak lanjuti, dan pantau seluruh laporan pengaduan tindak kekerasan di lingkungan kampus Anda secara cepat, transparan, dan terenkripsi AES-256.
+                                            </p>
+                                            <div class="d-flex flex-wrap gap-2">
+                                                <a href="{{ route('laporan.index') }}" class="btn btn-light fw-bold px-4 py-2" style="border-radius: 12px; color: #065f46 !important; box-shadow: 0 4px 14px rgba(0,0,0,0.12);">
+                                                    <i class="fas fa-table-list me-1"></i> Buka Manajemen Laporan
+                                                </a>
+                                                <a href="{{ url('adm/laporan_gabungan') }}" class="btn btn-outline-light fw-medium px-4 py-2" style="border-radius: 12px; border: 1.5px solid rgba(255,255,255,0.85); color: #ffffff !important;">
+                                                    <i class="fas fa-inbox me-1"></i> Laporan Gabungan
+                                                </a>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4 text-center text-lg-end d-none d-lg-block">
+                                            <div style="display: inline-flex; width: 110px; height: 110px; border-radius: 28px; background: rgba(255,255,255,0.2); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); align-items: center; justify-content: center; box-shadow: 0 12px 30px rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.3);">
+                                                <i class="fas fa-graduation-cap text-white" style="font-size: 48px; color: #ffffff !important;"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4 PT Metric Cards -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-xl-3 col-md-6">
+                            <div class="card h-100 border-0 shadow-sm" style="border-radius: 16px; background: #ffffff; border-left: 4px solid #4f46e5 !important;">
+                                <div class="card-body p-3 p-xl-4">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <div>
+                                            <span class="text-muted fw-semibold text-uppercase" style="font-size: 11px; letter-spacing: 0.5px;">Total Laporan Kampus</span>
+                                            <h3 class="fw-bold mb-0 text-dark mt-1">{{ $laporanmasuk }}</h3>
+                                            <span class="text-xs text-muted">Seluruh laporan di kampus ini</span>
+                                        </div>
+                                        <div style="width: 50px; height: 50px; border-radius: 14px; background: #eef2ff; color: #4f46e5; display: flex; align-items: center; justify-content: center;">
+                                            <i class="fas fa-inbox" style="font-size: 20px;"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xl-3 col-md-6">
+                            <div class="card h-100 border-0 shadow-sm" style="border-radius: 16px; background: #ffffff; border-left: 4px solid #0284c7 !important;">
+                                <div class="card-body p-3 p-xl-4">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <div>
+                                            <span class="text-muted fw-semibold text-uppercase" style="font-size: 11px; letter-spacing: 0.5px;">Sedang Ditangani</span>
+                                            <h3 class="fw-bold mb-0 text-dark mt-1">{{ $laporandiproses }}</h3>
+                                            <span class="text-xs text-muted">Proses telaah & pemeriksaan</span>
+                                        </div>
+                                        <div style="width: 50px; height: 50px; border-radius: 14px; background: #e0f2fe; color: #0284c7; display: flex; align-items: center; justify-content: center;">
+                                            <i class="fas fa-user-shield" style="font-size: 20px;"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xl-3 col-md-6">
+                            <div class="card h-100 border-0 shadow-sm" style="border-radius: 16px; background: #ffffff; border-left: 4px solid #10b981 !important;">
+                                <div class="card-body p-3 p-xl-4">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <div>
+                                            <span class="text-muted fw-semibold text-uppercase" style="font-size: 11px; letter-spacing: 0.5px;">Laporan Selesai</span>
+                                            <h3 class="fw-bold mb-0 text-dark mt-1">{{ $laporanselesai }}</h3>
+                                            <span class="text-xs text-muted">Rekomendasi & tuntas</span>
+                                        </div>
+                                        <div style="width: 50px; height: 50px; border-radius: 14px; background: #ecfdf5; color: #10b981; display: flex; align-items: center; justify-content: center;">
+                                            <i class="fas fa-circle-check" style="font-size: 20px;"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xl-3 col-md-6">
+                            <div class="card h-100 border-0 shadow-sm" style="border-radius: 16px; background: #ffffff; border-left: 4px solid #f59e0b !important;">
+                                <div class="card-body p-3 p-xl-4">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <div>
+                                            <span class="text-muted fw-semibold text-uppercase" style="font-size: 11px; letter-spacing: 0.5px;">Ditolak / Tidak Sesuai</span>
+                                            <h3 class="fw-bold mb-0 text-dark mt-1">{{ $laporanbelumselesai }}</h3>
+                                            <span class="text-xs text-muted">Tidak memenuhi kriteria</span>
+                                        </div>
+                                        <div style="width: 50px; height: 50px; border-radius: 14px; background: #fffbeb; color: #f59e0b; display: flex; align-items: center; justify-content: center;">
+                                            <i class="fas fa-triangle-exclamation" style="font-size: 20px;"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PT Visual Charts (ApexCharts) -->
+                    <div class="row g-4 mb-4">
+                        <div class="col-xl-8 col-lg-7">
+                            <div class="card border-0 shadow-sm h-100" style="border-radius: 18px;">
+                                <div class="card-body p-4">
+                                    <div class="d-flex align-items-center justify-content-between mb-3">
+                                        <div>
+                                            <h5 class="fw-bold text-dark mb-1">Tren Laporan Masuk Kampus</h5>
+                                            <p class="text-muted mb-0 text-sm">Grafik perkembangan volume laporan 6 bulan terakhir</p>
+                                        </div>
+                                        <span class="badge bg-light text-success px-3 py-2 rounded-pill fw-semibold">
+                                            <i class="fas fa-chart-line me-1"></i> Data Kampus
+                                        </span>
+                                    </div>
+                                    <div id="ptAreaChart" style="min-height: 310px;"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xl-4 col-lg-5">
+                            <div class="card border-0 shadow-sm h-100" style="border-radius: 18px;">
+                                <div class="card-body p-4">
+                                    <div class="d-flex align-items-center justify-content-between mb-3">
+                                        <div>
+                                            <h5 class="fw-bold text-dark mb-1">Status Penanganan</h5>
+                                            <p class="text-muted mb-0 text-sm">Proporsi status penanganan laporan kampus</p>
+                                        </div>
+                                    </div>
+                                    <div id="ptDonutChart" style="min-height: 250px;" class="d-flex align-items-center justify-content-center"></div>
+                                    <div class="mt-3 pt-3 border-top">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span class="text-sm text-muted"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#0284c7;margin-right:6px;"></span>Sedang Ditangani</span>
+                                            <span class="fw-bold text-dark">{{ $laporandiproses }}</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span class="text-sm text-muted"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#10b981;margin-right:6px;"></span>Selesai</span>
+                                            <span class="fw-bold text-dark">{{ $laporanselesai }}</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="text-sm text-muted"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#f59e0b;margin-right:6px;"></span>Ditolak</span>
+                                            <span class="fw-bold text-dark">{{ $laporanbelumselesai }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Laporan Table for PT -->
+                    <div class="card border-0 shadow-sm mb-4" style="border-radius: 18px;">
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                                <div>
+                                    <h5 class="fw-bold text-dark mb-1">Laporan Masuk Terkini</h5>
+                                    <p class="text-muted mb-0 text-sm">Daftar kasus kekerasan terbaru yang dilaporkan di {{ $namaUniv }}</p>
+                                </div>
+                                <a href="{{ route('laporan.index') }}" class="btn btn-sm btn-outline-success px-3 rounded-pill fw-medium">Kelola Semua Laporan</a>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Kode Laporan</th>
+                                            <th>Nama Pelapor</th>
+                                            <th>Jenis Kekerasan</th>
+                                            <th>Waktu Pengaduan</th>
+                                            <th>Status</th>
+                                            <th class="text-end">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse ($recentLaporan as $item)
+                                            @php
+                                                try {
+                                                    $nama = Crypt::decryptString($item->nama);
+                                                } catch (\Exception $e) { $nama = 'Anonim'; }
+                                                try {
+                                                    $st = Crypt::decryptString($item->status_laporan);
+                                                } catch (\Exception $e) { $st = 'Diterima'; }
+                                            @endphp
+                                            <tr>
+                                                <td class="fw-bold text-success">{{ $item->kode_laporan }}</td>
+                                                <td class="fw-medium text-dark">{{ $nama }}</td>
+                                                <td>{{ $item->kekerasan->tipe_kekerasan ?? '-' }}</td>
+                                                <td>{{ \Carbon\Carbon::parse($item->created_at)->format('d M Y, H:i') }}</td>
+                                                <td>
+                                                    @if ($st == 'Selesai')
+                                                        <span class="badge bg-success-subtle text-success px-3 py-2 rounded-pill fw-semibold"><i class="fas fa-check-circle me-1"></i> {{ $st }}</span>
+                                                    @elseif ($st == 'Laporan tidak sesuai dengan tindak kekerasan')
+                                                        <span class="badge bg-danger-subtle text-danger px-3 py-2 rounded-pill fw-semibold"><i class="fas fa-circle-xmark me-1"></i> Ditolak</span>
+                                                    @else
+                                                        <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill fw-semibold"><i class="fas fa-clock me-1"></i> {{ $st }}</span>
+                                                    @endif
+                                                </td>
+                                                <td class="text-end">
+                                                    <a href="{{ route('laporan.show', ['laporan' => $item->kode_laporan]) }}" class="btn btn-sm btn-light rounded-pill px-3 fw-medium">
+                                                        <i class="fas fa-eye me-1 text-primary"></i> Detail
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="6" class="text-center py-4 text-muted">
+                                                    <i class="fas fa-folder-open fa-2x mb-2 d-block text-secondary"></i>
+                                                    Belum ada data laporan masuk untuk kampus ini.
+                                                </td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
                 @else
-                    <!-- Admin / Superadmin View -->
+                    <!-- Superadmin View -->
                     <div class="row g-4 mb-4">
                         <div class="col-xl-4 col-md-4">
                             <div class="card h-100" style="background: linear-gradient(135deg, #eef2ff 0%, #ffffff 100%); border-left: 4px solid #4f46e5 !important;">
                                 <div class="card-body p-4">
                                     <div class="d-flex align-items-center justify-content-between">
                                         <div>
-                                            <p class="text-uppercase fw-semibold text-secondary mb-1" style="font-size: 12px; letter-spacing: 0.5px;">Laporan Masuk</p>
+                                            <p class="text-uppercase fw-semibold text-secondary mb-1" style="font-size: 12px; letter-spacing: 0.5px;">Laporan Masuk (Global)</p>
                                             <h2 class="fw-bold mb-0 text-dark">{{ $laporanmasuk }}</h2>
                                         </div>
                                         <div style="width: 54px; height: 54px; border-radius: 16px; background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%); display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 16px -4px rgba(79, 70, 229, 0.4);">
@@ -310,9 +534,9 @@
                         </div>
                     </div>
 
-                    <div class="card mb-4">
+                    <div class="card mb-4" style="border-radius: 18px;">
                         <div class="card-body p-4">
-                            <h5 class="fw-bold text-dark mb-3">Statistik Tren Laporan</h5>
+                            <h5 class="fw-bold text-dark mb-3">Statistik Tren Laporan Global</h5>
                             <div id="grafik" style="width: 100%; min-height: 400px;"></div>
                         </div>
                     </div>
@@ -379,18 +603,14 @@
                 },
                 xaxis: {
                     categories: areaCategories,
-                    labels: {
-                        style: { colors: '#64748b', fontSize: '12px' }
-                    },
+                    labels: { style: { colors: '#64748b', fontSize: '12px' } },
                     axisBorder: { show: false },
                     axisTicks: { show: false }
                 },
                 yaxis: {
                     min: 0,
                     forceNiceScale: true,
-                    labels: {
-                        style: { colors: '#64748b', fontSize: '12px' }
-                    }
+                    labels: { style: { colors: '#64748b', fontSize: '12px' } }
                 },
                 grid: {
                     borderColor: '#f1f5f9',
@@ -398,11 +618,7 @@
                 },
                 tooltip: {
                     theme: 'dark',
-                    y: {
-                        formatter: function(val) {
-                            return val + " Laporan";
-                        }
-                    }
+                    y: { formatter: function(val) { return val + " Laporan"; } }
                 }
             };
 
@@ -420,10 +636,7 @@
             var donutOptions = {
                 series: donutSeries,
                 labels: ['Diproses', 'Selesai', 'Ditolak'],
-                chart: {
-                    type: 'donut',
-                    height: 250
-                },
+                chart: { type: 'donut', height: 250 },
                 colors: ['#0284c7', '#10b981', '#f59e0b'],
                 dataLabels: { enabled: false },
                 legend: { show: false },
@@ -439,9 +652,7 @@
                                     show: true,
                                     label: 'Total',
                                     color: '#64748b',
-                                    formatter: function(w) {
-                                        return w.globals.seriesTotals.reduce((a, b) => a + b, 0);
-                                    }
+                                    formatter: function(w) { return w.globals.seriesTotals.reduce((a, b) => a + b, 0); }
                                 }
                             }
                         }
@@ -449,19 +660,113 @@
                 },
                 tooltip: {
                     theme: 'dark',
-                    y: {
-                        formatter: function(val) {
-                            return val + " Laporan";
-                        }
-                    }
+                    y: { formatter: function(val) { return val + " Laporan"; } }
                 }
             };
 
             var donutChart = new ApexCharts(document.querySelector("#pelaporDonutChart"), donutOptions);
             donutChart.render();
 
+        @elseif (Auth::user()->level == 'pt')
+            // PT Area Chart (Monthly Trends)
+            const ptData = @json($ptMonthly);
+            const ptCategories = ptData.map(item => item.bulan);
+            const ptSeriesData = ptData.map(item => item.total);
+
+            var ptAreaOptions = {
+                series: [{
+                    name: 'Jumlah Laporan Kampus',
+                    data: ptSeriesData
+                }],
+                chart: {
+                    type: 'area',
+                    height: 310,
+                    toolbar: { show: false },
+                    zoom: { enabled: false }
+                },
+                colors: ['#059669'],
+                fill: {
+                    type: 'gradient',
+                    gradient: {
+                        shadeIntensity: 1,
+                        opacityFrom: 0.45,
+                        opacityTo: 0.05,
+                        stops: [0, 95, 100]
+                    }
+                },
+                dataLabels: { enabled: false },
+                stroke: {
+                    curve: 'smooth',
+                    width: 3
+                },
+                xaxis: {
+                    categories: ptCategories,
+                    labels: { style: { colors: '#64748b', fontSize: '12px' } },
+                    axisBorder: { show: false },
+                    axisTicks: { show: false }
+                },
+                yaxis: {
+                    min: 0,
+                    forceNiceScale: true,
+                    labels: { style: { colors: '#64748b', fontSize: '12px' } }
+                },
+                grid: {
+                    borderColor: '#f1f5f9',
+                    strokeDashArray: 4
+                },
+                tooltip: {
+                    theme: 'dark',
+                    y: { formatter: function(val) { return val + " Laporan"; } }
+                }
+            };
+
+            var ptAreaChart = new ApexCharts(document.querySelector("#ptAreaChart"), ptAreaOptions);
+            ptAreaChart.render();
+
+            // PT Donut Chart (Status Distribution)
+            const ptStatusData = @json($statusCounts);
+            const ptDonutSeries = [
+                ptStatusData.Diproses || 0,
+                ptStatusData.Selesai || 0,
+                ptStatusData.Ditolak || 0
+            ];
+
+            var ptDonutOptions = {
+                series: ptDonutSeries,
+                labels: ['Diproses', 'Selesai', 'Ditolak'],
+                chart: { type: 'donut', height: 250 },
+                colors: ['#0284c7', '#10b981', '#f59e0b'],
+                dataLabels: { enabled: false },
+                legend: { show: false },
+                plotOptions: {
+                    pie: {
+                        donut: {
+                            size: '72%',
+                            labels: {
+                                show: true,
+                                name: { fontSize: '14px', color: '#64748b' },
+                                value: { fontSize: '22px', fontWeight: 700, color: '#1e293b' },
+                                total: {
+                                    show: true,
+                                    label: 'Total',
+                                    color: '#64748b',
+                                    formatter: function(w) { return w.globals.seriesTotals.reduce((a, b) => a + b, 0); }
+                                }
+                            }
+                        }
+                    }
+                },
+                tooltip: {
+                    theme: 'dark',
+                    y: { formatter: function(val) { return val + " Laporan"; } }
+                }
+            };
+
+            var ptDonutChart = new ApexCharts(document.querySelector("#ptDonutChart"), ptDonutOptions);
+            ptDonutChart.render();
+
         @else
-            // Superadmin / Admin PT Line Chart
+            // Superadmin Line Chart
             const grafikData = @json($grafik);
             const labels = grafikData.map(item => {
                 const date = new Date(item.bulan + '-01'); 

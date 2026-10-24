@@ -24,6 +24,7 @@ use App\Models\Universitas;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Schema;
 use Maatwebsite\Excel\Facades\Excel;
 
 class LaporanController extends Controller
@@ -80,20 +81,34 @@ class LaporanController extends Controller
             'catatan.required'  =>  'Catatan Harus Diisi'
         ]);
 
-
         $id = $request->input('id');
 
-        $template = Template::where('status', 'Laporan tidak sesuai dengan tindak kekerasan')->first();
-        $status = $template->status;
+        $laporan = Laporan::where('id', $id)->firstOrFail();
 
-        $laporan = Laporan::where('id', $id)->first();
+        // Cari atau buat otomatis template jika belum ada di database
+        $statusTolak = 'Laporan tidak sesuai dengan tindak kekerasan';
+        $template = Template::where('status', $statusTolak)->first();
+        if (!$template) {
+            $template = Template::create([
+                'status' => $statusTolak,
+                'deskripsi_status' => 'Laporan yang diajukan tidak memenuhi kriteria tindak kekerasan atau tidak cukup bukti sesuai pedoman penanganan Satgas PPKPT.'
+            ]);
+        }
+        $status = $template->status;
+        $deskripsi = $template->deskripsi_status ?? 'Laporan tidak sesuai dengan tindak kekerasan';
 
         $log = new LaporanLog();
         $log->kode_laporan = $laporan->kode_laporan;
-        $log->deskripsi_laporan = Crypt::encryptString($template->deskripsi_status);
-        $log->status_laporan = Crypt::encryptString($template->status);
+        $log->deskripsi_laporan = Crypt::encryptString($deskripsi);
+        $log->status_laporan = Crypt::encryptString($status);
         $log->tgl_batas_proses = Carbon::now()->addDays(7);
         $log->save();
+
+        if (!Schema::hasColumn('laporan', 'ket')) {
+            Schema::table('laporan', function (\Illuminate\Database\Schema\Blueprint $table) {
+                $table->text('ket')->nullable()->after('status_laporan');
+            });
+        }
 
         Laporan::where('id', $id)->update([
             'status_laporan'  =>  Crypt::encryptString($status),
@@ -108,11 +123,14 @@ class LaporanController extends Controller
             'laporan'   =>  $laporan
         ];
 
-        Mail::send('email.updatestatus', $data, function ($message) use ($laporan) {
-            // Tentukan alamat email penerima
-            $message->to(Crypt::decryptString($laporan->email), Crypt::decryptString($laporan->nama))
-                ->subject('Status Laporan PPKS Telah Diperbarui');
-        });
+        try {
+            Mail::send('email.updatestatus', $data, function ($message) use ($laporan) {
+                $message->to(Crypt::decryptString($laporan->email), Crypt::decryptString($laporan->nama))
+                    ->subject('Status Laporan PPKS Telah Diperbarui');
+            });
+        } catch (\Exception $e) {
+            // Lanjutkan jika konfigurasi email gagal agar proses status tetap berhasil
+        }
 
         // log
         $pesan = Auth::user()->name . ' tidak menyetujui laporan ini karena laporan tidak sesuai dengan tindak kekerasan dengan kode laporan ' . $laporan->kode_laporan . ' dan atas nama' . Crypt::decryptString($laporan->nama);
@@ -245,9 +263,9 @@ class LaporanController extends Controller
         // kirim email
         $universitas = Universitas::where('id', $laporan->universitas)->first();
         $jenis = Kekerasan::where('id', $laporan->jenis_kekerasan)->first();
+        $identitasDokumen = \App\Models\DokumenIdentitas::where('id', $laporan->jenis_identitas)->first();
 
-
-        return view('Admin.laporan.detail', compact('logs', 'pagetitle', 'laporan', 'statuslaporan', 'chat', 'universitas', 'jenis'));
+        return view('Admin.laporan.detail', compact('logs', 'pagetitle', 'laporan', 'statuslaporan', 'chat', 'universitas', 'jenis', 'identitasDokumen'));
     }
 
     public function hapus_logs_laporan(Request $request)
@@ -274,9 +292,24 @@ class LaporanController extends Controller
             return abort(404);
         }
 
-        $status = Template::where('status', 'Laporan Di Tinjau Ulang')->first();
+        $statusObj = Template::where('status', 'Laporan Di Tinjau Ulang')->first();
+        if (!$statusObj) {
+            $statusObj = Template::create([
+                'status' => 'Laporan Di Tinjau Ulang',
+                'deskripsi_status' => 'Laporan sedang ditinjau ulang oleh tim PPKPT.'
+            ]);
+        }
+        $statusStr = $statusObj->status;
+        $deskripsiStr = $statusObj->deskripsi_status ?? 'Laporan sedang ditinjau ulang oleh tim PPKPT.';
+
+        if (!Schema::hasColumn('laporan', 'ket')) {
+            Schema::table('laporan', function (\Illuminate\Database\Schema\Blueprint $table) {
+                $table->text('ket')->nullable()->after('status_laporan');
+            });
+        }
+
         Laporan::where('id', $id)->update([
-            'status_laporan'    =>  Crypt::encryptString($status->status),
+            'status_laporan'    =>  Crypt::encryptString($statusStr),
             'ket'   =>  null,
             'updated_at'    =>  Carbon::now(),
         ]);
@@ -284,85 +317,99 @@ class LaporanController extends Controller
         $log = LaporanLog::create([
             'kode_laporan'  =>  $laporan->kode_laporan,
             'tanggal_diubah'    =>  Carbon::now(),
-            'status_laporan'    =>  Crypt::encryptString($status->status),
-            'deskripsi_laporan'  =>  Crypt::encryptString($status->deskripsi_status),
+            'status_laporan'    =>  Crypt::encryptString($statusStr),
+            'deskripsi_laporan'  =>  Crypt::encryptString($deskripsiStr),
             'tgl_batas_proses' => Carbon::now()->addDays(7),
             'updated_at'    =>  Carbon::now()
         ]);
         $data = [
             'log' => $log,
-            'template' => Template::where('status', $status->status)->get(),
+            'template' => Template::where('status', $statusStr)->get(),
             'pengaturan'    =>  PengaturanModel::first(),
             'laporan'   =>  $laporan
         ];
 
-        Mail::send('email.updatestatus', $data, function ($message) use ($laporan) {
-
-            // Tentukan alamat email penerima
-            $message->to(Crypt::decryptString($laporan->email), Crypt::decryptString($laporan->nama))
-                ->subject('Status Laporan PPKS Telah Diperbarui');
-        });
+        try {
+            Mail::send('email.updatestatus', $data, function ($message) use ($laporan) {
+                // Tentukan alamat email penerima
+                $message->to(Crypt::decryptString($laporan->email), Crypt::decryptString($laporan->nama))
+                    ->subject('Status Laporan PPKS Telah Diperbarui');
+            });
+        } catch (\Exception $e) {
+            // Abaikan jika mail server belum disetup
+        }
 
         return redirect()->back()->with('success', 'Data Berhasil Diupdate');
     }
 
     public function update_status_laporan($status_laporan, $kode_laporan)
     {
+        $laporan = Laporan::where('kode_laporan', $kode_laporan)->firstOrFail();
 
-        $laporan = Laporan::where('kode_laporan', $kode_laporan)->firstorfail();
-        $template = Template::where('status', 'Laporan tidak sesuai dengan tindak kekerasan')->first();
-        $template_dua = Template::where('status', 'Sedang diverifikasi')->first();
+        $statusTolak = 'Laporan tidak sesuai dengan tindak kekerasan';
+        $template = Template::where('status', $statusTolak)->first();
+        if (!$template) {
+            $template = Template::create([
+                'status' => $statusTolak,
+                'deskripsi_status' => 'Laporan yang diajukan tidak memenuhi kriteria tindak kekerasan atau tidak cukup bukti sesuai pedoman penanganan Satgas PPKPT.'
+            ]);
+        }
+
+        $statusVerif = 'Sedang diverifikasi';
+        $template_dua = Template::where('status', $statusVerif)->first();
+        if (!$template_dua) {
+            $template_dua = Template::create([
+                'status' => $statusVerif,
+                'deskripsi_status' => 'Laporan pengaduan telah disetujui dan sedang dalam tahap verifikasi serta penelaahan berkas oleh tim Satgas PPKPT.'
+            ]);
+        }
+
         if ($status_laporan == 1) {
             $status = $template_dua->status;
+            $deskripsi = $template_dua->deskripsi_status;
             $log = new LaporanLog();
-
             $log->kode_laporan = $kode_laporan;
-
-            $log->deskripsi_laporan = Crypt::encryptString($template_dua->deskripsi_status);
-
-            $log->status_laporan = Crypt::encryptString($template_dua->status);
-
+            $log->deskripsi_laporan = Crypt::encryptString($deskripsi);
+            $log->status_laporan = Crypt::encryptString($status);
             $log->tgl_batas_proses = Carbon::now()->addDays(7);
             $log->save();
         } else {
             $status = $template->status;
+            $deskripsi = $template->deskripsi_status;
             $log = new LaporanLog();
-
             $log->kode_laporan = $kode_laporan;
-
-            $log->deskripsi_laporan = Crypt::encryptString($template->deskripsi_status);
-
-            $log->status_laporan = Crypt::encryptString($template->status);
-
+            $log->deskripsi_laporan = Crypt::encryptString($deskripsi);
+            $log->status_laporan = Crypt::encryptString($status);
             $log->tgl_batas_proses = Carbon::now()->addDays(7);
             $log->save();
         }
 
         $laporan->status_laporan = Crypt::encryptString($status);
-
         $laporan->save();
 
         $data = [
             'log' => $log,
-            'template' => Template::where('status', $status_laporan)->get(),
-            'pengaturan'    =>  PengaturanModel::first(),
-            'laporan'   =>  $laporan
+            'template' => Template::where('status', $status)->get(),
+            'pengaturan' => PengaturanModel::first(),
+            'laporan' => $laporan
         ];
 
-        Mail::send('email.updatestatus', $data, function ($message) use ($laporan) {
-
-            // Tentukan alamat email penerima
-            $message->to(Crypt::decryptString($laporan->email), Crypt::decryptString($laporan->nama))
-                ->subject('Status Laporan PPKS Telah Diperbarui');
-        });
+        try {
+            Mail::send('email.updatestatus', $data, function ($message) use ($laporan) {
+                $message->to(Crypt::decryptString($laporan->email), Crypt::decryptString($laporan->nama))
+                    ->subject('Status Laporan PPKS Telah Diperbarui');
+            });
+        } catch (\Exception $e) {
+            // Lanjutkan jika mail server belum aktif
+        }
 
         // log
         if ($status_laporan == 1) {
             $pesan = Auth::user()->name . ' menerima laporan dengan kode laporan ' . $laporan->kode_laporan . ' dan atas nama' . Crypt::decryptString($laporan->nama);
-            $status = 'Menerima Laporan Masuk';
+            $statusLog = 'Menerima Laporan Masuk';
         } else {
             $pesan = Auth::user()->name . ' tidak menyetujui laporan ini karena laporan tidak sesuai dengan tindak kekerasan dengan kode laporan ' . $laporan->kode_laporan . ' dan atas nama' . Crypt::decryptString($laporan->nama);
-            $status = 'Laporan tidak sesuai dengan tindak kekerasan';
+            $statusLog = 'Laporan tidak sesuai dengan tindak kekerasan';
         }
         AktifitasModel::create([
             'user_id'   =>  Auth::user()->id,
@@ -558,17 +605,67 @@ class LaporanController extends Controller
         $mulai = $request->input('mulai');
         $akhir = $request->input('akhir');
 
-        $level = Auth::user()->level;
-        if ($level == "pt") {
-            $laporan = Laporan::whereBetween('created_at', [$mulai, $akhir])->count();
+        $user = Auth::user();
+        $query = Laporan::whereBetween('created_at', [$mulai, $akhir]);
+
+        if ($user->level == "pt") {
+            $query->where('universitas', $user->universitas_id);
+            $namaFile = "laporan_" . ($user->universitasRel->nama ?? 'kampus') . "_{$mulai}_{$akhir}.xlsx";
+        } elseif ($user->level == "pelapor") {
+            $query->where('user_id', $user->id);
+            $namaFile = "laporan_saya_{$mulai}_{$akhir}.xlsx";
         } else {
-            $laporan = Laporan::whereBetween('created_at', [$mulai, $akhir])->count();
+            // Superadmin: Semua data tanpa filter universitas/user_id
+            $namaFile = "laporan_semua_{$mulai}_{$akhir}.xlsx";
         }
 
-        if (!$laporan) {
-            return redirect()->back()->with('error', 'Data Tidak Ada');
+        $laporanCount = $query->count();
+
+        // Fallback cek untuk pelapor jika data lama belum terisi user_id
+        if ($user->level == "pelapor" && $laporanCount === 0) {
+            $userEmail = $user->email;
+            $laporanCount = Laporan::whereBetween('created_at', [$mulai, $akhir])->get()->filter(function ($item) use ($userEmail) {
+                try {
+                    return strtolower(trim(Crypt::decryptString($item->email))) === strtolower(trim($userEmail));
+                } catch (\Exception $e) {
+                    return false;
+                }
+            })->count();
         }
 
-        return Excel::download(new ExportsLaporan($mulai, $akhir), "laporan $mulai - $akhir .xlsx");
+        if ($laporanCount === 0) {
+            return redirect()->back()->with('error', 'Tidak ada data laporan yang ditemukan pada rentang tanggal tersebut.');
+        }
+
+        return Excel::download(new ExportsLaporan($mulai, $akhir), $namaFile);
+    }
+
+    /**
+     * Menu Khusus Enkripsi & Dekripsi Berkas Laporan
+     */
+    public function dekripsi_berkas()
+    {
+        $pagetitle = "Enkripsi & Dekripsi Berkas";
+        $user = Auth::user();
+
+        if ($user->level == 'superadmin') {
+            $laporans = Laporan::where(function($q) {
+                $q->whereNotNull('upload_identitas')->orWhereNotNull('upload_bukti');
+            })->orderBy('created_at', 'DESC')->get();
+        } elseif ($user->level == 'pt') {
+            $laporans = Laporan::where('universitas', $user->universitas_id)
+                ->where(function($q) {
+                    $q->whereNotNull('upload_identitas')->orWhereNotNull('upload_bukti');
+                })->orderBy('created_at', 'DESC')->get();
+        } else {
+            // Pelapor
+            $laporans = Laporan::where(function($q) use ($user) {
+                $q->where('user_id', $user->id);
+            })->where(function($q) {
+                $q->whereNotNull('upload_identitas')->orWhereNotNull('upload_bukti');
+            })->orderBy('created_at', 'DESC')->get();
+        }
+
+        return view('Admin.laporan.dekripsi_berkas', compact('pagetitle', 'laporans'));
     }
 }

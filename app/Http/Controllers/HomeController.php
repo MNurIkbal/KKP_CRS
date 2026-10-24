@@ -24,6 +24,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\PesanModel;
 use App\Models\User;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Schema;
 use Mews\Captcha\Facades\Captcha;
 
 class HomeController extends Controller
@@ -162,6 +163,12 @@ class HomeController extends Controller
                 ->with('error', 'Silakan login terlebih dahulu sebagai pelapor untuk membuat laporan pengaduan.');
         }
 
+        // Admin Perguruan Tinggi dan Superadmin tidak boleh membuat laporan (khusus role pelapor/user)
+        if (Auth::user()->level !== 'pelapor') {
+            return redirect()->route('dashboard')
+                ->with('error', 'Akses ditolak: Akun administrator (Superadmin / Admin Kampus) tidak diizinkan membuat laporan pengaduan. Pembuatan laporan hanya diperuntukkan bagi akun Pelapor / User.');
+        }
+
         // Pastikan kolom user_id ada di tabel laporan
         if (!\Illuminate\Support\Facades\Schema::hasColumn('laporan', 'user_id')) {
             try {
@@ -228,6 +235,12 @@ class HomeController extends Controller
         if (!Auth::check()) {
             return redirect()->route('login')
                 ->with('error', 'Sesi login telah berakhir. Silakan login kembali.');
+        }
+
+        // Admin Perguruan Tinggi dan Superadmin tidak boleh submit laporan
+        if (Auth::user()->level !== 'pelapor') {
+            return redirect()->route('dashboard')
+                ->with('error', 'Akses ditolak: Akun administrator tidak diizinkan membuat laporan pengaduan.');
         }
 
         // Pastikan kolom user_id ada di tabel laporan
@@ -407,6 +420,12 @@ class HomeController extends Controller
             ]);
         }
 
+        if (!Schema::hasColumn('laporan', 'ket')) {
+            Schema::table('laporan', function (\Illuminate\Database\Schema\Blueprint $table) {
+                $table->text('ket')->nullable()->after('status_laporan');
+            });
+        }
+
         $laporan = new Laporan();
         $laporan->id = Str::random(10);
         $laporan->user_id = Auth::check() ? Auth::id() : null;
@@ -445,13 +464,18 @@ class HomeController extends Controller
         $laporan->password_file = $passwordFile;
         $aesKey = substr(md5($passwordFile), 0, 16);
 
+        $totalEnkripsiTime = 0;
+        $totalFileSize = 0;
+
         if ($request->file('upload_identitas')) {
             $file = $request->file('upload_identitas');
             $nowTimestamp = now()->timestamp;
             $fileName = "{$nowTimestamp}-{$file->getClientOriginalName()}";
             $sourcePath = $file->getPathname();
             $fileSize = filesize($sourcePath);
+            $totalFileSize += $fileSize;
 
+            $startIdTime = microtime(true);
             $aes = new \App\Helpers\AES($aesKey);
             $mod = $fileSize % 16;
             $banyak = ($mod == 0) ? ($fileSize / 16) : ((($fileSize - $mod) / 16) + 1);
@@ -471,6 +495,7 @@ class HomeController extends Controller
             }
             fclose($fileSource);
             fclose($fileOutput);
+            $totalEnkripsiTime += (microtime(true) - $startIdTime);
 
             $laporan->upload_identitas = Crypt::encryptString($this->folderIdentitas . $fileName);
         }
@@ -481,7 +506,9 @@ class HomeController extends Controller
             $fileName = "{$nowTimestamp}-{$file->getClientOriginalName()}";
             $sourcePath = $file->getPathname();
             $fileSize = filesize($sourcePath);
+            $totalFileSize += $fileSize;
 
+            $startBuktiTime = microtime(true);
             $aes = new \App\Helpers\AES($aesKey);
             $mod = $fileSize % 16;
             $banyak = ($mod == 0) ? ($fileSize / 16) : ((($fileSize - $mod) / 16) + 1);
@@ -501,9 +528,20 @@ class HomeController extends Controller
             }
             fclose($fileSource);
             fclose($fileOutput);
+            $totalEnkripsiTime += (microtime(true) - $startBuktiTime);
 
             $laporan->upload_bukti = Crypt::encryptString($this->folderBukti . $fileName);
         }
+
+        // Simpan metadata performa enkripsi
+        if (!Schema::hasColumn('laporan', 'waktu_enkripsi')) {
+            Schema::table('laporan', function (\Illuminate\Database\Schema\Blueprint $table) {
+                $table->string('waktu_enkripsi')->nullable()->after('password_file');
+                $table->string('ukuran_file')->nullable()->after('waktu_enkripsi');
+            });
+        }
+        $laporan->waktu_enkripsi = number_format($totalEnkripsiTime, 2);
+        $laporan->ukuran_file = number_format($totalFileSize / 1048576, 2);
 
         $laporan->pelapor = Crypt::encryptString($request->input('pelapor'));
 
@@ -803,14 +841,15 @@ class HomeController extends Controller
         fclose($fileSource);
 
         $endTime = microtime(true);
-        $timeTaken = number_format($endTime - $startTime, 2);
+        $timeTaken = number_format($endTime - $startTime, 3);
         $sizeMB = number_format($fileSize / 1048576, 2);
+        $sizeKB = number_format($fileSize / 1024, 2);
 
         $fileName = basename($fullPath);
         // Clean padding if any (often null bytes in AES, but depends on implementation)
         $plainContent = rtrim($plainContent, "\0");
         
-        // Return file download
+        // Return file download with metrics headers & cookie
         return response($plainContent)
             ->header('Cache-Control', 'no-cache private')
             ->header('Content-Description', 'File Transfer')
@@ -818,6 +857,10 @@ class HomeController extends Controller
             ->header('Content-length', strlen($plainContent))
             ->header('Content-Disposition', 'attachment; filename=' . $fileName)
             ->header('Content-Transfer-Encoding', 'binary')
-            ->header('Set-Cookie', 'success_message=Dekripsi sukses. Waktu: '.$timeTaken.'s, Ukuran: '.$sizeMB.'MB; Path=/');
+            ->header('X-Decrypt-Time', $timeTaken)
+            ->header('X-Decrypt-Size-MB', $sizeMB)
+            ->header('Set-Cookie', 'crs_decrypt_status=success; Path=/')
+            ->header('Set-Cookie', 'crs_decrypt_time=' . $timeTaken . '; Path=/')
+            ->header('Set-Cookie', 'crs_decrypt_size=' . $sizeMB . '; Path=/');
     }
 }

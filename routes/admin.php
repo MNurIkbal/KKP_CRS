@@ -71,4 +71,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('log','index');
         Route::get('hapus_log/{id}','destroy');
     });
+
+    Route::get('dekripsi_berkas', [LaporanController::class, 'dekripsi_berkas'])->name('adm.dekripsi_berkas');
+    Route::post('proses_dekripsi_berkas', [LaporanController::class, 'proses_dekripsi_berkas'])->name('adm.proses_dekripsi_berkas');
 });

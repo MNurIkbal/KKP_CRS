@@ -209,6 +209,12 @@ class LaporanGabunganController extends Controller
         }
 
         $status = Template::where('status', 'Laporan Di Tinjau Ulang')->first();
+        if (!$status) {
+            $status = Template::create([
+                'status' => 'Laporan Di Tinjau Ulang',
+                'deskripsi_status' => 'Laporan sedang ditinjau ulang oleh tim PPKPT.'
+            ]);
+        }
         MergeLaporanModel::where('id', $id)->update([
             'status'    =>      Crypt::encryptString($status->status),
             'updated_at'    =>  Carbon::now()
