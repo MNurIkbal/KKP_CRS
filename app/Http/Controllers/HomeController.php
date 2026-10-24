@@ -540,7 +540,7 @@ class HomeController extends Controller
                 $table->string('ukuran_file')->nullable()->after('waktu_enkripsi');
             });
         }
-        $laporan->waktu_enkripsi = number_format($totalEnkripsiTime, 2);
+        $laporan->waktu_enkripsi = number_format($totalEnkripsiTime, 3);
         $laporan->ukuran_file = number_format($totalFileSize / 1048576, 2);
 
         $laporan->pelapor = Crypt::encryptString($request->input('pelapor'));
@@ -844,6 +844,38 @@ class HomeController extends Controller
         $timeTaken = number_format($endTime - $startTime, 3);
         $sizeMB = number_format($fileSize / 1048576, 2);
         $sizeKB = number_format($fileSize / 1024, 2);
+
+        // Simpan waktu dekripsi ke database
+        try {
+            if ($modelType === 'laporan') {
+                if (!Schema::hasColumn('laporan', 'waktu_dekripsi')) {
+                    Schema::table('laporan', function (\Illuminate\Database\Schema\Blueprint $table) {
+                        $table->string('waktu_dekripsi')->nullable()->after('waktu_enkripsi');
+                    });
+                }
+                $targetLaporan = Laporan::find($modelId);
+                if ($targetLaporan) {
+                    $targetLaporan->waktu_dekripsi = $timeTaken;
+                    if (empty($targetLaporan->ukuran_file)) {
+                        $targetLaporan->ukuran_file = $sizeMB;
+                    }
+                    $targetLaporan->save();
+                }
+            } elseif ($modelType === 'log') {
+                if (!Schema::hasColumn('laporan_log', 'waktu_dekripsi')) {
+                    Schema::table('laporan_log', function (\Illuminate\Database\Schema\Blueprint $table) {
+                        $table->string('waktu_dekripsi')->nullable()->after('waktu_enkripsi');
+                    });
+                }
+                $targetLog = LaporanLog::find($modelId);
+                if ($targetLog) {
+                    $targetLog->waktu_dekripsi = $timeTaken;
+                    $targetLog->save();
+                }
+            }
+        } catch (\Exception $e) {
+            // Abaikan jika ada lock tabel agar pengunduhan tetap berjalan lancar
+        }
 
         $fileName = basename($fullPath);
         // Clean padding if any (often null bytes in AES, but depends on implementation)
