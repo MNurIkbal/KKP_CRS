@@ -20,6 +20,7 @@ use App\Models\NotifBulanAdminModel;
 use App\Models\NotifBulanModel;
 use App\Models\NotifModel;
 use App\Models\PengaturanModel;
+use Illuminate\Support\Facades\Auth;
 use App\Models\PesanModel;
 use App\Models\User;
 use Illuminate\Support\Facades\Crypt;
@@ -155,6 +156,23 @@ class HomeController extends Controller
 
     public function form()
     {
+        // Pastikan pengguna telah login terlebih dahulu sebelum membuat laporan
+        if (!Auth::check()) {
+            return redirect()->route('login')
+                ->with('error', 'Silakan login terlebih dahulu sebagai pelapor untuk membuat laporan pengaduan.');
+        }
+
+        // Pastikan kolom user_id ada di tabel laporan
+        if (!\Illuminate\Support\Facades\Schema::hasColumn('laporan', 'user_id')) {
+            try {
+                \Illuminate\Support\Facades\Schema::table('laporan', function (\Illuminate\Database\Schema\Blueprint $table) {
+                    $table->unsignedBigInteger('user_id')->nullable()->after('id');
+                });
+            } catch (\Exception $e) {
+                // Ignore jika kolom sudah dibuat secara paralel
+            }
+        }
+
         //tampilin form laporan
         $universitas = Universitas::orderby('nama', 'asc')->get();
         $kekerasan = Kekerasan::orderby('tipe_kekerasan', 'asc')->get();
@@ -206,15 +224,35 @@ class HomeController extends Controller
 
     public function submitlaporan(Request $request)
     {
+        // Pastikan pengguna telah login sebelum submit laporan
+        if (!Auth::check()) {
+            return redirect()->route('login')
+                ->with('error', 'Sesi login telah berakhir. Silakan login kembali.');
+        }
+
+        // Pastikan kolom user_id ada di tabel laporan
+        if (!\Illuminate\Support\Facades\Schema::hasColumn('laporan', 'user_id')) {
+            try {
+                \Illuminate\Support\Facades\Schema::table('laporan', function (\Illuminate\Database\Schema\Blueprint $table) {
+                    $table->unsignedBigInteger('user_id')->nullable()->after('id');
+                });
+            } catch (\Exception $e) {
+                // Ignore jika kolom sudah dibuat
+            }
+        }
+
         $request->validate([
             'kategori'  => 'required',
             'pelapor'   => 'required',
+            'password_file' => 'required|min:4',
             'captcha'   => 'required|captcha',
             'upload_bukti' => 'mimes:png,jpeg,pdf,zip|max:1024',
             'upload_identitas' => 'mimes:png,jpeg,jpg,zip|max:1024',
         ], [
             'kategori.required' => 'Kategori wajib diisi.',
             'pelapor.required'  => 'Nama pelapor wajib diisi.',
+            'password_file.required' => 'Password enkripsi dokumen wajib diisi.',
+            'password_file.min' => 'Password enkripsi dokumen minimal 4 karakter.',
             'captcha.required'  => 'Captcha wajib diisi.',
             'captcha.captcha'   => 'Captcha yang dimasukkan tidak sesuai.',
             'upload_bukti.file' => 'Bukti harus berupa file.',
@@ -227,11 +265,11 @@ class HomeController extends Controller
         $kategori = $request->input('kategori');
         if ($kategori == "Mitra") {
             $request->validate([
-                'nama' => 'required|string|max:255',
+                'nama' => 'nullable|string|max:255',
                 'no_identitas' => 'required|string',
                 'bekerja' => 'required',
                 'jenis_kelamin' => 'required',
-                'email' => 'required|email',
+                'email' => 'nullable|email',
                 'no_hp' => 'required|string',
                 'jenis_identitas' => 'required|string',
                 'tanggal_kejadian' => 'required|date|before_or_equal:today',
@@ -371,9 +409,10 @@ class HomeController extends Controller
 
         $laporan = new Laporan();
         $laporan->id = Str::random(10);
+        $laporan->user_id = Auth::check() ? Auth::id() : null;
         $kodelaporan = "REP-" . $this->generateKodeLaporan();
         $laporan->kode_laporan = $kodelaporan;
-        $nama = $request->nama;
+        $nama = Auth::check() ? Auth::user()->name : ($request->nama ?? '');
         $laporan->nama = Crypt::encryptString($nama);
         $laporan->no_identitas = Crypt::encryptString($request->no_identitas);
         $laporan->jenis_kelamin = Crypt::encryptString($request->jenis_kelamin);
@@ -381,8 +420,8 @@ class HomeController extends Controller
             $laporan->universitas = $request->universitas;
         }
 
-        $email = Crypt::encryptString($request->email);
-        $laporan->email = $email;
+        $email = Auth::check() ? Auth::user()->email : ($request->email ?? '');
+        $laporan->email = Crypt::encryptString($email);
         $laporan->no_hp = Crypt::encryptString($request->no_hp);
         $laporan->jenis_identitas = $request->jenis_identitas;
         $laporan->tanggal_kejadian = Crypt::encryptString($request->tanggal_kejadian);
@@ -401,25 +440,88 @@ class HomeController extends Controller
         }
 
 
+        // Handle password enkripsi file
+        $passwordFile = $request->input('password_file');
+        $laporan->password_file = $passwordFile;
+        $aesKey = substr(md5($passwordFile), 0, 16);
+
         if ($request->file('upload_identitas')) {
             $file = $request->file('upload_identitas');
             $nowTimestamp = now()->timestamp;
             $fileName = "{$nowTimestamp}-{$file->getClientOriginalName()}";
-            $file->move($this->folderIdentitas, $fileName);
-            $laporan->upload_identitas   = Crypt::encryptString($this->folderIdentitas . $fileName);
+            $sourcePath = $file->getPathname();
+            $fileSize = filesize($sourcePath);
+
+            $aes = new \App\Helpers\AES($aesKey);
+            $mod = $fileSize % 16;
+            $banyak = ($mod == 0) ? ($fileSize / 16) : ((($fileSize - $mod) / 16) + 1);
+
+            $fileSource = fopen($sourcePath, 'rb');
+            $destinationDir = public_path($this->folderIdentitas);
+            if (!file_exists($destinationDir)) {
+                mkdir($destinationDir, 0777, true);
+            }
+            $fileOutput = fopen(public_path($this->folderIdentitas . $fileName), 'wb');
+            ini_set('max_execution_time', -1);
+            ini_set('memory_limit', -1);
+            for ($bawah = 0; $bawah < $banyak; $bawah++) {
+                $data = fread($fileSource, 16);
+                $cipher = $aes->encrypt($data);
+                fwrite($fileOutput, $cipher);
+            }
+            fclose($fileSource);
+            fclose($fileOutput);
+
+            $laporan->upload_identitas = Crypt::encryptString($this->folderIdentitas . $fileName);
         }
 
         if ($request->file('upload_bukti')) {
             $file = $request->file('upload_bukti');
             $nowTimestamp = now()->timestamp;
             $fileName = "{$nowTimestamp}-{$file->getClientOriginalName()}";
-            $file->move($this->folderBukti, $fileName);
-            $laporan->upload_bukti   = Crypt::encryptString($this->folderBukti . $fileName);
+            $sourcePath = $file->getPathname();
+            $fileSize = filesize($sourcePath);
+
+            $aes = new \App\Helpers\AES($aesKey);
+            $mod = $fileSize % 16;
+            $banyak = ($mod == 0) ? ($fileSize / 16) : ((($fileSize - $mod) / 16) + 1);
+
+            $fileSource = fopen($sourcePath, 'rb');
+            $destinationDir = public_path($this->folderBukti);
+            if (!file_exists($destinationDir)) {
+                mkdir($destinationDir, 0777, true);
+            }
+            $fileOutput = fopen(public_path($this->folderBukti . $fileName), 'wb');
+            ini_set('max_execution_time', -1);
+            ini_set('memory_limit', -1);
+            for ($bawah = 0; $bawah < $banyak; $bawah++) {
+                $data = fread($fileSource, 16);
+                $cipher = $aes->encrypt($data);
+                fwrite($fileOutput, $cipher);
+            }
+            fclose($fileSource);
+            fclose($fileOutput);
+
+            $laporan->upload_bukti = Crypt::encryptString($this->folderBukti . $fileName);
         }
 
         $laporan->pelapor = Crypt::encryptString($request->input('pelapor'));
 
         if ($laporan->save()) {
+            // Auto register/link pelapor account bila belum terdaftar
+            $reporterEmail = strtolower(trim($request->email));
+            $existingUser = User::where('email', $reporterEmail)->first();
+            if (!$existingUser) {
+                User::create([
+                    'name' => $request->nama,
+                    'email' => $reporterEmail,
+                    'password' => \Illuminate\Support\Facades\Hash::make($passwordFile),
+                    'level' => 'pelapor',
+                    'universitas_id' => $request->input('kategori') != 'Mitra' ? $request->universitas : null,
+                    'status' => 'Aktif',
+                ]);
+            }
+
             //simpan ke laporanlog
             $log = new LaporanLog();
             $log->kode_laporan = $kodelaporan;
@@ -427,6 +529,7 @@ class HomeController extends Controller
             $log->status_laporan = Crypt::encryptString("Diterima");
             $log->deskripsi_laporan = Crypt::encryptString("Laporan Masuk ke Sistem");
             $log->tgl_batas_proses = $sevenDaysLater;
+            $log->password_file = $passwordFile;
             $log->save();
 
             //kirim email
@@ -644,22 +747,34 @@ class HomeController extends Controller
         $modelId = $request->input('model_id');
         $filePath = Crypt::decryptString($request->input('file_path'));
         
-        if ($modelType !== 'log') {
+        if ($modelType === 'log') {
+            $log = LaporanLog::find($modelId);
+            if (!$log) return back()->with('error', 'Log tidak ditemukan.');
+
+            $dbPassword = $log->password_file;
+            $deskripsi = Crypt::decryptString($log->deskripsi_laporan);
+            
+            $words = explode(' ', trim($deskripsi));
+            $firstWord = $words[0];
+            $defaultPassword = 'CRS2026' . $firstWord;
+
+            if ($password !== $dbPassword && $password !== $defaultPassword) {
+                return back()->with('error', 'Maaf, Password tidak sesuai.');
+            }
+            $targetKey = $dbPassword;
+        } elseif ($modelType === 'laporan') {
+            $laporan = Laporan::find($modelId);
+            if (!$laporan) return back()->with('error', 'Data laporan tidak ditemukan.');
+
+            $dbPassword = $laporan->password_file;
+            $defaultPassword = 'CRS2026';
+
+            if ($password !== $dbPassword && $password !== $defaultPassword) {
+                return back()->with('error', 'Maaf, Password tidak sesuai.');
+            }
+            $targetKey = $dbPassword;
+        } else {
             return back()->with('error', 'Tipe file tidak valid untuk dekripsi.');
-        }
-
-        $log = LaporanLog::find($modelId);
-        if (!$log) return back()->with('error', 'Log tidak ditemukan.');
-
-        $dbPassword = $log->password_file;
-        $deskripsi = Crypt::decryptString($log->deskripsi_laporan);
-        
-        $words = explode(' ', trim($deskripsi));
-        $firstWord = $words[0];
-        $defaultPassword = 'CRS2026' . $firstWord;
-
-        if ($password !== $dbPassword && $password !== $defaultPassword) {
-            return back()->with('error', 'Maaf, Password tidak sesuai.');
         }
 
         $fullPath = public_path($filePath);
@@ -669,7 +784,7 @@ class HomeController extends Controller
 
         $startTime = microtime(true);
         $fileSize = filesize($fullPath);
-        $hashInput = md5($dbPassword);
+        $hashInput = md5($targetKey);
         $aesKey = substr($hashInput, 0, 16);
         $aes = new \App\Helpers\AES($aesKey);
         

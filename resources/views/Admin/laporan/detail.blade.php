@@ -38,110 +38,107 @@
                         </div>
 
 
-                        <div class="row mt-2 mb-2">
+                        <div class="row g-3 mt-1 mb-4">
+                            <div class="col-md-6">
+                                <div class="p-3 rounded-3" style="background: #f8fafc; border: 1px solid #e2e8f0;">
+                                    <small class="text-secondary fw-semibold d-block">ID Laporan</small>
+                                    <span class="fw-bold text-dark">{{ $laporan->id }}</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="p-3 rounded-3" style="background: #f8fafc; border: 1px solid #e2e8f0;">
+                                    <small class="text-secondary fw-semibold d-block">Kode Laporan</small>
+                                    <span class="fw-bold text-primary">{{ $laporan->kode_laporan }}</span>
+                                </div>
+                            </div>
 
-                            <div class="col-md-6" style="margin-bottom: 10px;"><strong>ID Laporan</strong> :
-                                {{ $laporan->id }}</div>
-                            <div class="col-md-6" style="margin-bottom: 10px;"><strong>Kode Laporan</strong> :
-                                {{ $laporan->kode_laporan }}</div>
-
-                            <div class="col-md-6" style="margin-bottom: 10px;"><strong>Lokasi Kejadian</strong> :
-                                {{ Illuminate\Support\Facades\Crypt::decryptString($laporan->lokasi_kejadian) }}</div>
-
-                            <div class="col-md-6" style="margin-bottom: 10px;"><strong>No Identitas</strong> :
-                                {{ Illuminate\Support\Facades\Crypt::decryptString($laporan->no_identitas) }}</div>
+                            <div class="col-md-6">
+                                <div class="p-3 rounded-3" style="background: #f8fafc; border: 1px solid #e2e8f0;">
+                                    <small class="text-secondary fw-semibold d-block">Nama Lengkap</small>
+                                    <span class="fw-bold text-dark">{{ Illuminate\Support\Facades\Crypt::decryptString($laporan->nama) }}</span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="p-3 rounded-3" style="background: #f8fafc; border: 1px solid #e2e8f0;">
+                                    <small class="text-secondary fw-semibold d-block">NIK / NIM / Identitas</small>
+                                    <span class="fw-bold text-dark">{{ Illuminate\Support\Facades\Crypt::decryptString($laporan->no_identitas) }}</span>
+                                </div>
+                            </div>
 
                             @if ($universitas)
-                                <div class="col-md-6" style="margin-bottom: 10px;"><strong>Perguruan Tinggi</strong> :
-                                    {{ $universitas->nama }}</div>
+                                <div class="col-md-6">
+                                    <div class="p-3 rounded-3" style="background: #f8fafc; border: 1px solid #e2e8f0;">
+                                        <small class="text-secondary fw-semibold d-block">Perguruan Tinggi</small>
+                                        <span class="fw-bold text-dark">{{ $universitas->nama }}</span>
+                                    </div>
+                                </div>
                             @endif
 
-                            <div class="col-md-6" style="margin-bottom: 10px;"><strong>Nama</strong> :
-                                {{ Illuminate\Support\Facades\Crypt::decryptString($laporan->nama) }}</div>
-                            <div class="col-md-6" style="margin-bottom: 10px;"><strong>Kategori</strong> :
-                                {{ Illuminate\Support\Facades\Crypt::decryptString($laporan->kategori) }}</div>
-                            <div class="col-md-6" style="margin-bottom: 10px;"><strong>Pelapor</strong> :
-                                {{ Illuminate\Support\Facades\Crypt::decryptString($laporan->pelapor) }}</div>
+                            <div class="col-md-6">
+                                <div class="p-3 rounded-3" style="background: #f8fafc; border: 1px solid #e2e8f0;">
+                                    <small class="text-secondary fw-semibold d-block">Kategori & Pelapor</small>
+                                    <span class="fw-bold text-dark">{{ Illuminate\Support\Facades\Crypt::decryptString($laporan->kategori) }} ({{ Illuminate\Support\Facades\Crypt::decryptString($laporan->pelapor) }})</span>
+                                </div>
+                            </div>
+
                             @if ($jenis)
-                                <div class="col-md-6" style="margin-bottom: 10px;"><strong>Jenis Kekerasan</strong> :
-                                    {{ $jenis->tipe_kekerasan }}</div>
-                            @endif
-
-                            <div class="col-md-6" style="margin-bottom: 10px;">NIK/NIM/NPSN :
-                                {{ Illuminate\Support\Facades\Crypt::decryptString($laporan->no_identitas) }}</div>
-
-                            @if ($laporan->universitasRel)
-                                <div class="col-md-6" style="margin-bottom: 10px;"><strong>Perguruan Tinggi</strong> :
-                                    {{ $laporan->universitasRel->nama }}
+                                <div class="col-md-6">
+                                    <div class="p-3 rounded-3" style="background: #f8fafc; border: 1px solid #e2e8f0;">
+                                        <small class="text-secondary fw-semibold d-block">Jenis Kekerasan</small>
+                                        <span class="fw-bold text-danger">{{ $jenis->tipe_kekerasan }}</span>
+                                    </div>
                                 </div>
                             @endif
 
-
-                            @if ($laporan->instansi_bekerja)
-                                <div class="col-md-6" style="margin-bottom: 10px;"><strong>Instansi</strong> :
-                                    {{ Illuminate\Support\Facades\Crypt::decryptString($laporan->instansi_bekerja) }}
+                            <div class="col-md-6">
+                                <div class="p-3 rounded-3" style="background: #f8fafc; border: 1px solid #e2e8f0;">
+                                    <small class="text-secondary fw-semibold d-block">Kontak (Email / No. HP)</small>
+                                    <span class="fw-bold text-dark">{{ Illuminate\Support\Facades\Crypt::decryptString($laporan->email) }} / {{ Illuminate\Support\Facades\Crypt::decryptString($laporan->no_hp) }}</span>
                                 </div>
-                            @endif
-
-
-                            <div class="col-md-6" style="margin-bottom: 10px;">Jenis Kelamin :
-                                {{ Illuminate\Support\Facades\Crypt::decryptString($laporan->jenis_kelamin) }}</div>
-
-                            <div class="col-md-6" style="margin-bottom: 10px;"><strong>Email</strong> :
-                                {{ Illuminate\Support\Facades\Crypt::decryptString($laporan->email) }}</div>
-
-                            <div class="col-md-6" style="margin-bottom: 10px;">No Telp:
-                                {{ Illuminate\Support\Facades\Crypt::decryptString($laporan->no_hp) }}</div>
-
-
-                            <div class="col-md-6" style="margin-bottom: 10px;"><strong>Jenis Identitas</strong> :
-
-                                @if ($laporan->identitasRel)
-                                    {{ $laporan->identitasRel->jenis_identitas }}
-                                @endif
                             </div>
 
-
-                            <div class="col-md-6" style="margin-bottom: 10px;">Tanggal Kejadian :
-                                @if ($laporan->kronologi_kejadian)
-                                    @php
-                                        $crat = Illuminate\Support\Facades\Crypt::decryptString(
-                                            $laporan->tanggal_kejadian,
-                                        );
-                                    @endphp
-                                    {{ Carbon\Carbon::parse($crat)->locale('id')->diffForHumans() }}
-                                @endif
+                            <div class="col-md-6">
+                                <div class="p-3 rounded-3" style="background: #f8fafc; border: 1px solid #e2e8f0;">
+                                    <small class="text-secondary fw-semibold d-block">Lokasi Kejadian</small>
+                                    <span class="fw-bold text-dark">{{ Illuminate\Support\Facades\Crypt::decryptString($laporan->lokasi_kejadian) }}</span>
+                                </div>
                             </div>
 
-                            <div class="col-md-6" style="margin-bottom: 10px;">Tanggal Laporan :
-                                {{ Carbon\Carbon::parse($laporan->created_at)->locale('id')->diffForHumans() }}
+                            <div class="col-md-6">
+                                <div class="p-3 rounded-3" style="background: #f8fafc; border: 1px solid #e2e8f0;">
+                                    <small class="text-secondary fw-semibold d-block">Tanggal Kejadian / Laporan</small>
+                                    <span class="fw-bold text-dark">{{ Carbon\Carbon::parse($laporan->created_at)->locale('id')->isoFormat('D MMMM Y') }}</span>
+                                </div>
                             </div>
-
-                            <div class="col-md-6" style="margin-bottom: 10px;">Nama Pendamping :
-                                @if ($laporan->nama_pendamping)
-                                    {{ Illuminate\Support\Facades\Crypt::decryptString($laporan->nama_pendamping) }}
-                                @endif
-
-                            </div>
-                            <div class="col-md-6" style="margin-bottom: 10px;">No Wa Pendamping :
-                                @if ($laporan->nama_pendamping)
-                                    {{ Illuminate\Support\Facades\Crypt::decryptString($laporan->no_wa_pendamping) }}
-                                @endif
-                            </div>
-
 
                             @if ($laporan->upload_identitas)
-                                <div class="col-md-6" style="margin-bottom: 10px;">File Identitas : <a
-                                        href="{{ asset(Illuminate\Support\Facades\Crypt::decryptString($laporan->upload_identitas)) }}"
-                                        download="" target="_blank" class="btn btn-sm btn-success"><i
-                                            class="fas fa-download"></i></a></div>
+                                <div class="col-md-6">
+                                    <div class="p-3 rounded-3 d-flex align-items-center justify-content-between" style="background: #f0fdf4; border: 1px solid #bbf7d0;">
+                                        <div>
+                                            <small class="text-success fw-semibold d-block">File Dokumen Identitas</small>
+                                            <span class="fw-bold text-dark"><i class="fas fa-file-shield text-success me-1"></i> Terenkripsi AES-256</span>
+                                        </div>
+                                        <a href="{{ route('decrypt.form', ['file_path' => $laporan->upload_identitas, 'model_type' => 'laporan', 'model_id' => $laporan->id]) }}"
+                                            target="_blank" class="btn btn-sm btn-success shadow-sm">
+                                            <i class="fas fa-key me-1"></i> Dekripsi & Download
+                                        </a>
+                                    </div>
+                                </div>
                             @endif
 
                             @if ($laporan->upload_bukti)
-                                <div class="col-md-6" style="margin-bottom: 10px;">File Bukti : <a
-                                        href="{{ asset(Illuminate\Support\Facades\Crypt::decryptString($laporan->upload_bukti)) }}"
-                                        download="" target="_blank" class="btn btn-sm btn-success"><i
-                                            class="fas fa-download"></i></a></div>
+                                <div class="col-md-6">
+                                    <div class="p-3 rounded-3 d-flex align-items-center justify-content-between" style="background: #f0fdf4; border: 1px solid #bbf7d0;">
+                                        <div>
+                                            <small class="text-success fw-semibold d-block">File Bukti Pendukung</small>
+                                            <span class="fw-bold text-dark"><i class="fas fa-file-shield text-success me-1"></i> Terenkripsi AES-256</span>
+                                        </div>
+                                        <a href="{{ route('decrypt.form', ['file_path' => $laporan->upload_bukti, 'model_type' => 'laporan', 'model_id' => $laporan->id]) }}"
+                                            target="_blank" class="btn btn-sm btn-success shadow-sm">
+                                            <i class="fas fa-key me-1"></i> Dekripsi & Download
+                                        </a>
+                                    </div>
+                                </div>
                             @endif
                         </div>
                         @if ($laporan->ket)
@@ -180,11 +177,13 @@
                                     @if ($ts == 'Laporan tidak sesuai dengan tindak kekerasan')
                                     @elseif($ts == 'Selesai')
                                     @else
-                                        <button type="button" class="btn btn-primary" data-bs-toggle="modal"
-                                            data-bs-target="#updateStatusModal">Tambah Log</button>
-                                        @if (!$laporan->nama_pendamping)
-                                            <button type="button" class="btn btn-success" data-bs-toggle="modal"
-                                                data-bs-target="#nama_pendamping">Pendamping</button>
+                                        @if (Auth::user()->level != 'pelapor')
+                                            <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                                                data-bs-target="#updateStatusModal">Tambah Log</button>
+                                            @if (!$laporan->nama_pendamping)
+                                                <button type="button" class="btn btn-success" data-bs-toggle="modal"
+                                                    data-bs-target="#nama_pendamping">Pendamping</button>
+                                            @endif
                                         @endif
                                         <button type="button" class="btn btn-danger" data-bs-toggle="modal"
                                             data-bs-target="#chat">Chat</button>
@@ -299,22 +298,23 @@
                                                 style="max-height: 400px; overflow-y: scroll;">
                                                 <!-- Loop chat messages -->
                                                 @foreach ($chat as $row)
-                                                    @if ($row->status == 'Admin')
-                                                        <div class="d-flex justify-content-end">
-                                                            <div class="alert bg-primary text-white"
-                                                                style="max-width: 80%;">
-                                                                <p>{!! $row->pesan !!}</p>
-                                                                <small
-                                                                    class="text-white">{{ date('d, F Y H:i', strtotime($row->created_at)) }}</small>
+                                                    @php
+                                                        $isMe = (Auth::user()->level === 'pelapor' && $row->status !== 'Admin') || (Auth::user()->level !== 'pelapor' && $row->status === 'Admin');
+                                                    @endphp
+                                                    @if ($isMe)
+                                                        <div class="d-flex justify-content-end mb-2">
+                                                            <div class="p-3 rounded-4 bg-primary text-white" style="max-width: 80%; box-shadow: 0 2px 8px rgba(79, 70, 229, 0.25);">
+                                                                <small class="d-block fw-bold mb-1 text-white-50">Anda ({{ $row->status }})</small>
+                                                                <p class="mb-1">{!! $row->pesan !!}</p>
+                                                                <small class="text-white-50" style="font-size: 11px;">{{ date('d F Y, H:i', strtotime($row->created_at)) }}</small>
                                                             </div>
                                                         </div>
                                                     @else
-                                                        <div class="d-flex justify-content-start">
-                                                            <div class="alert bg-secondary text-white"
-                                                                style="max-width: 80%;">
-                                                                <p>{!! $row->pesan !!}</p>
-                                                                <small
-                                                                    class="text-white">{{ date('d, F Y H:i', strtotime($row->created_at)) }}</small>
+                                                        <div class="d-flex justify-content-start mb-2">
+                                                            <div class="p-3 rounded-4 bg-light text-dark border" style="max-width: 80%;">
+                                                                <small class="d-block fw-bold mb-1 text-primary">{{ $row->nama }} ({{ $row->status }})</small>
+                                                                <p class="mb-1">{!! $row->pesan !!}</p>
+                                                                <small class="text-muted" style="font-size: 11px;">{{ date('d F Y, H:i', strtotime($row->created_at)) }}</small>
                                                             </div>
                                                         </div>
                                                     @endif
@@ -570,7 +570,7 @@
                                                 @endif
                                             </td>
 
-                                            @if (!in_array($rr, ['Selesai', 'Laporan tidak sesuai dengan tindak kekerasan']))
+                                            @if (!in_array($rr, ['Selesai', 'Laporan tidak sesuai dengan tindak kekerasan']) && Auth::user()->level != 'pelapor')
                                                 <td>
                                                     <form action="{{ url('adm/hapus_logs_laporan') }}" method="POST">
                                                         @csrf

@@ -52,5 +52,11 @@ class User extends Authenticatable
         return $this->belongsTo(Universitas::class, 'universitas_id', 'id');
     }
 
-
+    /**
+     * Relasi ke laporan yang dibuat oleh user ini
+     */
+    public function laporans()
+    {
+        return $this->hasMany(Laporan::class, 'user_id', 'id');
+    }
 }

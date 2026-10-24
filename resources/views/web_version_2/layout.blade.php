@@ -41,7 +41,151 @@
     <link rel="stylesheet" href="{{ asset('css/style.css') }}" />
 <style>
     a::before {
-        display: none
+        display: none !important;
+    }
+
+    /* Navbar Sticky Modern */
+    #navigation {
+        background: #ffffff !important;
+        box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.07) !important;
+        padding: 0 !important;
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 1050 !important;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        width: 100% !important;
+    }
+
+    /* Saat terkena class scroll navbar-fixed */
+    #navigation.navbar-fixed {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        background: rgba(255, 255, 255, 0.98) !important;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08) !important;
+        animation: fadeInDown 0.4s ease-out;
+        z-index: 1050 !important;
+    }
+
+    #navigation .container {
+        padding-top: 10px;
+        padding-bottom: 10px;
+    }
+
+    .navbar-container-inner {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        width: 100% !important;
+        flex-wrap: nowrap !important;
+    }
+
+    .site-logo {
+        display: flex !important;
+        align-items: center !important;
+        flex-shrink: 0 !important;
+    }
+
+    .site-logo img {
+        height: 48px !important;
+        max-height: 48px !important;
+        width: auto !important;
+        object-fit: contain !important;
+    }
+
+    .header_right {
+        float: none !important;
+        display: flex !important;
+        align-items: center !important;
+        flex-shrink: 0 !important;
+    }
+
+    #main-menu {
+        margin: 0 !important;
+        display: block !important;
+    }
+
+    #main-menu ul {
+        margin: 0 !important;
+        padding: 0 !important;
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        gap: 4px !important;
+        list-style: none !important;
+        white-space: nowrap !important;
+    }
+
+    #main-menu ul li {
+        display: inline-flex !important;
+        align-items: center !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        float: none !important;
+        position: relative !important;
+    }
+
+    #main-menu ul li a.nav-link-item {
+        color: #334155 !important;
+        font-family: 'Poppins', sans-serif !important;
+        font-size: 14px !important;
+        font-weight: 600 !important;
+        padding: 8px 12px !important;
+        border-radius: 8px !important;
+        transition: all 0.2s ease !important;
+        text-decoration: none !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        line-height: 1.4 !important;
+    }
+
+    #main-menu ul li a.nav-link-item:hover {
+        color: #4f46e5 !important;
+        background-color: #f8fafc !important;
+    }
+
+    #main-menu ul li a.nav-link-item.active {
+        color: #4f46e5 !important;
+        background-color: #eef2ff !important;
+        font-weight: 700 !important;
+    }
+
+    .btn-nav-auth {
+        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%) !important;
+        color: #ffffff !important;
+        font-family: 'Poppins', sans-serif !important;
+        font-size: 13.5px !important;
+        font-weight: 600 !important;
+        padding: 8px 18px !important;
+        border-radius: 20px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3) !important;
+        transition: all 0.25s ease !important;
+        text-decoration: none !important;
+        margin-left: 6px !important;
+        white-space: nowrap !important;
+        line-height: 1.4 !important;
+    }
+
+    .btn-nav-auth:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 16px rgba(79, 70, 229, 0.4) !important;
+        color: #ffffff !important;
+        background: linear-gradient(135deg, #4338ca 0%, #6d28d9 100%) !important;
+    }
+
+    @media (max-width: 991px) {
+        #main-menu {
+            display: none !important;
+        }
+        #mobile_menu {
+            display: block !important;
+        }
     }
 </style>
 </head>
@@ -85,49 +229,55 @@
     <!-- END LOGO WITH CONTACT -->
 
     <!-- START NAVBAR -->
-    <div id="navigation" class="navbar-light bg-faded site-navigation " >
+    <div id="navigation" class="navbar-light bg-faded site-navigation">
         <div class="container">
-            <div class="row">
-                <div class="col-lg-2 col-md-3 col-sm-4">
-                    <div class="site-logo">
-                        <a class="navbar-logo" href="{{ url('/') }}"><img src="{{ asset('img/Logo-ADIA.png') }}"
-                                alt=""></a>
-                    </div>
-                </div><!--- END Col -->
-                <div class="col-lg-10 col-md-9 col-sm-8">
-                    <div class="header_right">
-                        <nav id="main-menu" class="ml-auto">
-                            <ul>
-                                <li  style="padding-top: 10px;"><a class="@if (request()->is('/'))
-                                    text-primary
-                                @endif" href="{{ url('/') }}">Beranda</a></li>
-                                <li style="padding-top: 10px;"><a href="{{ url('laporan/form') }}" class="@if (request()->is('laporan/form') || request()->is('responselaporan'))
-                                    text-primary
-                                @endif">Buat Laporan</a>
+            <div class="navbar-container-inner">
+                <div class="site-logo">
+                    <a class="navbar-logo d-flex align-items-center" href="{{ url('/') }}">
+                        <img src="{{ asset('img/Logo-ADIA.png') }}" alt="Logo CRS">
+                    </a>
+                </div>
+                <div class="header_right">
+                    <nav id="main-menu">
+                        <ul>
+                            <li>
+                                <a class="nav-link-item {{ request()->is('/') ? 'active' : '' }}" href="{{ url('/') }}">Beranda</a>
+                            </li>
+                            <li>
+                                <a class="nav-link-item {{ (request()->is('laporan/form') || request()->is('responselaporan')) ? 'active' : '' }}" href="{{ url('laporan/form') }}">Buat Laporan</a>
+                            </li>
+                            <li>
+                                <a class="nav-link-item {{ (request()->is('laporan/status') || request()->is('cekstatus*') || request()->is('kirim_chat')) ? 'active' : '' }}" href="{{ url('laporan/status') }}">Cek Status Laporan</a>
+                            </li>
+                            <li>
+                                <a class="nav-link-item {{ request()->is('informasi') ? 'active' : '' }}" href="{{ url('informasi') }}">Informasi</a>
+                            </li>
+                            @if(isset($set->manual_book))
+                                <li>
+                                    <a class="nav-link-item" target="_blank" href="{{ asset($set->manual_book) }}">Buku Panduan</a>
                                 </li>
-                                <li style="padding-top: 10px;"><a  class="@if (request()->is('laporan/status') || request()->is('cekstatus/*') || request()->is('kirim_chat'))
-                                    text-primary
-                                @endif" href="{{ url('laporan/status') }}">Cek Status
-                                        Laporan</a></li>
-                                        
-                                <li style="padding-top: 10px;"><a href="{{ url('informasi') }}"  class="@if (request()->is('informasi'))
-                                    text-primary
-                                @endif">Informasi</a></li>
-                                <li style="padding-top: 10px;"><a target="_blank" href="{{ asset($set->manual_book) }}">Buku
-                                        Panduan</a></li>
-                                <li style="padding-top: 10px;"><a class="@if (request()->is('kontak'))
-                                    text-primary
-                                @endif" href="{{ url('kontak') }}">Kontak</a></li>
-                                <li  ><a class=" text-white" style="background: #525fe1;padding: 10px;border-radius: 5px;padding-bottom: 15px" href="{{ url('login') }}" target="_blank">Login Satgas</a></li>
-                            </ul>
-                        </nav>
-                        <div id="mobile_menu"></div>
-                    </div>
-                </div><!--- END COL -->
-            </div><!--- END ROW -->
-        </div><!--- END CONTAINER -->
+                            @endif
+                            <li>
+                                <a class="nav-link-item {{ request()->is('kontak') ? 'active' : '' }}" href="{{ url('kontak') }}">Kontak</a>
+                            </li>
+                            <li>
+                                @if(Auth::check())
+                                    <a class="btn-nav-auth" href="{{ route('dashboard') }}">
+                                        <i class="fas fa-gauge-high"></i> Dashboard
+                                    </a>
+                                @else
+                                    <a class="btn-nav-auth" href="{{ url('login') }}">
+                                        <i class="fas fa-arrow-right-to-bracket"></i> Masuk
+                                    </a>
+                                @endif
+                            </li>
+                        </ul>
+                    </nav>
+                    <div id="mobile_menu"></div>
+                </div>
+            </div>
+        </div>
     </div>
-    
     <!-- END NAVBAR -->
 
     @yield('content')

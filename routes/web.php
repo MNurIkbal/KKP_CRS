@@ -48,9 +48,11 @@ Route::post('/decrypt/process', [HomeController::class, 'decryptProcess'])->name
 
 Route::group(['middleware' => ['login']], function () {
 
-    // Route ke login
+    // Route ke login & register
     Route::get('login', [AuthController::class, 'index'])->name('login');
     Route::post('proses_login', [AuthController::class, 'proses_login'])->name('proses_login')->middleware('throttle:10,1');
+    Route::get('register', [AuthController::class, 'register'])->name('register');
+    Route::post('proses_register', [AuthController::class, 'proses_register'])->name('proses_register')->middleware('throttle:10,1');
 });
 
 Route::get('adm/logout', [AuthController::class, 'logout'])->name('logout');

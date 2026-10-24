@@ -49,6 +49,517 @@
 
     <link href="{{ asset('admin/css/app.min.css') }}" id="app-style" rel="stylesheet" type="text/css" />
 
+    <!-- Google Font & Modern UI Overrides -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+
+    <style>
+        body, button, input, select, textarea, h1, h2, h3, h4, h5, h6, p, span, a, label, table {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        /* Pastikan FontAwesome dan RemixIcon menggunakan font icon mereka */
+        i.fa, i.fas, i.far, i.fab, i.fa-solid, i.fa-regular, i.fa-brands, [class^="ri-"], [class^="mdi-"] {
+            font-family: "Font Awesome 6 Free", "remixicon", "Material Design Icons" !important;
+        }
+
+        body {
+            background-color: #f8fafc !important;
+            color: #1e293b;
+        }
+
+        /* Topbar Header Modern */
+        #page-topbar {
+            background: #ffffff !important;
+            border-bottom: 1px solid #e2e8f0 !important;
+            box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05) !important;
+            z-index: 1002 !important;
+        }
+
+        /* Logo Brand Box dengan Background Gradient Selaras & Menyatu dengan Sidebar */
+        .navbar-brand-box {
+            background: linear-gradient(180deg, #070d18 0%, #0d1527 100%) !important;
+            width: 250px !important;
+            min-width: 250px !important;
+            height: 70px !important;
+            border-right: 1px solid rgba(255, 255, 255, 0.07) !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: flex-start !important;
+            padding: 0 16px !important;
+            box-sizing: border-box !important;
+        }
+
+        .navbar-brand-box a {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: flex-start !important;
+            gap: 12px !important;
+            text-decoration: none !important;
+            width: 100% !important;
+        }
+
+        .brand-text-logo {
+            font-weight: 800 !important;
+            font-size: 16px !important;
+            letter-spacing: -0.3px !important;
+            color: #ffffff !important;
+            line-height: 1.2 !important;
+        }
+
+        .brand-text-sub {
+            font-size: 9.5px !important;
+            color: #818cf8 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.8px !important;
+            font-weight: 700 !important;
+            display: block !important;
+        }
+
+        #vertical-menu-btn {
+            color: #475569 !important;
+        }
+
+        .header-item {
+            color: #334155 !important;
+        }
+
+        .header-profile-user {
+            border: 2px solid #6366f1 !important;
+            box-shadow: 0 2px 8px rgba(99, 102, 241, 0.25);
+        }
+
+        /* Layout & Sidebar Full Height dengan Smooth Gradient Elegan */
+        html, body, #layout-wrapper {
+            min-height: 100vh !important;
+        }
+
+        .vertical-menu {
+            position: fixed !important;
+            top: 70px !important;
+            bottom: 0 !important;
+            left: 0 !important;
+            width: 250px !important;
+            height: calc(100vh - 70px) !important;
+            background: linear-gradient(180deg, #0d1527 0%, #0f172a 40%, #1e1b4b 100%) !important;
+            border-right: 1px solid rgba(255, 255, 255, 0.07) !important;
+            box-shadow: 6px 0 28px rgba(0, 0, 0, 0.25) !important;
+            display: flex !important;
+            flex-direction: column !important;
+            z-index: 1001 !important;
+        }
+
+        .vertical-menu [data-simplebar] {
+            height: 100% !important;
+            max-height: 100% !important;
+            overflow-y: auto !important;
+            padding-top: 10px !important;
+        }
+
+        .main-content {
+            margin-left: 250px !important;
+            min-height: 100vh !important;
+        }
+
+        @media (max-width: 991.98px) {
+            .navbar-brand-box {
+                width: auto !important;
+                min-width: unset !important;
+            }
+            .main-content {
+                margin-left: 0 !important;
+            }
+        }
+
+        /* Running Text (Marquee) in Topbar */
+        .marquee-container {
+            flex: 1;
+            margin: 0 24px;
+            overflow: hidden;
+            white-space: nowrap;
+            position: relative;
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            border-radius: 30px;
+            padding: 7px 18px;
+            display: flex;
+            align-items: center;
+        }
+
+        .marquee-badge {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: #ffffff;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 3px 10px;
+            border-radius: 20px;
+            margin-right: 14px;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            box-shadow: 0 2px 6px rgba(79, 70, 229, 0.35);
+        }
+
+        .marquee-track {
+            display: inline-block;
+            white-space: nowrap;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        .marquee-text {
+            display: inline-block;
+            padding-left: 100%;
+            animation: marquee 25s linear infinite;
+            font-size: 13.5px;
+            font-weight: 600;
+            color: #334155;
+        }
+
+        .marquee-container:hover .marquee-text {
+            animation-play-state: paused;
+        }
+
+        @keyframes marquee {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(-100%, 0); }
+        }
+
+        .user-profile {
+            padding: 16px 10px;
+            background: linear-gradient(180deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.9) 100%);
+            border-radius: 16px;
+            margin: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .user-profile h4 {
+            color: #ffffff !important;
+            font-weight: 700 !important;
+        }
+
+        .menu-title {
+            color: #64748b !important;
+            font-weight: 700 !important;
+            font-size: 11px !important;
+            letter-spacing: 1px !important;
+            text-transform: uppercase !important;
+            padding: 14px 22px 6px !important;
+        }
+
+        #sidebar-menu ul li a {
+            color: #cbd5e1 !important;
+            font-weight: 500 !important;
+            font-size: 14px !important;
+            padding: 12px 18px !important;
+            border-radius: 12px !important;
+            margin: 4px 12px !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 14px !important;
+            transition: all 0.25s ease !important;
+        }
+
+        #sidebar-menu ul li a i {
+            font-size: 17px !important;
+            color: #818cf8 !important; /* Terang & kontras */
+            transition: all 0.25s ease !important;
+            min-width: 24px;
+            text-align: center;
+            display: inline-block !important;
+        }
+
+        #sidebar-menu ul li a:hover,
+        #sidebar-menu ul li.mm-active > a {
+            color: #ffffff !important;
+            background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%) !important;
+            box-shadow: 0 8px 20px -4px rgba(79, 70, 229, 0.5) !important;
+        }
+
+        #sidebar-menu ul li a:hover i,
+        #sidebar-menu ul li.mm-active > a i {
+            color: #ffffff !important;
+            transform: scale(1.1);
+        }
+
+        /* Card Modern Design */
+        .card {
+            border-radius: 18px !important;
+            border: 1px solid #e2e8f0 !important;
+            box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.04) !important;
+            background: #ffffff !important;
+            overflow: hidden;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 10px 25px -4px rgba(15, 23, 42, 0.08) !important;
+        }
+
+        /* Buttons Modern */
+        .btn {
+            border-radius: 10px !important;
+            font-weight: 600 !important;
+            font-size: 13.5px !important;
+            padding: 8px 16px !important;
+            transition: all 0.2s ease !important;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%) !important;
+            border: none !important;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3) !important;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(79, 70, 229, 0.4) !important;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+            border: none !important;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3) !important;
+        }
+
+        /* Table Modern & Dropdown Action Fix */
+        .table-responsive {
+            overflow: visible !important;
+            padding-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .table-responsive {
+                overflow-x: auto !important;
+            }
+        }
+
+        .table {
+            color: #334155 !important;
+            vertical-align: middle !important;
+            border-collapse: separate !important;
+            border-spacing: 0 !important;
+            margin-bottom: 1.5rem !important;
+        }
+
+        .table thead th {
+            background: #f8fafc !important;
+            color: #475569 !important;
+            font-weight: 700 !important;
+            font-size: 12px !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.6px !important;
+            border-top: 1px solid #e2e8f0 !important;
+            border-bottom: 2px solid #e2e8f0 !important;
+            padding: 14px 18px !important;
+            white-space: nowrap;
+        }
+
+        .table thead th:last-child {
+            text-align: center !important;
+            width: 110px !important;
+        }
+
+        .table tbody td {
+            padding: 14px 18px !important;
+            border-bottom: 1px solid #f1f5f9 !important;
+            font-size: 13.5px !important;
+            color: #334155;
+            vertical-align: middle !important;
+        }
+
+        .table tbody td:last-child {
+            text-align: center !important;
+            width: 110px !important;
+        }
+
+        .table tbody tr {
+            transition: background-color 0.15s ease;
+        }
+
+        .table tbody tr:hover {
+            background-color: #f8fafc !important;
+        }
+
+        /* Tombol Aksi Dropdown Modern & Rapi */
+        .btn-action-dropdown {
+            background: #f1f5f9 !important;
+            color: #334155 !important;
+            border: 1px solid #cbd5e1 !important;
+            border-radius: 8px !important;
+            padding: 6px 14px !important;
+            font-size: 12.5px !important;
+            font-weight: 600 !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 6px !important;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+            transition: all 0.2s ease !important;
+        }
+
+        .btn-action-dropdown:hover, 
+        .btn-action-dropdown:focus, 
+        .show > .btn-action-dropdown {
+            background: #e2e8f0 !important;
+            color: #0f172a !important;
+            border-color: #94a3b8 !important;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1) !important;
+        }
+
+        .dropdown-menu {
+            border-radius: 12px !important;
+            border: 1px solid #e2e8f0 !important;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.08) !important;
+            padding: 6px !important;
+            z-index: 1060 !important;
+            min-width: 140px !important;
+        }
+
+        .dropdown-item {
+            border-radius: 8px !important;
+            font-weight: 600 !important;
+            font-size: 12.5px !important;
+            padding: 8px 14px !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+            transition: all 0.15s ease !important;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f1f5f9 !important;
+            color: #4f46e5 !important;
+        }
+
+        .dropdown-item.text-danger:hover {
+            background-color: #fef2f2 !important;
+            color: #dc2626 !important;
+        }
+
+        /* Modern DataTables Styling: Search, Length, Pagination */
+        .dataTables_wrapper {
+            font-size: 13px !important;
+            color: #475569 !important;
+        }
+
+        .dataTables_wrapper .dataTables_length {
+            margin-bottom: 16px;
+        }
+
+        .dataTables_wrapper .dataTables_length select {
+            border: 1px solid #cbd5e1 !important;
+            border-radius: 8px !important;
+            padding: 6px 28px 6px 12px !important;
+            font-size: 13px !important;
+            color: #334155 !important;
+            outline: none !important;
+            background-color: #ffffff;
+        }
+
+        .dataTables_wrapper .dataTables_filter {
+            margin-bottom: 16px;
+        }
+
+        .dataTables_wrapper .dataTables_filter label {
+            font-weight: 600 !important;
+            color: #475569 !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+        }
+
+        .dataTables_wrapper .dataTables_filter input {
+            border: 1px solid #cbd5e1 !important;
+            border-radius: 8px !important;
+            padding: 6px 14px !important;
+            font-size: 13px !important;
+            color: #1e293b !important;
+            outline: none !important;
+            background-color: #ffffff !important;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+            transition: all 0.2s ease !important;
+            width: 220px !important;
+        }
+
+        .dataTables_wrapper .dataTables_filter input:focus {
+            border-color: #6366f1 !important;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15) !important;
+        }
+
+        .dataTables_wrapper .dataTables_info {
+            padding-top: 14px !important;
+            color: #64748b !important;
+            font-weight: 500 !important;
+        }
+
+        .dataTables_wrapper .dataTables_paginate {
+            padding-top: 12px !important;
+        }
+
+        .dataTables_wrapper .dataTables_paginate .pagination {
+            gap: 4px;
+        }
+
+        .dataTables_wrapper .dataTables_paginate .page-item .page-link {
+            border-radius: 8px !important;
+            border: 1px solid #e2e8f0 !important;
+            color: #475569 !important;
+            font-weight: 600 !important;
+            font-size: 12.5px !important;
+            padding: 6px 12px !important;
+            transition: all 0.15s ease !important;
+        }
+
+        .dataTables_wrapper .dataTables_paginate .page-item.active .page-link {
+            background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%) !important;
+            border-color: #4f46e5 !important;
+            color: #ffffff !important;
+            box-shadow: 0 2px 8px rgba(79, 70, 229, 0.3) !important;
+        }
+
+        .dataTables_wrapper .dataTables_paginate .page-item .page-link:hover {
+            background-color: #f1f5f9 !important;
+            color: #1e293b !important;
+        }
+
+        /* Badges */
+        .badge {
+            padding: 6px 12px !important;
+            border-radius: 20px !important;
+            font-weight: 600 !important;
+            font-size: 12px !important;
+        }
+
+        .badge.bg-success {
+            background: #dcfce7 !important;
+            color: #15803d !important;
+        }
+
+        .badge.bg-primary {
+            background: #e0e7ff !important;
+            color: #4338ca !important;
+        }
+
+        .badge.bg-danger {
+            background: #fee2e2 !important;
+            color: #b91c1c !important;
+        }
+
+        /* Footer */
+        .footer {
+            background: #ffffff !important;
+            border-top: 1px solid #e2e8f0 !important;
+            color: #64748b !important;
+            font-size: 13px !important;
+        }
+    </style>
+
     @stack('css')
 
 </head>
@@ -74,41 +585,13 @@
                     <!-- LOGO -->
 
                     <div class="navbar-brand-box">
-
-                        <a href="#" class="logo logo-dark">
-
-                            <span class="logo-sm">
-
-                                <img src="{{ asset('img/1.png') }}" alt="logo-sm" height="40">
-
-                            </span>
-
-                            <span class="logo-lg">
-
-                                <img src="{{ asset('img/1.png') }}" alt="logo-dark" height="40">
-
-                            </span>
-
+                        <a href="{{ url('/') }}">
+                            <img src="{{ asset('img/Logo-ADIA.png') }}" alt="Logo CRS" height="34" style="object-fit: contain;">
+                            <div class="text-start">
+                                <span class="brand-text-logo">CRS SATGAS</span>
+                                <span class="brand-text-sub">LLDIKTI WILAYAH III</span>
+                            </div>
                         </a>
-
-
-
-                        <a href="{{ url('/') }}" class="logo logo-light">
-
-                            <span class="logo-sm">
-
-                                <img src="{{ asset('img/1.png') }}" alt="logo-sm-light" height="40">
-
-                            </span>
-
-                            <span class="logo-lg">
-
-                                <img src="{{ asset('img/1.png') }}" alt="logo-light" height="40">
-
-                            </span>
-
-                        </a>
-
                     </div>
 
 
@@ -122,6 +605,19 @@
 
                 </div>
 
+                <!-- Running Text Marquee -->
+                <div class="marquee-container d-none d-md-flex">
+                    <span class="marquee-badge">
+                        <i class="fas fa-bullhorn"></i> Informasi
+                    </span>
+                    <div class="marquee-track">
+                        <span class="marquee-text">
+                            Layanan Pengaduan CRS Satgas PPKPT LLDIKTI wilayah III
+                            Di CRS Satgas PPKPT LLDIKTI wilayah III,kami menyediakan saluran pengaduan yang aman dan cepat untuk memastikan perlindungan dan kesejahteraan semua pihak.
+                        </span>
+                    </div>
+                </div>
+
                 <style>
                     @media screen and (min-width:992px) {
                         .matis {
@@ -131,7 +627,7 @@
                 </style>
 
 
-                <div class="d-flex">
+                <div class="d-flex align-items-center">
 
                     <div class="dropdown d-inline-block user-dropdown">
 
@@ -156,8 +652,7 @@
                             <a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#passw" href="#"><i
                                     class="fas fa-lock align-middle me-1"></i> Ganti Password</a>
 
-                            <a class="dropdown-item text-danger" href="{{ route('logout') }}"><i
-                                    class="ri-shut-down-line align-middle me-1 text-danger"></i> Logout</a>
+                            <a class="dropdown-item text-danger" href="{{ route('logout') }}"><i class="ri-logout-box-r-line align-middle me-1 text-danger"></i> Logout</a>
 
                         </div>
 
@@ -177,33 +672,7 @@
 
             <div data-simplebar class="h-100">
 
-
-
-                <!-- User details -->
-
-                <div class="user-profile text-center mt-3">
-
-                    <div class="">
-
-                        <img src="{{ asset('admin/images/users/avatar-1.png') }}" alt=""
-                            class="avatar-md rounded-circle">
-
-                    </div>
-
-                    <div class="mt-3">
-
-                        <h4 class="font-size-16 mb-1">{{ Auth::user()->name }}</h4>
-
-                        {{-- <span class="text-muted"><i class="align-middle font-size-14 text-success"></i> {{Auth::user()->username}}</span> --}}
-
-                    </div>
-
-                </div>
-
-
-
                 <!--- Sidemenu -->
-
                 <div id="sidebar-menu">
 
                     <!-- Left Menu Start -->
@@ -230,6 +699,16 @@
                                 <a href="{{ route('laporan.index') }}" class="waves-effect">
 
                                     <span><i class="fas fa-print"></i> Laporan Masuk</span>
+
+                                </a>
+
+                            </li>
+
+                            <li>
+
+                                <a href="{{ url('laporan/form') }}" class="waves-effect">
+
+                                    <span><i class="fas fa-file-circle-plus"></i> Buat Laporan</span>
 
                                 </a>
 
@@ -327,7 +806,17 @@
 
                                 <a href="{{ route('laporan.index') }}" class="waves-effect">
 
-                                    <span><i class="fas fa-print"></i> Laporan Masuk</span>
+                                    <span><i class="fas fa-print"></i> {{ Auth::user()->level == 'pelapor' ? 'Laporan Saya' : 'Laporan Masuk' }}</span>
+
+                                </a>
+
+                            </li>
+
+                            <li>
+
+                                <a href="{{ url('laporan/form') }}" class="waves-effect">
+
+                                    <span><i class="fas fa-file-circle-plus"></i> Buat Laporan</span>
 
                                 </a>
 
@@ -345,15 +834,17 @@
                             @endif
                         @endif
 
-                        <li>
+                        @if (Auth::user()->level != 'pelapor')
+                            <li>
 
-                            <a href="{{ url('adm/log') }}" class="waves-effect">
+                                <a href="{{ url('adm/log') }}" class="waves-effect">
 
-                                <span><i class="fas fa-edit"></i> Log</span>
+                                    <span><i class="fas fa-edit"></i> Log</span>
 
-                            </a>
+                                </a>
 
-                        </li>
+                            </li>
+                        @endif
 
 
 

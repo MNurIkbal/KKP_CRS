@@ -69,18 +69,18 @@
                             <div class="mt-4">
                                 <b>Dokumen Identitas </b>
                                 <br>
-                                <a target="_blank" download=""
-                                    href="{{ asset(Illuminate\Support\Facades\Crypt::decryptString($first->upload_identitas)) }}"
-                                    class="btn btn-success btn-sm"><i class="fas fa-download"></i></a>
+                                <a target="_blank"
+                                    href="{{ route('decrypt.form', ['file_path' => $first->upload_identitas, 'model_type' => 'laporan', 'model_id' => $first->id]) }}"
+                                    class="btn btn-success btn-sm"><i class="fas fa-lock-open me-1"></i> Dekripsi & Download</a>
                             </div>
                         @endif
-                        @if ($first->upload_identitas)
+                        @if ($first->upload_bukti)
                             <div class="mt-4">
                                 <b>Dokumen Bukti </b>
                                 <br>
-                                <a target="_blank" download=""
-                                    href="{{ asset(Illuminate\Support\Facades\Crypt::decryptString($first->upload_bukti)) }}"
-                                    class="btn btn-success btn-sm"><i class="fas fa-download"></i></a>
+                                <a target="_blank"
+                                    href="{{ route('decrypt.form', ['file_path' => $first->upload_bukti, 'model_type' => 'laporan', 'model_id' => $first->id]) }}"
+                                    class="btn btn-success btn-sm"><i class="fas fa-lock-open me-1"></i> Dekripsi & Download</a>
                             </div>
                         @endif
                         @if ($first->ket)
@@ -192,6 +192,14 @@
                                                     {{ date('d, F Y', strtotime($data->tgl_batas_proses)) }}
                                                 @endif
                                             </div>
+                                            @if ($data->upload_file)
+                                                <div class="mt-2">
+                                                    <a href="{{ route('decrypt.form', ['file_path' => $data->upload_file, 'model_type' => 'log', 'model_id' => $data->id]) }}"
+                                                        class="btn btn-primary btn-sm" target="_blank">
+                                                        <i class="fas fa-lock-open me-1"></i> Dekripsi Dokumen Log
+                                                    </a>
+                                                </div>
+                                            @endif
                                         </div>
                                     </div>
                                 @endforeach

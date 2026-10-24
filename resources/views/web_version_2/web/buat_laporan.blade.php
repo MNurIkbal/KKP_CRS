@@ -61,7 +61,8 @@
                                         is-invalid
                                     @enderror"
                                     type="text" name="nama" placeholder="Masukkan nama" required=""
-                                    value="{{ old('nama') }}">
+                                    value="{{ old('nama', Auth::check() ? Auth::user()->name : '') }}"
+                                    @if(Auth::check()) readonly style="background-color: #f1f5f9; cursor: not-allowed;" @endif>
 
                                 @error('nama')
                                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
@@ -169,7 +170,27 @@
                                 <small id="error_message" style="color: red;"></small>
 
 
-                                @error('upload_bukti')
+                                 @error('upload_bukti')
+                                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
+                            <div class="form-group">
+                                <label for="password_file" class="form-label">Password Enkripsi Dokumen <span class="text-danger">*</span>
+                                </label>
+                                <div style="position: relative;">
+                                    <input
+                                        class="form-control @error('password_file') is-invalid @enderror"
+                                        id="password_file" type="password" name="password_file"
+                                        placeholder="Masukkan password enkripsi dokumen (Wajib)"
+                                        required
+                                        value="{{ old('password_file') }}"
+                                        style="padding-right: 42px;">
+                                    <button type="button" onclick="togglePassFile()" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #64748b; font-size: 15px; padding: 0;">
+                                        <i class="fa fa-eye" id="togglePassFileIcon"></i>
+                                    </button>
+                                </div>
+                                <small class="text-muted">Password ini <strong>wajib diisi</strong> dan digunakan untuk mengenkripsi berkas identitas & bukti dengan algoritma AES-256. Simpan password ini untuk membuka/mendekripsi dokumen Anda saat dicek.</small>
+                                @error('password_file')
                                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                                 @enderror
                             </div>
@@ -278,7 +299,8 @@
                                         is-invalid
                                     @enderror"
                                     type="email" name="email" placeholder="Masukkan alamat email" required=""
-                                    value="{{ old('email') }}">
+                                    value="{{ old('email', Auth::check() ? Auth::user()->email : '') }}"
+                                    @if(Auth::check()) readonly style="background-color: #f1f5f9; cursor: not-allowed;" @endif>
 
                                 @error('email')
                                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
@@ -722,5 +744,19 @@
                 'CaseChange'
             ]
         });
+
+        function togglePassFile() {
+            var passInput = document.getElementById('password_file');
+            var icon = document.getElementById('togglePassFileIcon');
+            if (passInput.type === 'password') {
+                passInput.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                passInput.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
     </script>
 @endsection

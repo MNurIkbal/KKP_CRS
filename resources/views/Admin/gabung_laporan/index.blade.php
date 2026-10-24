@@ -60,24 +60,38 @@
                                                         $data->status,
                                                     );
                                                 @endphp
-                                                @if ($status == 'Diterima')
-                                                    <a href="{{ url('adm/update_status_laporan/' . '1/' . $data->id) }}"
-                                                        class="btn btn-success" title="Diterima"><i
-                                                            class="fas fa-check"></i></a>
-                                                    <a href="{{ url('adm/update_status_laporan/' . '0/' . $data->id) }}"
-                                                        class="btn btn-danger" title="Ditolak"><i
-                                                            class="fas fa-times"></i></a>
-                                                @else
-                                                    <a class="" title="Detail"
-                                                        href="{{ url('adm/detail_laporan/' . Illuminate\Support\Facades\Crypt::encryptString($data->id) ) }}"
-                                                        title="Lihat Log"><button type="button"
-                                                            class="btn btn-success  "><i
-                                                            class="fas fa-eye"></i></button></a>&nbsp;
-                                                @endif
-                                                <a class="" title="Hapus"
-                                                    href="{{ url('adm/hapus_laporan_gabungan/' . $data->id) }}"
-                                                    title="Lihat Log"><button type="button" class="btn btn-danger  "><i
-                                                            class="fas fa-trash"></i></button></a>&nbsp;
+                                                <div class="dropdown">
+                                                    <button class="btn btn-action-dropdown dropdown-toggle" type="button"
+                                                        id="dropdownActionGabung{{ $data->id }}" data-bs-toggle="dropdown" aria-expanded="false">
+                                                        <i class="fas fa-ellipsis-v me-1"></i> Aksi
+                                                    </button>
+                                                    <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="dropdownActionGabung{{ $data->id }}">
+                                                        @if ($status == 'Diterima')
+                                                            <li>
+                                                                <a class="dropdown-item py-2 text-success" href="{{ url('adm/update_status_laporan/' . '1/' . $data->id) }}">
+                                                                    <i class="fas fa-check me-2"></i> Terima
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a class="dropdown-item py-2 text-danger" href="{{ url('adm/update_status_laporan/' . '0/' . $data->id) }}">
+                                                                    <i class="fas fa-times me-2"></i> Tolak
+                                                                </a>
+                                                            </li>
+                                                        @else
+                                                            <li>
+                                                                <a class="dropdown-item py-2" href="{{ url('adm/detail_laporan/' . Illuminate\Support\Facades\Crypt::encryptString($data->id) ) }}">
+                                                                    <i class="fas fa-eye text-primary me-2"></i> Detail Log
+                                                                </a>
+                                                            </li>
+                                                        @endif
+                                                        <li><hr class="dropdown-divider my-1"></li>
+                                                        <li>
+                                                            <a class="dropdown-item py-2 text-danger" href="{{ url('adm/hapus_laporan_gabungan/' . $data->id) }}">
+                                                                <i class="fas fa-trash me-2"></i> Hapus
+                                                            </a>
+                                                        </li>
+                                                    </ul>
+                                                </div>
                                             </td>
 
                                         </tr>

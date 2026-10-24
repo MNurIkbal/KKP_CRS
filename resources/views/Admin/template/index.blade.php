@@ -37,21 +37,34 @@
                                         <td>{{ $data->status }}</td>
                                         <td>{{ $data->deskripsi_status }}</td>
                                         <td>
-                                            <a class=""href="{{ route('template.edit', ['template' => $data->id]) }}"><button
-                                                    type="button" class="btn btn-warning  "><i
-                                                        class="fas fa-edit"></i></button></a>&nbsp;
-                                            @if (!in_array($data->status, ['Selesai',
-                                                                    'Laporan Di Tinjau Ulang',
-                                                                    'Sedang diverifikasi',
-                                                                    'Laporan tidak sesuai dengan tindak kekerasan',]))
-                                                <form method="POST" action="{{ route('template.destroy', $data->id) }}"
-                                                    class="d-inline-block">
-                                                    @csrf
-                                                    <input name="_method" type="hidden" value="DELETE">
-                                                    <button type="submit" class="btn btn-danger  show_confirm "> <i
-                                                            class="far fa-trash-alt"> </i></button>
-                                                </form>
-                                            @endif
+                                            <div class="dropdown">
+                                                <button class="btn btn-action-dropdown dropdown-toggle" type="button"
+                                                    id="dropdownActionTemplate{{ $data->id }}" data-bs-toggle="dropdown" aria-expanded="false">
+                                                    <i class="fas fa-ellipsis-v me-1"></i> Aksi
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="dropdownActionTemplate{{ $data->id }}">
+                                                    <li>
+                                                        <a class="dropdown-item py-2" href="{{ route('template.edit', ['template' => $data->id]) }}">
+                                                            <i class="fas fa-edit text-warning me-2"></i> Edit
+                                                        </a>
+                                                    </li>
+                                                    @if (!in_array($data->status, ['Selesai',
+                                                                            'Laporan Di Tinjau Ulang',
+                                                                            'Sedang diverifikasi',
+                                                                            'Laporan tidak sesuai dengan tindak kekerasan',]))
+                                                        <li><hr class="dropdown-divider my-1"></li>
+                                                        <li>
+                                                            <form method="POST" action="{{ route('template.destroy', $data->id) }}" class="d-inline-block w-100">
+                                                                @csrf
+                                                                <input name="_method" type="hidden" value="DELETE">
+                                                                <button type="submit" class="dropdown-item py-2 text-danger show_confirm" style="background: none; border: none; width: 100%; text-align: left;">
+                                                                    <i class="far fa-trash-alt me-2"></i> Hapus
+                                                                </button>
+                                                            </form>
+                                                        </li>
+                                                    @endif
+                                                </ul>
+                                            </div>
                                         </td>
                                     </tr>
                                 @endforeach

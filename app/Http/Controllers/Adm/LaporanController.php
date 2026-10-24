@@ -136,6 +136,29 @@ class LaporanController extends Controller
         } elseif (Auth::user()->level == "pt") {
             $univ_id = Auth::user()->universitas_id;
             $laporan = Laporan::where('merge_laporan_id', null)->where('universitas', $univ_id)->orderby('created_at', 'DESC')->get();
+        } elseif (Auth::user()->level == "pelapor") {
+            $userId = Auth::id();
+            $userEmail = Auth::user()->email;
+            $laporan = Laporan::where('merge_laporan_id', null)
+                ->where(function ($query) use ($userId) {
+                    $query->where('user_id', $userId);
+                })
+                ->orderby('created_at', 'DESC')
+                ->get();
+
+            // Jika masih kosong atau ada data lama tanpa user_id, fallback ke pencocokan email
+            if ($laporan->isEmpty()) {
+                $laporan = Laporan::where('merge_laporan_id', null)->get()->filter(function ($item) use ($userId, $userEmail) {
+                    if (!empty($item->user_id) && $item->user_id == $userId) {
+                        return true;
+                    }
+                    try {
+                        return strtolower(trim(Crypt::decryptString($item->email))) === strtolower(trim($userEmail));
+                    } catch (\Exception $e) {
+                        return false;
+                    }
+                });
+            }
         } else {
             $laporan = Laporan::where('merge_laporan_id', null)->where('mitra', "Mitra")->orderby('created_at', 'DESC')->get();
         }
@@ -191,11 +214,13 @@ class LaporanController extends Controller
         }
 
 
+        $senderStatus = Auth::user()->level === 'pelapor' ? 'Pelapor' : 'Admin';
+
         PesanModel::create([
             'laporan_id'    => $request->input('id'),
             'nama'  =>  Auth::user()->name,
             'pesan' =>  $request->input('pesan'),
-            'status'    =>  'Admin',
+            'status'    =>  $senderStatus,
             'created_at'    =>  Carbon::now()
         ]);
         return redirect()->back();

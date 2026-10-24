@@ -49,13 +49,25 @@
                                             @endif
                                         </td>
                                         <td>
-                                            <a class="" href="{{ route('user.edit', ['user' => $item->id]) }}"><button
-                                                    type="button" class="btn btn-warning  " title="Ubah"><i
-                                                        class="fas fa-edit"></i></button></a>&nbsp;
-
-                                            <button class="btn btn-danger delete-btn " data-id="{{ $item->id }}"
-                                                data-name="{{ $item->name }}" title="Hapus"><i class="far fa-trash-alt">
-                                                </i></button>
+                                            <div class="dropdown">
+                                                <button class="btn btn-action-dropdown dropdown-toggle" type="button"
+                                                    id="dropdownActionUser{{ $item->id }}" data-bs-toggle="dropdown" aria-expanded="false">
+                                                    <i class="fas fa-ellipsis-v me-1"></i> Aksi
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="dropdownActionUser{{ $item->id }}">
+                                                    <li>
+                                                        <a class="dropdown-item py-2" href="{{ route('user.edit', ['user' => $item->id]) }}">
+                                                            <i class="fas fa-edit text-warning me-2"></i> Edit
+                                                        </a>
+                                                    </li>
+                                                    <li><hr class="dropdown-divider my-1"></li>
+                                                    <li>
+                                                        <button type="button" class="dropdown-item py-2 text-danger delete-btn" data-id="{{ $item->id }}" data-name="{{ $item->name }}" style="background: none; border: none; width: 100%; text-align: left;">
+                                                            <i class="far fa-trash-alt me-2"></i> Hapus
+                                                        </button>
+                                                    </li>
+                                                </ul>
+                                            </div>
                                         </td>
                                     </tr>
                                 @endforeach

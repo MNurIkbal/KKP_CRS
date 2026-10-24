@@ -35,4 +35,12 @@ class Laporan extends Model
     {
         return $this->belongsTo(Kekerasan::class, 'jenis_kekerasan');
     }
+
+    /**
+     * Relasi ke Pelapor/User pembuat laporan
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id', 'id');
+    }
 }

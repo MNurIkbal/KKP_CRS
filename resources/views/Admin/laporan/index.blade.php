@@ -11,13 +11,15 @@
                                 @include('components.alert')
                             </div>
                             <div class="col-sm-12 col-12 mb-3">
-                                <div style="display: flex;justify-content: space-between">
+                                <div style="display: flex;justify-content: space-between; align-items: center;">
                                     <div>
-                                        <h4 id="pages_title">Data Laporan Masuk</h4>
+                                        <h4 id="pages_title" class="fw-bold mb-0 text-dark">{{ Auth::user()->level == 'pelapor' ? 'Daftar Laporan Saya' : 'Data Laporan Masuk' }}</h4>
                                     </div>
-                                    <div>
-                                        <a href="#" data-bs-toggle="modal" data-bs-target="#export"
-                                            class="btn btn-primary">Export Excel</a>
+                                    <div class="d-flex align-items-center gap-2">
+                                        @if (Auth::user()->level != 'pelapor')
+                                            <a href="#" data-bs-toggle="modal" data-bs-target="#export"
+                                                class="btn btn-primary"><i class="fas fa-file-excel me-1"></i> Export Excel</a>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
@@ -159,14 +161,46 @@
                                                         $data->status_laporan,
                                                     );
                                                 @endphp
-                                                @if ($status == 'Diterima')
-                                                    <a href="{{ url('adm/update_status_laporan/' . '1/' . $data->kode_laporan) }}"
-                                                        class="btn btn-success" title="Diterima"><i
-                                                            class="fas fa-check"></i></a>
-                                                    <a href="#" class="btn btn-danger" data-bs-toggle="modal"
-                                                        data-bs-target="#mina{{ $data->id }}"
-                                                        title="Laporan tidak sesuai dengan tindak kekerasan"><i
-                                                            class="fas fa-times"></i></a>
+
+                                                <div class="dropdown">
+                                                    <button class="btn btn-action-dropdown dropdown-toggle" type="button"
+                                                        id="dropdownAction{{ $data->id }}" data-bs-toggle="dropdown" aria-expanded="false">
+                                                        <i class="fas fa-ellipsis-v me-1"></i> Aksi
+                                                    </button>
+                                                    <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="dropdownAction{{ $data->id }}" style="min-width: 170px;">
+                                                        <li>
+                                                            <a class="dropdown-item py-2" href="{{ route('laporan.show', ['laporan' => $data->kode_laporan]) }}">
+                                                                <i class="fas fa-eye text-primary me-2"></i> Detail Laporan
+                                                            </a>
+                                                        </li>
+
+                                                        @if ($status == 'Diterima' && Auth::user()->level != 'pelapor')
+                                                            <li><hr class="dropdown-divider my-1"></li>
+                                                            <li>
+                                                                <a class="dropdown-item py-2 text-success" href="{{ url('adm/update_status_laporan/' . '1/' . $data->kode_laporan) }}">
+                                                                    <i class="fas fa-check-circle me-2"></i> Setujui Laporan
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a class="dropdown-item py-2 text-warning" href="#" data-bs-toggle="modal" data-bs-target="#mina{{ $data->id }}">
+                                                                    <i class="fas fa-times-circle me-2"></i> Tidak Sesuai
+                                                                </a>
+                                                            </li>
+                                                        @endif
+
+                                                        @if (Auth::user()->level != 'pelapor')
+                                                            <li><hr class="dropdown-divider my-1"></li>
+                                                            <li>
+                                                                <a class="dropdown-item py-2 text-danger" href="{{ url('adm/hapus_laporan/' . $data->kode_laporan) }}"
+                                                                    onclick="return confirm('Apakah Anda yakin ingin menghapus data laporan ini?')">
+                                                                    <i class="fas fa-trash me-2"></i> Hapus Laporan
+                                                                </a>
+                                                            </li>
+                                                        @endif
+                                                    </ul>
+                                                </div>
+
+                                                @if ($status == 'Diterima' && Auth::user()->level != 'pelapor')
                                                     <div class="modal fade" id="mina{{ $data->id }}" tabindex="-1"
                                                         role="dialog" aria-labelledby="exampleModalLabel"
                                                         aria-hidden="true">
@@ -176,43 +210,25 @@
                                                                 action="{{ url('adm/update_status_laporans') }}">
                                                                 @csrf
                                                                 @method('PUT')
-                                                                <input type="hidden" name="id"
-                                                                    value="{{ $data->id }}">
+                                                                <input type="hidden" name="id" value="{{ $data->id }}">
                                                                 <div class="modal-header">
-                                                                    <h5 class="modal-title">Laporan Tidak Sesuai </h5>
+                                                                    <h5 class="modal-title">Catatan Laporan Tidak Sesuai</h5>
+                                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                                 </div>
                                                                 <div class="modal-body">
                                                                     <div class="form-group">
-                                                                        <label for="">Catatan *</label>
-                                                                        <textarea name="catatan" id="catatan" cols="30" class="form-control" required rows="5">{{ old('catatan') }}</textarea>
+                                                                        <label for="" class="form-label fw-semibold">Alasan / Catatan Penolakan <span class="text-danger">*</span></label>
+                                                                        <textarea name="catatan" id="catatan" cols="30" class="form-control" required rows="4" placeholder="Tuliskan catatan kenapa laporan tidak sesuai...">{{ old('catatan') }}</textarea>
                                                                     </div>
                                                                 </div>
                                                                 <div class="modal-footer">
-                                                                    <button type="submit"
-                                                                        class="btn btn-primary">Simpan</button>
+                                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                                                                    <button type="submit" class="btn btn-primary">Simpan Catatan</button>
                                                                 </div>
                                                             </form>
                                                         </div>
                                                     </div>
-                                                @else
-                                                    <a class="" title="Detail"
-                                                        href="{{ route('laporan.show', ['laporan' => $data->kode_laporan]) }}"
-                                                        title="Lihat Log"><button type="button"
-                                                            class="btn btn-success  "><i
-                                                                class="fas fa-eye"></i></button></a>&nbsp;
                                                 @endif
-                                                {{-- <a class="" title="Hapus"
-                                                    href="{{ url('adm/hapus_laporan/' . $data->kode_laporan) }}" onclick="confirm('Apakah Anda Ingin Menghapus Data Ini?')"
-                                                    title="Lihat Log"><button class="btn btn-danger  "><i
-                                                            class="fas fa-trash"></i></button></a>&nbsp; --}}
-                                                <a href="{{ url('adm/hapus_laporan/' . $data->kode_laporan) }}"
-                                                    onclick="return confirm('Apakah Anda Ingin Menghapus Data Ini?')"
-                                                    class="" title="Hapus">
-                                                    <button class="btn btn-danger">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
-                                                </a>
-
                                             </td>
 
                                         </tr>
