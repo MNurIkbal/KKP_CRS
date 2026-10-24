@@ -594,6 +594,9 @@
                         </div>
                     </div>
                 @endif
+            @endif
+
+            <!-- Tabel Riwayat Data Pengujian Kriptografi (Tersimpan di Tabel Terpisah: pengujian_kriptografi) -->
             <div class="card border-0 shadow-sm rounded-4 mb-4">
                 <div class="card-body p-4">
                     <div class="d-flex align-items-center justify-content-between mb-3">
