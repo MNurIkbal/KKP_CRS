@@ -814,17 +814,6 @@
 
                                 </li>
                             @endif
-                            @if (Auth::user()->level == 'pt')
-                                <li>
-
-                                    <a href="{{ url('adm/laporan_gabungan') }}" class="waves-effect">
-
-                                        <span><i class="fas fa-inbox"></i> Laporan Gabungan</span>
-
-                                    </a>
-
-                                </li>
-                            @endif
                         @endif
 
                         <li>

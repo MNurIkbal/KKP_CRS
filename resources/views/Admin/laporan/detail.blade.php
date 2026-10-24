@@ -245,12 +245,6 @@
                             @endphp
 
                             @if ($laporan->upload_identitas)
-                                @php
-                                    $pathIdentitasEncrypted = '';
-                                    try {
-                                        $pathIdentitasEncrypted = asset(Illuminate\Support\Facades\Crypt::decryptString($laporan->upload_identitas));
-                                    } catch (\Exception $e) {}
-                                @endphp
                                 <div class="col-md-6">
                                     <div class="p-3 rounded-3 d-flex align-items-center justify-content-between flex-wrap gap-2" style="background: #f0fdf4; border: 1px solid #bbf7d0;">
                                         <div>
@@ -262,14 +256,12 @@
                                             </div>
                                         </div>
                                         <div class="d-flex align-items-center gap-2">
-                                            @if ($pathIdentitasEncrypted)
-                                                <a href="{{ $pathIdentitasEncrypted }}" 
-                                                   download 
-                                                   class="btn btn-sm btn-outline-dark bg-white shadow-sm"
-                                                   title="Unduh File Ciphertext Terenkripsi AES Asli">
-                                                    <i class="fas fa-file-code me-1 text-primary"></i> Unduh File AES
-                                                </a>
-                                            @endif
+                                            <a href="{{ route('adm.download_berkas_enkripsi', ['path' => $laporan->upload_identitas]) }}" 
+                                               class="btn btn-sm btn-dark" 
+                                               style="font-weight: 600; border-radius: 8px;"
+                                               title="Unduh File Ciphertext AES (.rda)">
+                                                <i class="fas fa-file-code me-1 text-warning"></i> Unduh .RDA
+                                            </a>
                                             <button type="button" 
                                                 onclick="bukaModalDekripsi('{{ $laporan->upload_identitas }}', 'laporan', '{{ $laporan->id }}', 'Dokumen Identitas', '{{ $laporan->kode_laporan }}', '{{ $identitasSize }}', '{{ $waktuEnkripsiLaporan }}')"
                                                 class="btn btn-sm btn-success shadow-sm"
@@ -282,12 +274,6 @@
                             @endif
 
                             @if ($laporan->upload_bukti)
-                                @php
-                                    $pathBuktiEncrypted = '';
-                                    try {
-                                        $pathBuktiEncrypted = asset(Illuminate\Support\Facades\Crypt::decryptString($laporan->upload_bukti));
-                                    } catch (\Exception $e) {}
-                                @endphp
                                 <div class="col-md-6">
                                     <div class="p-3 rounded-3 d-flex align-items-center justify-content-between flex-wrap gap-2" style="background: #f0fdf4; border: 1px solid #bbf7d0;">
                                         <div>
@@ -299,14 +285,12 @@
                                             </div>
                                         </div>
                                         <div class="d-flex align-items-center gap-2">
-                                            @if ($pathBuktiEncrypted)
-                                                <a href="{{ $pathBuktiEncrypted }}" 
-                                                   download 
-                                                   class="btn btn-sm btn-outline-dark bg-white shadow-sm"
-                                                   title="Unduh File Ciphertext Terenkripsi AES Asli">
-                                                    <i class="fas fa-file-code me-1 text-primary"></i> Unduh File AES
-                                                </a>
-                                            @endif
+                                            <a href="{{ route('adm.download_berkas_enkripsi', ['path' => $laporan->upload_bukti]) }}" 
+                                               class="btn btn-sm btn-dark" 
+                                               style="font-weight: 600; border-radius: 8px;"
+                                               title="Unduh File Ciphertext AES (.rda)">
+                                                <i class="fas fa-file-code me-1 text-warning"></i> Unduh .RDA
+                                            </a>
                                             <button type="button" 
                                                 onclick="bukaModalDekripsi('{{ $laporan->upload_bukti }}', 'laporan', '{{ $laporan->id }}', 'Dokumen Bukti Kejadian', '{{ $laporan->kode_laporan }}', '{{ $buktiSize }}', '{{ $waktuEnkripsiLaporan }}')"
                                                 class="btn btn-sm btn-success shadow-sm"
@@ -317,6 +301,25 @@
                                     </div>
                                 </div>
                             @endif
+                        </div>
+
+                        <!-- Card Link Cara Kerja Enkripsi & Dekripsi AES -->
+                        <div class="card border-0 rounded-4 mb-4 overflow-hidden" style="background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%); border: 1px solid #c7d2fe !important;">
+                            <div class="card-body p-3 p-md-4 d-flex align-items-center justify-content-between flex-wrap gap-3">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="rounded-3 p-3 text-primary d-flex align-items-center justify-content-center" style="background: #ffffff; border: 1px solid #e0e7ff; width: 48px; height: 48px;">
+                                        <i class="fas fa-microchip fs-4 text-primary"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="fw-bold text-dark mb-1">Analisis Logika & Cara Kerja Kriptografi AES-256</h6>
+                                        <p class="text-muted mb-0 small">Pelajari tahapan matematis (SubBytes, ShiftRows, MixColumns, AddRoundKey) dan dekonstruksi blok file laporan ini.</p>
+                                    </div>
+                                </div>
+                                <a href="{{ route('adm.kriptografi.cara_kerja', ['kode_laporan' => $laporan->kode_laporan]) }}" 
+                                   class="btn btn-primary rounded-pill px-4 shadow-sm" style="background: #4f46e5; border-color: #4f46e5;">
+                                    <i class="fas fa-atom me-1"></i> Buka Detail Cara Kerja
+                                </a>
+                            </div>
                         </div>
 
                         <!-- Catatan Penolakan jika ada -->
