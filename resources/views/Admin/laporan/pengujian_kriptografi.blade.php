@@ -75,6 +75,7 @@
                 </div>
             </div>
 
+            <!-- Modal Realtime Processing Visualizer -->
             <div class="modal fade" id="modalProcessing" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered modal-lg">
                     <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden" style="background: #0f172a; color: #fff;">
@@ -222,23 +223,13 @@
                                     <div class="p-2 rounded-3 bg-light border mb-3">
                                         <div class="d-flex align-items-center justify-content-between mb-1">
                                             <small class="text-muted text-uppercase fw-bold" style="font-size: 10px;">Cuplikan 32-Byte Ciphertext (HEX):</small>
-                                            <div class="dropdown">
-                                                <button class="btn btn-xs btn-outline-secondary dropdown-toggle py-1 px-2 rounded-pill fw-semibold" style="font-size: 11px;" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                    <i class="fas fa-ellipsis-vertical me-1 text-muted"></i> Aksi Berkas
+                                            <div class="d-flex gap-1">
+                                                <button type="button" class="btn btn-xs btn-outline-primary py-0 px-2 rounded-pill" style="font-size: 10px;" onclick="downloadCipherFile('aes128')">
+                                                    <i class="fas fa-file-shield me-1"></i> Unduh Berkas Terenkripsi (.rda)
                                                 </button>
-                                                <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3 p-2" style="font-size: 12px; min-width: 220px;">
-                                                    <li>
-                                                        <a class="dropdown-item py-2 rounded-2 text-primary" href="javascript:void(0)" onclick="downloadCipherFile('aes128')">
-                                                            <i class="fas fa-file-shield me-2 text-primary"></i> Unduh Berkas Terenkripsi (.rda)
-                                                        </a>
-                                                    </li>
-                                                    <li><hr class="dropdown-divider my-1"></li>
-                                                    <li>
-                                                        <a class="dropdown-item py-2 rounded-2 text-success" href="javascript:void(0)" onclick="mulaiDekripsiPengujian('{{ $savedId ?? '' }}', 'aes128', '{{ $fileMetadata['nama_file'] ?? '' }}')">
-                                                            <i class="fas fa-key me-2 text-success"></i> Proses Dekripsi Realtime...
-                                                        </a>
-                                                    </li>
-                                                </ul>
+                                                <button type="button" class="btn btn-xs btn-outline-success py-0 px-2 rounded-pill" style="font-size: 10px;" onclick="downloadPlainFile('aes128')">
+                                                    <i class="fas fa-file-circle-check me-1"></i> Unduh Berkas Terdekripsi
+                                                </button>
                                             </div>
                                         </div>
                                         <code class="text-primary small d-block text-break font-monospace" style="font-size: 11px;">{{ $results['aes128']['sample_cipher_hex'] }}</code>
@@ -400,23 +391,13 @@
                                     <div class="p-2 rounded-3 bg-light border mb-3">
                                         <div class="d-flex align-items-center justify-content-between mb-1">
                                             <small class="text-muted text-uppercase fw-bold" style="font-size: 10px;">Cuplikan 32-Byte Ciphertext (HEX):</small>
-                                            <div class="dropdown">
-                                                <button class="btn btn-xs btn-outline-secondary dropdown-toggle py-1 px-2 rounded-pill fw-semibold" style="font-size: 11px;" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                    <i class="fas fa-ellipsis-vertical me-1 text-muted"></i> Aksi Berkas
+                                            <div class="d-flex gap-1">
+                                                <button type="button" class="btn btn-xs btn-outline-success py-0 px-2 rounded-pill" style="font-size: 10px;" onclick="downloadCipherFile('aes256')">
+                                                    <i class="fas fa-file-shield me-1"></i> Unduh Berkas Terenkripsi (.rda)
                                                 </button>
-                                                <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3 p-2" style="font-size: 12px; min-width: 220px;">
-                                                    <li>
-                                                        <a class="dropdown-item py-2 rounded-2 text-success" href="javascript:void(0)" onclick="downloadCipherFile('aes256')">
-                                                            <i class="fas fa-file-shield me-2 text-success"></i> Unduh Berkas Terenkripsi (.rda)
-                                                        </a>
-                                                    </li>
-                                                    <li><hr class="dropdown-divider my-1"></li>
-                                                    <li>
-                                                        <a class="dropdown-item py-2 rounded-2 text-primary" href="javascript:void(0)" onclick="mulaiDekripsiPengujian('{{ $savedId ?? '' }}', 'aes256', '{{ $fileMetadata['nama_file'] ?? '' }}')">
-                                                            <i class="fas fa-key me-2 text-primary"></i> Proses Dekripsi Realtime...
-                                                        </a>
-                                                    </li>
-                                                </ul>
+                                                <button type="button" class="btn btn-xs btn-outline-primary py-0 px-2 rounded-pill" style="font-size: 10px;" onclick="downloadPlainFile('aes256')">
+                                                    <i class="fas fa-file-circle-check me-1"></i> Unduh Berkas Terdekripsi
+                                                </button>
                                             </div>
                                         </div>
                                         <code class="text-success small d-block text-break font-monospace" style="font-size: 11px;">{{ $results['aes256']['sample_cipher_hex'] }}</code>
@@ -721,18 +702,18 @@
                                                                 </li>
                                                             @endif
                                                             <li><hr class="dropdown-divider my-1"></li>
-                                                            <li><h6 class="dropdown-header text-uppercase text-muted py-1" style="font-size: 10px;">Proses Dekripsi & Unduh</h6></li>
+                                                            <li><h6 class="dropdown-header text-uppercase text-muted py-1" style="font-size: 10px;">Berkas Terdekripsi (Pulih)</h6></li>
                                                             @if ($item->aes128_waktu_enc !== null)
                                                                 <li>
-                                                                    <a class="dropdown-item py-1 rounded-2 text-dark" href="javascript:void(0)" onclick="mulaiDekripsiPengujian('{{ $item->id }}', 'aes128', '{{ $item->nama_file }}', '{{ $item->password_sample }}')">
-                                                                        <i class="fas fa-key me-2 text-primary"></i> Dekripsi AES-128 Realtime...
+                                                                    <a class="dropdown-item py-1 rounded-2 text-dark" href="{{ route('adm.download_pengujian_file', ['id' => $item->id, 'type' => 'plain', 'algo' => 'cipher128']) }}">
+                                                                        <i class="fas fa-file-circle-check me-2 text-primary"></i> Unduh Dekripsi AES-128
                                                                     </a>
                                                                 </li>
                                                             @endif
                                                             @if ($item->aes256_waktu_enc !== null)
                                                                 <li>
-                                                                    <a class="dropdown-item py-1 rounded-2 text-dark" href="javascript:void(0)" onclick="mulaiDekripsiPengujian('{{ $item->id }}', 'aes256', '{{ $item->nama_file }}', '{{ $item->password_sample }}')">
-                                                                        <i class="fas fa-key me-2 text-success"></i> Dekripsi AES-256 Realtime...
+                                                                    <a class="dropdown-item py-1 rounded-2 text-dark" href="{{ route('adm.download_pengujian_file', ['id' => $item->id, 'type' => 'plain', 'algo' => 'cipher256']) }}">
+                                                                        <i class="fas fa-file-circle-check me-2 text-success"></i> Unduh Dekripsi AES-256
                                                                     </a>
                                                                 </li>
                                                             @endif
