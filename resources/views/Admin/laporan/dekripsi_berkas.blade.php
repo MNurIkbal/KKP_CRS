@@ -39,7 +39,19 @@
         border: 1px solid #eef2f6 !important;
         background: #ffffff;
         box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05);
-        overflow: hidden;
+    }
+    .table-responsive {
+        overflow-x: visible !important;
+        padding-bottom: 90px;
+    }
+    @media (max-width: 991.98px) {
+        .table-responsive {
+            overflow-x: auto !important;
+        }
+    }
+    .dropdown-menu {
+        z-index: 1060 !important;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
     }
     .table-dekripsi thead th {
         background: #f8fafc !important;
@@ -60,11 +72,10 @@
         color: #1e293b;
     }
     .table-dekripsi tbody tr {
-        transition: all 0.2s ease;
+        transition: background-color 0.15s ease;
     }
     .table-dekripsi tbody tr:hover {
         background-color: #f8faff !important;
-        transform: translateY(-1px);
     }
     .btn-decrypt-identity {
         background: #ecfdf5 !important;
@@ -241,8 +252,6 @@
                         <th>KODE LAPORAN</th>
                         <th>NAMA PELAPOR</th>
                         <th>KAMPUS / ASAL</th>
-                        <th>BERKAS IDENTITAS (AES)</th>
-                        <th>BERKAS BUKTI (AES)</th>
                         <th>UKURAN BERKAS</th>
                         <th>WAKTU ENKRIPSI</th>
                         <th>TANGGAL UNGGAH</th>
@@ -324,70 +333,6 @@
                                 @endif
                             </td>
                             <td>
-                                @if ($item->upload_identitas)
-                                    @php
-                                        $encPathId = '';
-                                        try {
-                                            $encPathId = asset(Illuminate\Support\Facades\Crypt::decryptString($item->upload_identitas));
-                                        } catch (\Exception $e) {}
-                                    @endphp
-                                    <div class="d-flex align-items-center gap-1.5">
-                                        <span class="badge-aes-tag badge-aes-green">
-                                            <i class="fas fa-lock me-1"></i>AES
-                                        </span>
-                                        @if ($encPathId)
-                                            <a href="{{ $encPathId }}" 
-                                               download 
-                                               class="btn btn-sm btn-light border" 
-                                               style="padding: 5px 9px; border-radius: 8px; font-size: 11px;"
-                                               title="Unduh Berkas Ciphertext AES Mentah">
-                                                <i class="fas fa-file-arrow-down text-secondary"></i>
-                                            </a>
-                                        @endif
-                                        <button type="button" 
-                                           class="btn-decrypt-identity border-0"
-                                           onclick="bukaModalDekripsi('{{ $item->upload_identitas }}', 'laporan', '{{ $item->id }}', 'Dokumen Identitas', '{{ $item->kode_laporan }}', '{{ $displaySize }}', '{{ $displayWaktuEnkripsi }}')"
-                                           title="Dekripsi Berkas Identitas">
-                                            <i class="fas fa-key"></i> Dekripsi
-                                        </button>
-                                    </div>
-                                @else
-                                    <span class="text-muted fst-italic" style="font-size: 12px;"><i class="fas fa-minus me-1"></i>Kosong</span>
-                                @endif
-                            </td>
-                            <td>
-                                @if ($item->upload_bukti)
-                                    @php
-                                        $encPathBkt = '';
-                                        try {
-                                            $encPathBkt = asset(Illuminate\Support\Facades\Crypt::decryptString($item->upload_bukti));
-                                        } catch (\Exception $e) {}
-                                    @endphp
-                                    <div class="d-flex align-items-center gap-1.5">
-                                        <span class="badge-aes-tag badge-aes-blue">
-                                            <i class="fas fa-lock me-1"></i>AES
-                                        </span>
-                                        @if ($encPathBkt)
-                                            <a href="{{ $encPathBkt }}" 
-                                               download 
-                                               class="btn btn-sm btn-light border" 
-                                               style="padding: 5px 9px; border-radius: 8px; font-size: 11px;"
-                                               title="Unduh Berkas Ciphertext AES Mentah">
-                                                <i class="fas fa-file-arrow-down text-secondary"></i>
-                                            </a>
-                                        @endif
-                                        <button type="button" 
-                                           class="btn-decrypt-evidence border-0"
-                                           onclick="bukaModalDekripsi('{{ $item->upload_bukti }}', 'laporan', '{{ $item->id }}', 'Dokumen Bukti Kejadian', '{{ $item->kode_laporan }}', '{{ $displaySize }}', '{{ $displayWaktuEnkripsi }}')"
-                                           title="Dekripsi Berkas Bukti Kejadian">
-                                            <i class="fas fa-key"></i> Dekripsi
-                                        </button>
-                                    </div>
-                                @else
-                                    <span class="text-muted fst-italic" style="font-size: 12px;"><i class="fas fa-minus me-1"></i>Kosong</span>
-                                @endif
-                            </td>
-                            <td>
                                 @if ($displaySize != '-')
                                     <span class="metric-pill metric-pill-size">
                                         <i class="fas fa-weight-hanging text-muted"></i>
@@ -414,14 +359,69 @@
                                 {{ \Carbon\Carbon::parse($item->created_at)->locale('id')->isoFormat('D MMM Y, HH:mm') }}
                             </td>
                             <td class="text-center">
-                                <a href="{{ route('laporan.show', ['laporan' => $item->kode_laporan]) }}" class="btn-action-detail">
-                                    <i class="fas fa-arrow-up-right-from-square"></i> Detail
-                                </a>
+                                <div class="dropdown position-static">
+                                    <button class="btn btn-sm btn-primary dropdown-toggle rounded-pill px-3 shadow-sm" 
+                                            type="button" 
+                                            data-bs-toggle="dropdown" 
+                                            data-bs-boundary="window"
+                                            aria-expanded="false" 
+                                            style="font-size: 12px; font-weight: 600; background: #4f46e5; border-color: #4f46e5;">
+                                        <i class="fas fa-ellipsis-vertical me-1"></i> Aksi
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3 p-2" style="font-size: 13px; min-width: 210px;">
+                                        <li>
+                                            <h6 class="dropdown-header text-uppercase text-muted" style="font-size: 11px; letter-spacing: 0.5px;">Dokumen Terenkripsi</h6>
+                                        </li>
+                                        @if ($item->upload_identitas)
+                                            <li>
+                                                <button class="dropdown-item py-2 rounded-2 text-success" 
+                                                        type="button" 
+                                                        onclick="bukaModalDekripsi('{{ $item->upload_identitas }}', 'laporan', '{{ $item->id }}', 'Dokumen Identitas', '{{ $item->kode_laporan }}', '{{ $displaySize }}', '{{ $displayWaktuEnkripsi }}')">
+                                                    <i class="fas fa-key me-2 text-success"></i> Dekripsi Identitas
+                                                </button>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item py-2 rounded-2 text-dark" 
+                                                   href="{{ route('adm.download_berkas_enkripsi', ['path' => $item->upload_identitas]) }}">
+                                                    <i class="fas fa-file-code me-2 text-warning"></i> Unduh Identitas (.rda)
+                                                </a>
+                                            </li>
+                                        @endif
+                                        @if ($item->upload_bukti)
+                                            <li>
+                                                <button class="dropdown-item py-2 rounded-2 text-primary" 
+                                                        type="button" 
+                                                        onclick="bukaModalDekripsi('{{ $item->upload_bukti }}', 'laporan', '{{ $item->id }}', 'Dokumen Bukti Kejadian', '{{ $item->kode_laporan }}', '{{ $displaySize }}', '{{ $displayWaktuEnkripsi }}')">
+                                                    <i class="fas fa-key me-2 text-primary"></i> Dekripsi Bukti
+                                                </button>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item py-2 rounded-2 text-dark" 
+                                                   href="{{ route('adm.download_berkas_enkripsi', ['path' => $item->upload_bukti]) }}">
+                                                    <i class="fas fa-file-code me-2 text-warning"></i> Unduh Bukti (.rda)
+                                                </a>
+                                            </li>
+                                        @endif
+                                        <li><hr class="dropdown-divider my-1"></li>
+                                        <li>
+                                            <a class="dropdown-item py-2 rounded-2 fw-semibold text-primary" 
+                                               href="{{ route('adm.kriptografi.cara_kerja', ['kode_laporan' => $item->kode_laporan]) }}">
+                                                <i class="fas fa-microchip me-2 text-primary"></i> Cara Kerja AES
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item py-2 rounded-2 text-secondary" 
+                                               href="{{ route('laporan.show', ['laporan' => $item->kode_laporan]) }}">
+                                                <i class="fas fa-arrow-up-right-from-square me-2 text-muted"></i> Detail Laporan
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="10" class="text-center py-5 text-muted">
+                            <td colspan="8" class="text-center py-5 text-muted">
                                 <div class="py-4">
                                     <i class="fas fa-folder-open fa-3x text-secondary opacity-50 mb-3 d-block"></i>
                                     <h6 class="fw-bold text-dark">Belum Ada Berkas Terenkripsi</h6>
