@@ -22,10 +22,22 @@ class PengaturanController extends Controller
     }
     public function index()
     {
-
         $pagetitle = $this->pagetitle;
 
+        // Pastikan kolom aes_algorithm ada di tabel pengaturan
+        if (!\Illuminate\Support\Facades\Schema::hasColumn('pengaturan', 'aes_algorithm')) {
+            try {
+                \Illuminate\Support\Facades\Schema::table('pengaturan', function (\Illuminate\Database\Schema\Blueprint $table) {
+                    $table->string('aes_algorithm', 20)->default('AES-128')->after('informasi');
+                });
+            } catch (\Exception $e) {}
+        }
+
         $pengaturan = PengaturanModel::orderby('id', 'DESC')->first();
+        if ($pengaturan && empty($pengaturan->aes_algorithm)) {
+            $pengaturan->aes_algorithm = 'AES-128';
+            $pengaturan->save();
+        }
 
         return view('Admin.pengaturan.index', compact('pengaturan', 'pagetitle'));
     }
@@ -72,8 +84,21 @@ class PengaturanController extends Controller
             $file_manual = $this->folder_pengaturan . $fileName;
         }
 
-        if ($request->file('file')) {
+        // Pastikan kolom aes_algorithm ada di tabel pengaturan
+        if (!\Illuminate\Support\Facades\Schema::hasColumn('pengaturan', 'aes_algorithm')) {
+            try {
+                \Illuminate\Support\Facades\Schema::table('pengaturan', function (\Illuminate\Database\Schema\Blueprint $table) {
+                    $table->string('aes_algorithm', 20)->default('AES-128')->after('informasi');
+                });
+            } catch (\Exception $e) {}
+        }
 
+        $aesAlgorithm = $request->input('aes_algorithm', 'AES-128');
+        if (!in_array($aesAlgorithm, ['AES-128', 'AES-256'])) {
+            $aesAlgorithm = 'AES-128';
+        }
+
+        if ($request->file('file')) {
             PengaturanModel::orderby('id', 'DESC')->update([
                 'manual_book'   =>  $file_manual,
                 'nama'  =>  "Swyc",
@@ -83,6 +108,7 @@ class PengaturanController extends Controller
                 'ig'    =>  $request->input('ig'),
                 'email' =>  $request->input('email'),
                 'informasi' =>  $request->input('informasi'),
+                'aes_algorithm' =>  $aesAlgorithm,
                 'updated_at'    =>  Carbon::now()
             ]);
         } else {
@@ -94,6 +120,7 @@ class PengaturanController extends Controller
                 'ig'    =>  $request->input('ig'),
                 'email' =>  $request->input('email'),
                 'informasi' =>  $request->input('informasi'),
+                'aes_algorithm' =>  $aesAlgorithm,
                 'updated_at'    =>  Carbon::now()
             ]);
         }

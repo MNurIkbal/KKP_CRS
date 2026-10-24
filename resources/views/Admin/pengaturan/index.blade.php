@@ -19,6 +19,41 @@
                         <form action="{{ url('adm/update_pengaturan') }}" method="POST" enctype="multipart/form-data">
                             @csrf
                             @method('PUT')
+                            <div class="card mb-4 border" style="border-radius: 14px; background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);">
+                                <div class="card-body p-3 p-md-4">
+                                    <div class="d-flex align-items-center gap-2 mb-2">
+                                        <i class="fas fa-shield-halved text-primary fs-5"></i>
+                                        <h5 class="fw-bold text-dark mb-0">Pengaturan Algoritma Kriptografi Berkas</h5>
+                                    </div>
+                                    <p class="text-muted mb-3" style="font-size: 13px;">
+                                        Pilih spesifikasi algoritma AES yang digunakan saat pelapor mengunggah berkas dokumen identitas dan berkas bukti kekerasan.
+                                    </p>
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <div class="form-check p-3 border rounded-3 h-100" style="background: {{ ($pengaturan->aes_algorithm ?? 'AES-128') == 'AES-128' ? '#eff6ff; border-color: #3b82f6 !important;' : '#ffffff;' }}">
+                                                <input class="form-check-input ms-0 me-2" type="radio" name="aes_algorithm" id="algo_aes_128" value="AES-128" {{ ($pengaturan->aes_algorithm ?? 'AES-128') == 'AES-128' ? 'checked' : '' }}>
+                                                <label class="form-check-label fw-bold text-dark" for="algo_aes_128">
+                                                    AES-128 bit <span class="badge bg-primary ms-1">10 Putaran</span>
+                                                </label>
+                                                <div class="text-muted mt-1" style="font-size: 12px;">
+                                                    Kunci 16 bytes (128-bit), 10 Round. Komputasi sangat cepat dan efisien untuk berkas dokumen standar.
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-check p-3 border rounded-3 h-100" style="background: {{ ($pengaturan->aes_algorithm ?? '') == 'AES-256' ? '#eff6ff; border-color: #3b82f6 !important;' : '#ffffff;' }}">
+                                                <input class="form-check-input ms-0 me-2" type="radio" name="aes_algorithm" id="algo_aes_256" value="AES-256" {{ ($pengaturan->aes_algorithm ?? '') == 'AES-256' ? 'checked' : '' }}>
+                                                <label class="form-check-label fw-bold text-dark" for="algo_aes_256">
+                                                    AES-256 bit <span class="badge bg-success ms-1">14 Putaran (Standar Militer)</span>
+                                                </label>
+                                                <div class="text-muted mt-1" style="font-size: 12px;">
+                                                    Kunci 32 bytes (256-bit SHA-256), 14 Round FIPS 197. Tingkat keamanan enkripsi tertinggi dan tahan komputasi kuantum.
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
 
                             <div class="mb-3">
                                 <label for="">Whatsapp <span class="text-danger">*</span>

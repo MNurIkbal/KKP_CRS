@@ -244,13 +244,35 @@
                                 $waktuEnkripsiLaporan = $laporan->waktu_enkripsi ? $laporan->waktu_enkripsi . ' detik' : 'Instant (< 0.1s)';
                             @endphp
 
+                            @php
+                                $pengaturanAktif = \App\Models\PengaturanModel::orderby('id', 'DESC')->first();
+                                $sistemAlgo = $pengaturanAktif->aes_algorithm ?? 'AES-128';
+                                $laporanAlgo = $laporan->aes_algorithm ?? 'AES-128';
+                                $isAlgoMatch = ($laporanAlgo === $sistemAlgo);
+                            @endphp
+
+                            @if (!$isAlgoMatch)
+                                <div class="col-12">
+                                    <div class="alert alert-warning border-warning d-flex align-items-center gap-3 mb-3 p-3 rounded-3" role="alert">
+                                        <i class="fas fa-triangle-exclamation fs-3 text-warning"></i>
+                                        <div>
+                                            <h6 class="alert-heading fw-bold mb-1">Perbedaan Algoritma Kriptografi Terdeteksi</h6>
+                                            <p class="mb-0 text-dark small">
+                                                Berkas laporan ini dienkripsi menggunakan <strong>{{ $laporanAlgo }}</strong>, sedangkan pengaturan sistem CRS saat ini sedang aktif di <strong>{{ $sistemAlgo }}</strong>. 
+                                                Fitur dekripsi otomatis <strong>dinonaktifkan sementara</strong> demi menjaga integritas data. Silakan hubungi <strong>Administrator / Superadmin</strong> untuk menyesuaikan algoritma ke <strong>{{ $laporanAlgo }}</strong> jika ingin mendekripsi berkas ini.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+
                             @if ($laporan->upload_identitas)
                                 <div class="col-md-6">
                                     <div class="p-3 rounded-3 d-flex align-items-center justify-content-between flex-wrap gap-2" style="background: #f0fdf4; border: 1px solid #bbf7d0;">
                                         <div>
                                             <small class="text-success fw-semibold d-block">Dokumen Identitas (KTP/KTM)</small>
                                             <div class="d-flex align-items-center gap-2 mt-1">
-                                                <span class="fw-bold text-dark"><i class="fas fa-file-shield text-success me-1"></i> AES-256</span>
+                                                <span class="fw-bold text-dark"><i class="fas fa-file-shield text-success me-1"></i> {{ $laporanAlgo }}</span>
                                                 <span class="badge bg-white text-secondary border px-2 py-1"><i class="fas fa-weight-hanging me-1"></i>{{ $identitasSize }}</span>
                                                 <span class="badge bg-warning-subtle text-dark border px-2 py-1"><i class="fas fa-stopwatch me-1"></i>{{ $waktuEnkripsiLaporan }}</span>
                                             </div>
@@ -262,12 +284,18 @@
                                                title="Unduh File Ciphertext AES (.rda)">
                                                 <i class="fas fa-file-code me-1 text-warning"></i> Unduh .RDA
                                             </a>
-                                            <button type="button" 
-                                                onclick="bukaModalDekripsi('{{ $laporan->upload_identitas }}', 'laporan', '{{ $laporan->id }}', 'Dokumen Identitas', '{{ $laporan->kode_laporan }}', '{{ $identitasSize }}', '{{ $waktuEnkripsiLaporan }}')"
-                                                class="btn btn-sm btn-success shadow-sm"
-                                                title="Dekripsi Berkas Identitas dengan Kunci">
-                                                <i class="fas fa-key me-1"></i> Dekripsi
-                                            </button>
+                                            @if ($isAlgoMatch)
+                                                <button type="button" 
+                                                    onclick="bukaModalDekripsi('{{ $laporan->upload_identitas }}', 'laporan', '{{ $laporan->id }}', 'Dokumen Identitas', '{{ $laporan->kode_laporan }}', '{{ $identitasSize }}', '{{ $waktuEnkripsiLaporan }}')"
+                                                    class="btn btn-sm btn-success shadow-sm"
+                                                    title="Dekripsi Berkas Identitas dengan Kunci">
+                                                    <i class="fas fa-key me-1"></i> Dekripsi
+                                                </button>
+                                            @else
+                                                <button type="button" class="btn btn-sm btn-outline-secondary" disabled title="Ubah pengaturan ke {{ $laporanAlgo }} untuk mendekripsi">
+                                                    <i class="fas fa-lock me-1"></i> Terkunci ({{ $laporanAlgo }})
+                                                </button>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>
@@ -279,7 +307,7 @@
                                         <div>
                                             <small class="text-success fw-semibold d-block">Dokumen Bukti Kejadian</small>
                                             <div class="d-flex align-items-center gap-2 mt-1">
-                                                <span class="fw-bold text-dark"><i class="fas fa-file-shield text-success me-1"></i> AES-256</span>
+                                                <span class="fw-bold text-dark"><i class="fas fa-file-shield text-success me-1"></i> {{ $laporanAlgo }}</span>
                                                 <span class="badge bg-white text-secondary border px-2 py-1"><i class="fas fa-weight-hanging me-1"></i>{{ $buktiSize }}</span>
                                                 <span class="badge bg-warning-subtle text-dark border px-2 py-1"><i class="fas fa-stopwatch me-1"></i>{{ $waktuEnkripsiLaporan }}</span>
                                             </div>
@@ -291,12 +319,18 @@
                                                title="Unduh File Ciphertext AES (.rda)">
                                                 <i class="fas fa-file-code me-1 text-warning"></i> Unduh .RDA
                                             </a>
-                                            <button type="button" 
-                                                onclick="bukaModalDekripsi('{{ $laporan->upload_bukti }}', 'laporan', '{{ $laporan->id }}', 'Dokumen Bukti Kejadian', '{{ $laporan->kode_laporan }}', '{{ $buktiSize }}', '{{ $waktuEnkripsiLaporan }}')"
-                                                class="btn btn-sm btn-success shadow-sm"
-                                                title="Dekripsi Berkas Bukti dengan Kunci">
-                                                <i class="fas fa-key me-1"></i> Dekripsi
-                                            </button>
+                                            @if ($isAlgoMatch)
+                                                <button type="button" 
+                                                    onclick="bukaModalDekripsi('{{ $laporan->upload_bukti }}', 'laporan', '{{ $laporan->id }}', 'Dokumen Bukti Kejadian', '{{ $laporan->kode_laporan }}', '{{ $buktiSize }}', '{{ $waktuEnkripsiLaporan }}')"
+                                                    class="btn btn-sm btn-success shadow-sm"
+                                                    title="Dekripsi Berkas Bukti dengan Kunci">
+                                                    <i class="fas fa-key me-1"></i> Dekripsi
+                                                </button>
+                                            @else
+                                                <button type="button" class="btn btn-sm btn-outline-secondary" disabled title="Ubah pengaturan ke {{ $laporanAlgo }} untuk mendekripsi">
+                                                    <i class="fas fa-lock me-1"></i> Terkunci ({{ $laporanAlgo }})
+                                                </button>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>

@@ -459,10 +459,32 @@ class HomeController extends Controller
         }
 
 
-        // Handle password enkripsi file
+        // Handle password dan konfigurasi algoritma enkripsi file dari database
         $passwordFile = $request->input('password_file');
         $laporan->password_file = $passwordFile;
-        $aesKey = substr(md5($passwordFile), 0, 16);
+
+        // Ambil pengaturan algoritma dari database (default AES-128 jika belum diatur)
+        $pengaturanAktif = PengaturanModel::orderby('id', 'DESC')->first();
+        $aesAlgo = $pengaturanAktif->aes_algorithm ?? 'AES-128';
+
+        // Pastikan kolom aes_algorithm ada di tabel laporan untuk audit
+        if (!Schema::hasColumn('laporan', 'aes_algorithm')) {
+            try {
+                Schema::table('laporan', function (\Illuminate\Database\Schema\Blueprint $table) {
+                    $table->string('aes_algorithm', 20)->default('AES-128')->after('password_file');
+                });
+            } catch (\Exception $e) {}
+        }
+        $laporan->aes_algorithm = $aesAlgo;
+
+        // Inisialisasi engine enkripsi sesuai algoritma yang dipilih di Pengaturan
+        if ($aesAlgo === 'AES-256') {
+            $aesKey = hash('sha256', $passwordFile, true); // 32 bytes (256-bit)
+            $aesEngine = new \App\Helpers\AES256($aesKey);
+        } else {
+            $aesKey = substr(md5($passwordFile), 0, 16); // 16 bytes (128-bit)
+            $aesEngine = new \App\Helpers\AES($aesKey);
+        }
 
         $totalEnkripsiTime = 0;
         $totalFileSize = 0;
@@ -476,7 +498,6 @@ class HomeController extends Controller
             $totalFileSize += $fileSize;
 
             $startIdTime = microtime(true);
-            $aes = new \App\Helpers\AES($aesKey);
             $mod = $fileSize % 16;
             $banyak = ($mod == 0) ? ($fileSize / 16) : ((($fileSize - $mod) / 16) + 1);
 
@@ -490,7 +511,7 @@ class HomeController extends Controller
             ini_set('memory_limit', -1);
             for ($bawah = 0; $bawah < $banyak; $bawah++) {
                 $data = fread($fileSource, 16);
-                $cipher = $aes->encrypt($data);
+                $cipher = $aesEngine->encrypt($data);
                 fwrite($fileOutput, $cipher);
             }
             fclose($fileSource);
@@ -509,7 +530,6 @@ class HomeController extends Controller
             $totalFileSize += $fileSize;
 
             $startBuktiTime = microtime(true);
-            $aes = new \App\Helpers\AES($aesKey);
             $mod = $fileSize % 16;
             $banyak = ($mod == 0) ? ($fileSize / 16) : ((($fileSize - $mod) / 16) + 1);
 
@@ -523,7 +543,7 @@ class HomeController extends Controller
             ini_set('memory_limit', -1);
             for ($bawah = 0; $bawah < $banyak; $bawah++) {
                 $data = fread($fileSource, 16);
-                $cipher = $aes->encrypt($data);
+                $cipher = $aesEngine->encrypt($data);
                 fwrite($fileOutput, $cipher);
             }
             fclose($fileSource);
@@ -822,9 +842,32 @@ class HomeController extends Controller
 
         $startTime = microtime(true);
         $fileSize = filesize($fullPath);
-        $hashInput = md5($targetKey);
-        $aesKey = substr($hashInput, 0, 16);
-        $aes = new \App\Helpers\AES($aesKey);
+
+        // Ambil algoritma aktif dari Pengaturan sistem
+        $pengaturanDb = PengaturanModel::orderby('id', 'DESC')->first();
+        $activeAlgo = $pengaturanDb->aes_algorithm ?? 'AES-128';
+
+        // Deteksi algoritma yang digunakan saat berkas ini dienkripsi
+        $fileAlgo = 'AES-128';
+        if ($modelType === 'laporan' && !empty($laporan->aes_algorithm)) {
+            $fileAlgo = $laporan->aes_algorithm;
+        } elseif ($modelType === 'log' && !empty($log->aes_algorithm)) {
+            $fileAlgo = $log->aes_algorithm;
+        }
+
+        // VALIDASI KETAT: Jika algoritma berkas berbeda dengan pengaturan aktif, tolak dekripsi
+        if ($fileAlgo !== $activeAlgo) {
+            return back()->with('error', "Akses Ditolak: Berkas ini dienkripsi menggunakan {$fileAlgo}, sedangkan sistem saat ini sedang disetel aktif ke {$activeAlgo}. Silakan hubungi Superadmin untuk mengubah pengaturan enkripsi sistem kembali ke {$fileAlgo} terlebih dahulu.");
+        }
+
+        if ($fileAlgo === 'AES-256') {
+            $aesKey = hash('sha256', $targetKey, true); // 32 bytes (256-bit)
+            $aesEngine = new \App\Helpers\AES256($aesKey);
+        } else {
+            $hashInput = md5($targetKey);
+            $aesKey = substr($hashInput, 0, 16); // 16 bytes (128-bit)
+            $aesEngine = new \App\Helpers\AES($aesKey);
+        }
         
         $mod = $fileSize % 16;
         $banyak = ($mod == 0) ? ($fileSize / 16) : ((($fileSize - $mod) / 16) + 1);
@@ -836,7 +879,7 @@ class HomeController extends Controller
         ini_set('memory_limit', -1);
         for($bawah=0; $bawah<$banyak; $bawah++){
             $data = fread($fileSource, 16);
-            $plainContent .= $aes->decrypt($data);
+            $plainContent .= $aesEngine->decrypt($data);
         }
         fclose($fileSource);
 

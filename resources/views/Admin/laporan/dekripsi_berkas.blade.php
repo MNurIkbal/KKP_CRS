@@ -331,14 +331,28 @@
                             <td>
                                 <span class="badge-code">{{ $item->kode_laporan }}</span>
                             </td>
-                            <td>
-                                <div class="d-flex align-items-center gap-2">
-                                    <div class="rounded-circle bg-light border d-flex align-items-center justify-content-center text-primary fw-bold" style="width: 32px; height: 32px; font-size: 12px;">
-                                        {{ strtoupper(substr($pelaporNama, 0, 1)) }}
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="rounded-circle bg-light border d-flex align-items-center justify-content-center text-primary fw-bold" style="width: 32px; height: 32px; font-size: 12px;">
+                                            {{ strtoupper(substr($pelaporNama, 0, 1)) }}
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold text-dark">{{ $pelaporNama }}</div>
+                                            @php
+                                                $algo = $item->aes_algorithm ?? 'AES-128';
+                                            @endphp
+                                            @if ($algo === 'AES-256')
+                                                <span class="badge bg-success-subtle text-success border border-success-subtle" style="font-size: 10px; padding: 2px 6px;">
+                                                    <i class="fas fa-shield me-1"></i>AES-256 (14R)
+                                                </span>
+                                            @else
+                                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle" style="font-size: 10px; padding: 2px 6px;">
+                                                    <i class="fas fa-lock me-1"></i>AES-128 (10R)
+                                                </span>
+                                            @endif
+                                        </div>
                                     </div>
-                                    <span class="fw-bold text-dark">{{ $pelaporNama }}</span>
-                                </div>
-                            </td>
+                                </td>
                             <td>
                                 @if ($item->universitasRel)
                                     <div class="d-flex align-items-center gap-1.5 text-slate-700">
@@ -389,14 +403,38 @@
                                         <li>
                                             <h6 class="dropdown-header text-uppercase text-muted" style="font-size: 11px; letter-spacing: 0.5px;">Dokumen Terenkripsi</h6>
                                         </li>
-                                        @if ($item->upload_identitas)
+                                        @php
+                                            $pengaturanAktif = \App\Models\PengaturanModel::orderby('id', 'DESC')->first();
+                                            $sistemAlgo = $pengaturanAktif->aes_algorithm ?? 'AES-128';
+                                            $isAlgoMatch = ($algo === $sistemAlgo);
+                                        @endphp
+
+                                        @if (!$isAlgoMatch)
                                             <li>
-                                                <button class="dropdown-item py-2 rounded-2 text-success" 
-                                                        type="button" 
-                                                        onclick="bukaModalDekripsi('{{ $item->upload_identitas }}', 'laporan', '{{ $item->id }}', 'Dokumen Identitas', '{{ $item->kode_laporan }}', '{{ $displaySize }}', '{{ $displayWaktuEnkripsi }}')">
-                                                    <i class="fas fa-key me-2 text-success"></i> Dekripsi Identitas
-                                                </button>
+                                                <div class="px-3 py-2 my-1 rounded-2 border" style="background: #fffbeb; border-color: #fde68a !important; font-size: 11.5px; line-height: 1.4;">
+                                                    <div class="fw-bold text-warning-emphasis mb-1">
+                                                        <i class="fas fa-triangle-exclamation text-warning me-1"></i> Perbedaan Algoritma
+                                                    </div>
+                                                    <span class="text-secondary">
+                                                        Berkas ini dienkripsi dengan <strong>{{ $algo }}</strong>, sedangkan sistem disetel ke <strong>{{ $sistemAlgo }}</strong>.
+                                                    </span>
+                                                    <div class="mt-1 fw-semibold text-danger" style="font-size: 11px;">
+                                                        Hubungi Admin untuk ubah pengaturan ke {{ $algo }} untuk mendekripsi.
+                                                    </div>
+                                                </div>
                                             </li>
+                                        @endif
+
+                                        @if ($item->upload_identitas)
+                                            @if ($isAlgoMatch)
+                                                <li>
+                                                    <button class="dropdown-item py-2 rounded-2 text-success" 
+                                                            type="button" 
+                                                            onclick="bukaModalDekripsi('{{ $item->upload_identitas }}', 'laporan', '{{ $item->id }}', 'Dokumen Identitas', '{{ $item->kode_laporan }}', '{{ $displaySize }}', '{{ $displayWaktuEnkripsi }}')">
+                                                        <i class="fas fa-key me-2 text-success"></i> Dekripsi Identitas
+                                                    </button>
+                                                </li>
+                                            @endif
                                             <li>
                                                 <a class="dropdown-item py-2 rounded-2 text-dark" 
                                                    href="{{ route('adm.download_berkas_enkripsi', ['path' => $item->upload_identitas]) }}">
@@ -405,13 +443,15 @@
                                             </li>
                                         @endif
                                         @if ($item->upload_bukti)
-                                            <li>
-                                                <button class="dropdown-item py-2 rounded-2 text-primary" 
-                                                        type="button" 
-                                                        onclick="bukaModalDekripsi('{{ $item->upload_bukti }}', 'laporan', '{{ $item->id }}', 'Dokumen Bukti Kejadian', '{{ $item->kode_laporan }}', '{{ $displaySize }}', '{{ $displayWaktuEnkripsi }}')">
-                                                    <i class="fas fa-key me-2 text-primary"></i> Dekripsi Bukti
-                                                </button>
-                                            </li>
+                                            @if ($isAlgoMatch)
+                                                <li>
+                                                    <button class="dropdown-item py-2 rounded-2 text-primary" 
+                                                            type="button" 
+                                                            onclick="bukaModalDekripsi('{{ $item->upload_bukti }}', 'laporan', '{{ $item->id }}', 'Dokumen Bukti Kejadian', '{{ $item->kode_laporan }}', '{{ $displaySize }}', '{{ $displayWaktuEnkripsi }}')">
+                                                        <i class="fas fa-key me-2 text-primary"></i> Dekripsi Bukti
+                                                    </button>
+                                                </li>
+                                            @endif
                                             <li>
                                                 <a class="dropdown-item py-2 rounded-2 text-dark" 
                                                    href="{{ route('adm.download_berkas_enkripsi', ['path' => $item->upload_bukti]) }}">

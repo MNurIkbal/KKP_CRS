@@ -38,7 +38,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::delete('hapus_saran/{id}', [SaranController::class, 'destroy']);
 
         Route::get('pengaturan', [PengaturanController::class, 'index']);
-        Route::put('update_pengaturan', [PengaturanController::class, 'update']);
+        Route::match(['put', 'post'], 'update_pengaturan', [PengaturanController::class, 'update']);
     });
     Route::middleware(['middleware' => 'not_mitra'])->group(function () {
         Route::controller(LaporanGabunganController::class)->group(function () {
