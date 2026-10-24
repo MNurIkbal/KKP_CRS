@@ -1,6 +1,28 @@
 @extends('layouts.Admin.adm')
 
 @section('content')
+<style>
+    .btn-action-gray {
+        background: #f1f5f9 !important;
+        color: #475569 !important;
+        border: 1px solid #cbd5e1 !important;
+        font-weight: 600 !important;
+        font-size: 12px !important;
+        padding: 5px 14px !important;
+        border-radius: 20px !important;
+        transition: all 0.2s ease !important;
+        display: inline-flex;
+        align-items: center;
+    }
+    .btn-action-gray:hover, 
+    .btn-action-gray:focus, 
+    .btn-action-gray[aria-expanded="true"] {
+        background: #e2e8f0 !important;
+        color: #1e293b !important;
+        border-color: #94a3b8 !important;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
+    }
+</style>
 <div id="content" class="main-content">
     <div class="page-content">
         <div class="container-fluid">
