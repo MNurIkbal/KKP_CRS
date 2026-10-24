@@ -5,8 +5,6 @@
     <div class="page-content">
         <div class="container-fluid">
             @include('layouts.Admin.breadcrumbs')
-
-            <!-- Hero Banner -->
             <div class="card border-0 shadow-sm rounded-4 mb-4" style="background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%); color: #ffffff;">
                 <div class="card-body p-4 p-md-5 position-relative overflow-hidden">
                     <div class="row align-items-center">
@@ -29,10 +27,7 @@
                     </div>
                 </div>
             </div>
-
             @include('components.alert')
-
-            <!-- Form Uji Coba Berkas -->
             <div class="card border-0 shadow-sm rounded-4 mb-4">
                 <div class="card-body p-4">
                     <div class="d-flex align-items-center gap-2 mb-3">
@@ -44,7 +39,6 @@
                             <small class="text-muted">Pilih dokumen riil (PDF, PNG, JPG, ZIP) untuk dilakukan benchmark komparatif</small>
                         </div>
                     </div>
-
                     <form id="benchmarkForm" action="{{ route('adm.proses_pengujian_kriptografi') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="row g-3">
@@ -53,7 +47,6 @@
                                 <input type="file" id="testFileInput" name="test_file" class="form-control" required accept=".pdf,.png,.jpeg,.jpg,.zip,.txt,.docx">
                                 <small class="text-muted">Maksimal ukuran berkas 5 MB untuk simulasi cepat.</small>
                             </div>
-
                             <div class="col-md-3">
                                 <label class="form-label fw-bold text-dark">Kunci / Password <span class="text-danger">*</span></label>
                                 <div class="input-group">
@@ -62,7 +55,6 @@
                                 </div>
                                 <small class="text-muted">Digunakan untuk derivasi round keys.</small>
                             </div>
-
                             <div class="col-md-4">
                                 <label class="form-label fw-bold text-dark">Mode Benchmark</label>
                                 <select name="mode_pengujian" id="modePengujianSelect" class="form-select">
@@ -99,7 +91,6 @@
                             </div>
                         </div>
                         <div class="modal-body p-4">
-                            <!-- Realtime Pipeline Steps -->
                             <div class="row g-2 mb-3">
                                 <div class="col-3 text-center">
                                     <div id="stepRead" class="p-2 rounded-3 border" style="background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1) !important;">
@@ -130,8 +121,6 @@
                                     </div>
                                 </div>
                             </div>
-
-                            <!-- Progress Bar -->
                             <div class="mb-3">
                                 <div class="d-flex justify-content-between align-items-center mb-1">
                                     <span class="text-xs text-white-50 fw-semibold" id="procStatusText">Menyiapkan memori buffer berkas...</span>
@@ -141,8 +130,6 @@
                                     <div id="procProgressBar" class="progress-bar progress-bar-striped progress-bar-animated bg-indigo" role="progressbar" style="width: 15%; background: #6366f1;"></div>
                                 </div>
                             </div>
-
-                            <!-- Console Visualizer Live Stream Log -->
                             <div class="p-3 rounded-3 font-monospace" style="background: #020617; border: 1px solid rgba(255,255,255,0.15); max-height: 180px; overflow-y: auto; font-size: 11.5px; line-height: 1.5;">
                                 <div class="text-success"><span class="text-white-50">[{{ date('H:i:s') }}]</span> [INIT] Inisialisasi engine pengujian CRS Kriptografi...</div>
                                 <div id="liveConsoleLog"></div>
@@ -151,10 +138,7 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Tampilkan Hasil Pengujian Jika Ada -->
             @if (isset($results) && !empty($results))
-                <!-- Ringkasan Berkas yang Diuji -->
                 <div class="card border-0 shadow-sm rounded-4 mb-4" style="background: #f8fafc; border: 1px solid #e2e8f0 !important;">
                     <div class="card-body p-4">
                         <h6 class="fw-bold text-dark mb-3"><i class="fas fa-circle-info text-info me-2"></i>Metadata Berkas Pengujian</h6>
@@ -237,7 +221,17 @@
                                     </ul>
 
                                     <div class="p-2 rounded-3 bg-light border mb-3">
-                                        <small class="text-muted text-uppercase fw-bold d-block mb-1" style="font-size: 10px;">Cuplikan 32-Byte Ciphertext (HEX):</small>
+                                        <div class="d-flex align-items-center justify-content-between mb-1">
+                                            <small class="text-muted text-uppercase fw-bold" style="font-size: 10px;">Cuplikan 32-Byte Ciphertext (HEX):</small>
+                                            <div class="d-flex gap-1">
+                                                <button type="button" class="btn btn-xs btn-outline-primary py-0 px-2 rounded-pill" style="font-size: 10px;" onclick="downloadCipherFile('aes128')">
+                                                    <i class="fas fa-file-shield me-1"></i> Unduh Berkas Terenkripsi (.rda)
+                                                </button>
+                                                <button type="button" class="btn btn-xs btn-outline-success py-0 px-2 rounded-pill" style="font-size: 10px;" onclick="downloadPlainFile('aes128')">
+                                                    <i class="fas fa-file-circle-check me-1"></i> Unduh Berkas Terdekripsi
+                                                </button>
+                                            </div>
+                                        </div>
                                         <code class="text-primary small d-block text-break font-monospace" style="font-size: 11px;">{{ $results['aes128']['sample_cipher_hex'] }}</code>
                                     </div>
 
@@ -395,11 +389,19 @@
                                     </ul>
 
                                     <div class="p-2 rounded-3 bg-light border mb-3">
-                                        <small class="text-muted text-uppercase fw-bold d-block mb-1" style="font-size: 10px;">Cuplikan 32-Byte Ciphertext (HEX):</small>
+                                        <div class="d-flex align-items-center justify-content-between mb-1">
+                                            <small class="text-muted text-uppercase fw-bold" style="font-size: 10px;">Cuplikan 32-Byte Ciphertext (HEX):</small>
+                                            <div class="d-flex gap-1">
+                                                <button type="button" class="btn btn-xs btn-outline-success py-0 px-2 rounded-pill" style="font-size: 10px;" onclick="downloadCipherFile('aes256')">
+                                                    <i class="fas fa-file-shield me-1"></i> Unduh Berkas Terenkripsi (.rda)
+                                                </button>
+                                                <button type="button" class="btn btn-xs btn-outline-primary py-0 px-2 rounded-pill" style="font-size: 10px;" onclick="downloadPlainFile('aes256')">
+                                                    <i class="fas fa-file-circle-check me-1"></i> Unduh Berkas Terdekripsi
+                                                </button>
+                                            </div>
+                                        </div>
                                         <code class="text-success small d-block text-break font-monospace" style="font-size: 11px;">{{ $results['aes256']['sample_cipher_hex'] }}</code>
                                     </div>
-
-                                    <!-- Visualisasi Real Data State Matrix 4x4 Blok Pertama (Tab Enkripsi vs Dekripsi) -->
                                     @if (isset($results['aes256']['cipher_matrix']))
                                         <div class="border rounded-3 p-3 bg-white">
                                             <ul class="nav nav-pills nav-fill mb-2 p-1 bg-light rounded-pill" id="pills-tab-256" role="tablist" style="font-size: 11px;">
@@ -414,9 +416,7 @@
                                                     </button>
                                                 </li>
                                             </ul>
-
                                             <div class="tab-content" id="pills-tabContent-256">
-                                                <!-- Tab Enkripsi -->
                                                 <div class="tab-pane fade show active" id="pills-enc-256" role="tabpanel">
                                                     <div class="d-flex align-items-center justify-content-between mb-2">
                                                         <span class="text-xs fw-bold text-uppercase text-secondary">Proses Enkripsi: Plaintext &rarr; Ciphertext</span>
@@ -456,8 +456,6 @@
                                                         <i class="fas fa-shield-halved text-success me-1"></i> Transformasi: <code>AddRoundKey &rarr; (SubBytes &rarr; ShiftRows &rarr; MixColumns &rarr; AddRoundKey)&times;13 &rarr; Final Round</code>
                                                     </small>
                                                 </div>
-
-                                                <!-- Tab Dekripsi -->
                                                 <div class="tab-pane fade" id="pills-dec-256" role="tabpanel">
                                                     <div class="d-flex align-items-center justify-content-between mb-2">
                                                         <span class="text-xs fw-bold text-uppercase text-success">Proses Dekripsi: Ciphertext &rarr; Plaintext</span>
@@ -505,8 +503,6 @@
                         </div>
                     @endif
                 </div>
-
-                <!-- Grafik Komparasi Realtime (ApexCharts) -->
                 @if (isset($results['aes128']) && isset($results['aes256']))
                     <div class="card border-0 shadow-sm rounded-4 mb-4">
                         <div class="card-body p-4">
@@ -529,7 +525,6 @@
                             </div>
                         </div>
                     </div>
-
                     <div class="card border-0 shadow-sm rounded-4 mb-4">
                         <div class="card-body p-4">
                             <h5 class="fw-bold text-dark mb-3"><i class="fas fa-scale-balanced text-primary me-2"></i>Matriks Komparasi Kinerja Kriptografi</h5>
@@ -595,8 +590,6 @@
                     </div>
                 @endif
             @endif
-
-            <!-- Tabel Riwayat Data Pengujian Kriptografi (Tersimpan di Tabel Terpisah: pengujian_kriptografi) -->
             <div class="card border-0 shadow-sm rounded-4 mb-4">
                 <div class="card-body p-4">
                     <div class="d-flex align-items-center justify-content-between mb-3">
