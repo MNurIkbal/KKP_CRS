@@ -45,12 +45,12 @@
                         </div>
                     </div>
 
-                    <form action="{{ route('adm.proses_pengujian_kriptografi') }}" method="POST" enctype="multipart/form-data">
+                    <form id="benchmarkForm" action="{{ route('adm.proses_pengujian_kriptografi') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="row g-3">
                             <div class="col-md-5">
                                 <label class="form-label fw-bold text-dark">Berkas Dokumen Uji <span class="text-danger">*</span></label>
-                                <input type="file" name="test_file" class="form-control" required accept=".pdf,.png,.jpeg,.jpg,.zip,.txt,.docx">
+                                <input type="file" id="testFileInput" name="test_file" class="form-control" required accept=".pdf,.png,.jpeg,.jpg,.zip,.txt,.docx">
                                 <small class="text-muted">Maksimal ukuran berkas 5 MB untuk simulasi cepat.</small>
                             </div>
 
@@ -58,14 +58,14 @@
                                 <label class="form-label fw-bold text-dark">Kunci / Password <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fas fa-key text-muted"></i></span>
-                                    <input type="text" name="password_kunci" class="form-control font-monospace" required placeholder="Contoh: CRS2026Rahasia" value="{{ old('password_kunci', 'CRS2026UjiKripto') }}">
+                                    <input type="text" id="passwordInput" name="password_kunci" class="form-control font-monospace" required placeholder="Contoh: CRS2026Rahasia" value="{{ old('password_kunci', 'CRS2026UjiKripto') }}">
                                 </div>
                                 <small class="text-muted">Digunakan untuk derivasi round keys.</small>
                             </div>
 
                             <div class="col-md-4">
                                 <label class="form-label fw-bold text-dark">Mode Benchmark</label>
-                                <select name="mode_pengujian" class="form-select">
+                                <select name="mode_pengujian" id="modePengujianSelect" class="form-select">
                                     <option value="both" {{ (old('mode_pengujian', $mode ?? 'both')) === 'both' ? 'selected' : '' }}>Komparasi Keduanya (AES-128 vs AES-256)</option>
                                     <option value="aes128" {{ (old('mode_pengujian', $mode ?? '')) === 'aes128' ? 'selected' : '' }}>Hanya AES-128 bit (10 Rounds)</option>
                                     <option value="aes256" {{ (old('mode_pengujian', $mode ?? '')) === 'aes256' ? 'selected' : '' }}>Hanya AES-256 bit (14 Rounds)</option>
@@ -75,11 +75,80 @@
                         </div>
 
                         <div class="mt-4 text-end">
-                            <button type="submit" class="btn btn-primary px-4 py-2 rounded-pill fw-bold shadow-sm" style="background: #4f46e5; border-color: #4f46e5;">
+                            <button type="submit" id="btnSubmitBenchmark" class="btn btn-primary px-4 py-2 rounded-pill fw-bold shadow-sm" style="background: #4f46e5; border-color: #4f46e5;">
                                 <i class="fas fa-play me-1"></i> Mulai Eksekusi Pengujian
                             </button>
                         </div>
                     </form>
+                </div>
+            </div>
+
+            <!-- Modal Realtime Processing Visualizer -->
+            <div class="modal fade" id="modalProcessing" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
+                    <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden" style="background: #0f172a; color: #fff;">
+                        <div class="modal-header border-0 pb-0 pt-4 px-4">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="spinner-grow text-primary" role="status" style="width: 2.2rem; height: 2.2rem;">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <div>
+                                    <h5 class="modal-title fw-bold text-white mb-0" id="procModalTitle">Pemrosesan Komputasi Kriptografi Riil</h5>
+                                    <small class="text-white-50" id="procModalSubtitle">Mengurai blok 16-byte & mengeksekusi transformasi round AES...</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-body p-4">
+                            <!-- Realtime Pipeline Steps -->
+                            <div class="row g-2 mb-3">
+                                <div class="col-3 text-center">
+                                    <div id="stepRead" class="p-2 rounded-3 border" style="background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1) !important;">
+                                        <i class="fas fa-file-binary d-block mb-1 text-info fs-5"></i>
+                                        <small class="text-white fw-bold d-block" style="font-size: 11px;">1. File Stream</small>
+                                        <span id="badgeStepRead" class="badge bg-secondary" style="font-size: 9px;">Menunggu</span>
+                                    </div>
+                                </div>
+                                <div class="col-3 text-center">
+                                    <div id="stepKey" class="p-2 rounded-3 border" style="background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1) !important;">
+                                        <i class="fas fa-key d-block mb-1 text-warning fs-5"></i>
+                                        <small class="text-white fw-bold d-block" style="font-size: 11px;">2. Key Exp</small>
+                                        <span id="badgeStepKey" class="badge bg-secondary" style="font-size: 9px;">Menunggu</span>
+                                    </div>
+                                </div>
+                                <div class="col-3 text-center">
+                                    <div id="stepEnc" class="p-2 rounded-3 border" style="background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1) !important;">
+                                        <i class="fas fa-lock d-block mb-1 text-primary fs-5"></i>
+                                        <small class="text-white fw-bold d-block" style="font-size: 11px;">3. Enkripsi</small>
+                                        <span id="badgeStepEnc" class="badge bg-secondary" style="font-size: 9px;">Menunggu</span>
+                                    </div>
+                                </div>
+                                <div class="col-3 text-center">
+                                    <div id="stepDec" class="p-2 rounded-3 border" style="background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1) !important;">
+                                        <i class="fas fa-unlock-keyhole d-block mb-1 text-success fs-5"></i>
+                                        <small class="text-white fw-bold d-block" style="font-size: 11px;">4. Dekripsi & Uji</small>
+                                        <span id="badgeStepDec" class="badge bg-secondary" style="font-size: 9px;">Menunggu</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Progress Bar -->
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="text-xs text-white-50 fw-semibold" id="procStatusText">Menyiapkan memori buffer berkas...</span>
+                                    <span class="text-xs fw-bold text-warning font-monospace" id="procTimerText">0.00 dtk</span>
+                                </div>
+                                <div class="progress" style="height: 12px; background: rgba(255,255,255,0.1);">
+                                    <div id="procProgressBar" class="progress-bar progress-bar-striped progress-bar-animated bg-indigo" role="progressbar" style="width: 15%; background: #6366f1;"></div>
+                                </div>
+                            </div>
+
+                            <!-- Console Visualizer Live Stream Log -->
+                            <div class="p-3 rounded-3 font-monospace" style="background: #020617; border: 1px solid rgba(255,255,255,0.15); max-height: 180px; overflow-y: auto; font-size: 11.5px; line-height: 1.5;">
+                                <div class="text-success"><span class="text-white-50">[{{ date('H:i:s') }}]</span> [INIT] Inisialisasi engine pengujian CRS Kriptografi...</div>
+                                <div id="liveConsoleLog"></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
