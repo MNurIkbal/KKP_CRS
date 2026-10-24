@@ -1082,8 +1082,41 @@ class LaporanController extends Controller
             'total_blok_16' => ceil($fileSize / 16)
         ];
 
+        // Simpan Hasil Berkas Nyata Pengujian (Cipher .rda & Plaintext Dekripsi)
+        $testStorageDir = storage_path('app/pengujian_kripto');
+        if (!file_exists($testStorageDir)) {
+            @mkdir($testStorageDir, 0777, true);
+        }
+
+        $sessionTestId = time() . '_' . uniqid();
+        $cipher128Path = null;
+        $plain128Path = null;
+        $cipher256Path = null;
+        $plain256Path = null;
+
+        if (isset($cipher128)) {
+            $cipher128File = $testStorageDir . '/' . $sessionTestId . '_aes128_' . $fileName . '.rda';
+            file_put_contents($cipher128File, $cipher128);
+            $cipher128Path = $cipher128File;
+
+            $plain128File = $testStorageDir . '/' . $sessionTestId . '_aes128_dekripsi_' . $fileName;
+            file_put_contents($plain128File, rtrim($plain128, "\0"));
+            $plain128Path = $plain128File;
+        }
+
+        if (isset($cipher256)) {
+            $cipher256File = $testStorageDir . '/' . $sessionTestId . '_aes256_' . $fileName . '.rda';
+            file_put_contents($cipher256File, $cipher256);
+            $cipher256Path = $cipher256File;
+
+            $plain256File = $testStorageDir . '/' . $sessionTestId . '_aes256_dekripsi_' . $fileName;
+            file_put_contents($plain256File, rtrim($plain256, "\0"));
+            $plain256Path = $plain256File;
+        }
+
         // Simpan Hasil Pengujian ke Tabel Terpisah 'pengujian_kriptografi'
         $this->checkPengujianTable();
+        $savedId = null;
         try {
             $savedRecord = \App\Models\PengujianKriptografiModel::create([
                 'nama_file' => $fileName,
@@ -1110,11 +1143,17 @@ class LaporanController extends Controller
                 'aes256_integritas' => isset($results['aes256']) ? $results['aes256']['integritas'] : null,
                 
                 'sample_state_data' => json_encode([
+                    'session_id' => $sessionTestId,
+                    'cipher128_file' => $cipher128Path,
+                    'plain128_file' => $plain128Path,
+                    'cipher256_file' => $cipher256Path,
+                    'plain256_file' => $plain256Path,
                     'aes128_cipher_sample' => $results['aes128']['sample_cipher_hex'] ?? null,
                     'aes256_cipher_sample' => $results['aes256']['sample_cipher_hex'] ?? null,
                 ]),
                 'user_id' => \Illuminate\Support\Facades\Auth::id() ?? null,
             ]);
+            $savedId = $savedRecord->id;
         } catch (\Exception $e) {
             // Abaikan jika ada error penyimpanan log
         }
@@ -1124,6 +1163,37 @@ class LaporanController extends Controller
         $activeAlgo = $pengaturan->aes_algorithm ?? 'AES-128';
         $riwayatPengujian = \App\Models\PengujianKriptografiModel::orderby('id', 'DESC')->get();
 
-        return view('Admin.laporan.pengujian_kriptografi', compact('pagetitle', 'results', 'fileMetadata', 'mode', 'activeAlgo', 'riwayatPengujian'));
+        return view('Admin.laporan.pengujian_kriptografi', compact('pagetitle', 'results', 'fileMetadata', 'mode', 'activeAlgo', 'riwayatPengujian', 'savedId'));
+    }
+
+    /**
+     * Download Berkas Hasil Enkripsi (.rda) atau Hasil Dekripsi Pengujian
+     */
+    public function download_pengujian_file($id, $type, $algo)
+    {
+        $this->checkPengujianTable();
+        $record = \App\Models\PengujianKriptografiModel::findOrFail($id);
+        $stateData = json_decode($record->sample_state_data, true);
+
+        if (!$stateData) {
+            return back()->with('error', 'Metadata berkas pengujian tidak ditemukan.');
+        }
+
+        $fileKey = ($type === 'cipher') ? ($algo . '_file') : ('plain' . substr($algo, 3) . '_file');
+        if (!isset($stateData[$fileKey]) || !file_exists($stateData[$fileKey])) {
+            return back()->with('error', 'File pengujian fisik tidak ditemukan atau sudah dibersihkan.');
+        }
+
+        $filePath = $stateData[$fileKey];
+        $originalName = $record->nama_file;
+        if ($type === 'cipher') {
+            $downloadFilename = pathinfo($originalName, PATHINFO_FILENAME) . '_' . strtoupper($algo) . '.rda';
+            return response()->download($filePath, $downloadFilename, [
+                'Content-Type' => 'application/octet-stream',
+            ]);
+        } else {
+            $downloadFilename = pathinfo($originalName, PATHINFO_FILENAME) . '_HASIL_DEKRIPSI_' . strtoupper($algo) . '.' . pathinfo($originalName, PATHINFO_EXTENSION);
+            return response()->download($filePath, $downloadFilename);
+        }
     }
 }
