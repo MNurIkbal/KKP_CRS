@@ -41,17 +41,36 @@
         box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05);
     }
     .table-responsive {
-        overflow-x: visible !important;
-        padding-bottom: 90px;
+        overflow-x: auto;
+        overflow-y: visible !important;
+        padding-bottom: 70px;
     }
-    @media (max-width: 991.98px) {
-        .table-responsive {
-            overflow-x: auto !important;
-        }
+    .dropdown {
+        position: relative !important;
     }
     .dropdown-menu {
         z-index: 1060 !important;
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
+        margin-top: 4px !important;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.08) !important;
+        border: 1px solid #e2e8f0 !important;
+    }
+    .btn-action-gray {
+        background: #f1f5f9 !important;
+        color: #475569 !important;
+        border: 1px solid #cbd5e1 !important;
+        font-weight: 600 !important;
+        font-size: 12px !important;
+        padding: 5px 14px !important;
+        border-radius: 20px !important;
+        transition: all 0.2s ease !important;
+    }
+    .btn-action-gray:hover, 
+    .btn-action-gray:focus, 
+    .btn-action-gray[aria-expanded="true"] {
+        background: #e2e8f0 !important;
+        color: #1e293b !important;
+        border-color: #94a3b8 !important;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
     }
     .table-dekripsi thead th {
         background: #f8fafc !important;
@@ -359,14 +378,12 @@
                                 {{ \Carbon\Carbon::parse($item->created_at)->locale('id')->isoFormat('D MMM Y, HH:mm') }}
                             </td>
                             <td class="text-center">
-                                <div class="dropdown position-static">
-                                    <button class="btn btn-sm btn-primary dropdown-toggle rounded-pill px-3 shadow-sm" 
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-action-gray dropdown-toggle" 
                                             type="button" 
                                             data-bs-toggle="dropdown" 
-                                            data-bs-boundary="window"
-                                            aria-expanded="false" 
-                                            style="font-size: 12px; font-weight: 600; background: #4f46e5; border-color: #4f46e5;">
-                                        <i class="fas fa-ellipsis-vertical me-1"></i> Aksi
+                                            aria-expanded="false">
+                                        <i class="fas fa-ellipsis-vertical me-1 text-muted"></i> Aksi
                                     </button>
                                     <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3 p-2" style="font-size: 13px; min-width: 210px;">
                                         <li>

@@ -5,10 +5,6 @@
 @php
 use Carbon\Carbon;
 @endphp
-    <!-- Start right Content here -->
-
-    <!-- ============================================================== -->
-
     <div class="main-content">
 
         <div class="page-content">
